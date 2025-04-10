@@ -916,32 +916,33 @@
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>    <span class=n>queue</span><span class=p>,</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>    <span class=n>exchange</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a>    <span class=o>*</span><span class=p>,</span>
-<a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>consume_args</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>reply_config</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>    <span class=n>dependencies</span><span class=o>=</span><span class=p>(),</span>
-<a id=__codelineno-0-8 name=__codelineno-0-8 href=#__codelineno-0-8></a>    <span class=n>parser</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a>    <span class=n>decoder</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>    <span class=n>middlewares</span><span class=o>=</span><span class=p>(),</span>
-<a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a>    <span class=nb>filter</span><span class=o>=</span><span class=n><a class="autorefs autorefs-internal" title="            faststream.broker.utils.default_filter
+<a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>channel</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>consume_args</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>    <span class=n>reply_config</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-8 name=__codelineno-0-8 href=#__codelineno-0-8></a>    <span class=n>dependencies</span><span class=o>=</span><span class=p>(),</span>
+<a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a>    <span class=n>parser</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>    <span class=n>decoder</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a>    <span class=n>middlewares</span><span class=o>=</span><span class=p>(),</span>
+<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a>    <span class=nb>filter</span><span class=o>=</span><span class=n><a class="autorefs autorefs-internal" title="            faststream.broker.utils.default_filter
 
 
   
       async
   " href=../../../../../../api/faststream/broker/utils/default_filter/#faststream.broker.utils.default_filter>default_filter</a></span><span class=p>,</span>
-<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a>    <span class=n>retry</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=n>no_ack</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>    <span class=n>no_reply</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a>    <span class=n>title</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-16 name=__codelineno-0-16 href=#__codelineno-0-16></a>    <span class=n>description</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-17 name=__codelineno-0-17 href=#__codelineno-0-17></a>    <span class=n>include_in_schema</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-18 name=__codelineno-0-18 href=#__codelineno-0-18></a>    <span class=n>response_model</span><span class=o>=</span><span class=n><span title=fastapi.datastructures.Default>Default</span></span><span class=p>(</span><span class=kc>None</span><span class=p>),</span>
-<a id=__codelineno-0-19 name=__codelineno-0-19 href=#__codelineno-0-19></a>    <span class=n>response_model_include</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-20 name=__codelineno-0-20 href=#__codelineno-0-20></a>    <span class=n>response_model_exclude</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-21 name=__codelineno-0-21 href=#__codelineno-0-21></a>    <span class=n>response_model_by_alias</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-22 name=__codelineno-0-22 href=#__codelineno-0-22></a>    <span class=n>response_model_exclude_unset</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-23 name=__codelineno-0-23 href=#__codelineno-0-23></a>    <span class=n>response_model_exclude_defaults</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>response_model_exclude_none</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a><span class=p>)</span>
+<a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=n>retry</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>    <span class=n>no_ack</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a>    <span class=n>no_reply</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-16 name=__codelineno-0-16 href=#__codelineno-0-16></a>    <span class=n>title</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-17 name=__codelineno-0-17 href=#__codelineno-0-17></a>    <span class=n>description</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-18 name=__codelineno-0-18 href=#__codelineno-0-18></a>    <span class=n>include_in_schema</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-19 name=__codelineno-0-19 href=#__codelineno-0-19></a>    <span class=n>response_model</span><span class=o>=</span><span class=n><span title=fastapi.datastructures.Default>Default</span></span><span class=p>(</span><span class=kc>None</span><span class=p>),</span>
+<a id=__codelineno-0-20 name=__codelineno-0-20 href=#__codelineno-0-20></a>    <span class=n>response_model_include</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-21 name=__codelineno-0-21 href=#__codelineno-0-21></a>    <span class=n>response_model_exclude</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-22 name=__codelineno-0-22 href=#__codelineno-0-22></a>    <span class=n>response_model_by_alias</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-23 name=__codelineno-0-23 href=#__codelineno-0-23></a>    <span class=n>response_model_exclude_unset</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>response_model_exclude_defaults</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>response_model_exclude_none</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/rabbit/fastapi/router.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-478>478</a></span>
 <span class=normal><a href=#__codelineno-0-479>479</a></span>
 <span class=normal><a href=#__codelineno-0-480>480</a></span>
@@ -1185,7 +1186,9 @@
 <span class=normal><a href=#__codelineno-0-718>718</a></span>
 <span class=normal><a href=#__codelineno-0-719>719</a></span>
 <span class=normal><a href=#__codelineno-0-720>720</a></span>
-<span class=normal><a href=#__codelineno-0-721>721</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-478 name=__codelineno-0-478></a><span class=nd>@override</span>
+<span class=normal><a href=#__codelineno-0-721>721</a></span>
+<span class=normal><a href=#__codelineno-0-722>722</a></span>
+<span class=normal><a href=#__codelineno-0-723>723</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-478 name=__codelineno-0-478></a><span class=nd>@override</span>
 <a id=__codelineno-0-479 name=__codelineno-0-479></a><span class=k>def</span><span class=w> </span><span class=nf>subscriber</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-480 name=__codelineno-0-480></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-481 name=__codelineno-0-481></a>    <span class=n>queue</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
@@ -1204,231 +1207,233 @@
 <a id=__codelineno-0-494 name=__codelineno-0-494></a>        <span class=p>),</span>
 <a id=__codelineno-0-495 name=__codelineno-0-495></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-496 name=__codelineno-0-496></a>    <span class=o>*</span><span class=p>,</span>
-<a id=__codelineno-0-497 name=__codelineno-0-497></a>    <span class=n>consume_args</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-498 name=__codelineno-0-498></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-499 name=__codelineno-0-499></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Extra consumer arguments to use in `queue.consume(...)` method.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-500 name=__codelineno-0-500></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-501 name=__codelineno-0-501></a>    <span class=n>reply_config</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-502 name=__codelineno-0-502></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;ReplyConfig&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-503 name=__codelineno-0-503></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Extra options to use at replies publishing.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-504 name=__codelineno-0-504></a>        <span class=n>deprecated</span><span class=p>(</span>
-<a id=__codelineno-0-505 name=__codelineno-0-505></a>            <span class=s2>&quot;Deprecated in **FastStream 0.5.16**. &quot;</span>
-<a id=__codelineno-0-506 name=__codelineno-0-506></a>            <span class=s2>&quot;Please, use `RabbitResponse` object as a handler return instead. &quot;</span>
-<a id=__codelineno-0-507 name=__codelineno-0-507></a>            <span class=s2>&quot;Argument will be removed in **FastStream 0.6.0**.&quot;</span>
-<a id=__codelineno-0-508 name=__codelineno-0-508></a>        <span class=p>),</span>
-<a id=__codelineno-0-509 name=__codelineno-0-509></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-510 name=__codelineno-0-510></a>    <span class=c1># broker arguments</span>
-<a id=__codelineno-0-511 name=__codelineno-0-511></a>    <span class=n>dependencies</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-512 name=__codelineno-0-512></a>        <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;params.Depends&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-513 name=__codelineno-0-513></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Dependencies list (`[Depends(),]`) to apply to the subscriber.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-514 name=__codelineno-0-514></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
-<a id=__codelineno-0-515 name=__codelineno-0-515></a>    <span class=n>parser</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-516 name=__codelineno-0-516></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-517 name=__codelineno-0-517></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-518 name=__codelineno-0-518></a>            <span class=s2>&quot;Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one.&quot;</span>
-<a id=__codelineno-0-519 name=__codelineno-0-519></a>        <span class=p>),</span>
-<a id=__codelineno-0-520 name=__codelineno-0-520></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-521 name=__codelineno-0-521></a>    <span class=n>decoder</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-522 name=__codelineno-0-522></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-523 name=__codelineno-0-523></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Function to decode FastStream msg bytes body to python objects.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-524 name=__codelineno-0-524></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-525 name=__codelineno-0-525></a>    <span class=n>middlewares</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-526 name=__codelineno-0-526></a>        <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SubscriberMiddleware[RabbitMessage]&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-527 name=__codelineno-0-527></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Subscriber middlewares to wrap incoming message processing.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-528 name=__codelineno-0-528></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
-<a id=__codelineno-0-529 name=__codelineno-0-529></a>    <span class=nb>filter</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-530 name=__codelineno-0-530></a>        <span class=s2>&quot;Filter[RabbitMessage]&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-531 name=__codelineno-0-531></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-532 name=__codelineno-0-532></a>            <span class=s2>&quot;Overload subscriber to consume various messages from the same source.&quot;</span>
-<a id=__codelineno-0-533 name=__codelineno-0-533></a>        <span class=p>),</span>
-<a id=__codelineno-0-534 name=__codelineno-0-534></a>        <span class=n>deprecated</span><span class=p>(</span>
-<a id=__codelineno-0-535 name=__codelineno-0-535></a>            <span class=s2>&quot;Deprecated in **FastStream 0.5.0**. &quot;</span>
-<a id=__codelineno-0-536 name=__codelineno-0-536></a>            <span class=s2>&quot;Please, create `subscriber` object and use it explicitly instead. &quot;</span>
-<a id=__codelineno-0-537 name=__codelineno-0-537></a>            <span class=s2>&quot;Argument will be removed in **FastStream 0.6.0**.&quot;</span>
-<a id=__codelineno-0-538 name=__codelineno-0-538></a>        <span class=p>),</span>
-<a id=__codelineno-0-539 name=__codelineno-0-539></a>    <span class=p>]</span> <span class=o>=</span> <span class=n>default_filter</span><span class=p>,</span>
-<a id=__codelineno-0-540 name=__codelineno-0-540></a>    <span class=n>retry</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-541 name=__codelineno-0-541></a>        <span class=n>Union</span><span class=p>[</span><span class=nb>bool</span><span class=p>,</span> <span class=nb>int</span><span class=p>],</span>
-<a id=__codelineno-0-542 name=__codelineno-0-542></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whether to `nack` message at processing exception.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-543 name=__codelineno-0-543></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-544 name=__codelineno-0-544></a>    <span class=n>no_ack</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-545 name=__codelineno-0-545></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-546 name=__codelineno-0-546></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whether to disable **FastStream** autoacknowledgement logic or not.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-547 name=__codelineno-0-547></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-548 name=__codelineno-0-548></a>    <span class=n>no_reply</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-549 name=__codelineno-0-549></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-550 name=__codelineno-0-550></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-551 name=__codelineno-0-551></a>            <span class=s2>&quot;Whether to disable **FastStream** RPC and Reply To auto responses or not.&quot;</span>
-<a id=__codelineno-0-552 name=__codelineno-0-552></a>        <span class=p>),</span>
-<a id=__codelineno-0-553 name=__codelineno-0-553></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-554 name=__codelineno-0-554></a>    <span class=c1># AsyncAPI information</span>
-<a id=__codelineno-0-555 name=__codelineno-0-555></a>    <span class=n>title</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-556 name=__codelineno-0-556></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-557 name=__codelineno-0-557></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;AsyncAPI subscriber object title.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-558 name=__codelineno-0-558></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-559 name=__codelineno-0-559></a>    <span class=n>description</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-560 name=__codelineno-0-560></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-561 name=__codelineno-0-561></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-562 name=__codelineno-0-562></a>            <span class=s2>&quot;AsyncAPI subscriber object description. &quot;</span>
-<a id=__codelineno-0-563 name=__codelineno-0-563></a>            <span class=s2>&quot;Uses decorated docstring as default.&quot;</span>
-<a id=__codelineno-0-564 name=__codelineno-0-564></a>        <span class=p>),</span>
-<a id=__codelineno-0-565 name=__codelineno-0-565></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-566 name=__codelineno-0-566></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-567 name=__codelineno-0-567></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-568 name=__codelineno-0-568></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whetever to include operation in AsyncAPI schema or not.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-569 name=__codelineno-0-569></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-570 name=__codelineno-0-570></a>    <span class=c1># FastAPI args</span>
-<a id=__codelineno-0-571 name=__codelineno-0-571></a>    <span class=n>response_model</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-572 name=__codelineno-0-572></a>        <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-573 name=__codelineno-0-573></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-574 name=__codelineno-0-574></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-575 name=__codelineno-0-575></a><span class=sd>            The type to use for the response.</span>
-<a id=__codelineno-0-576 name=__codelineno-0-576></a>
-<a id=__codelineno-0-577 name=__codelineno-0-577></a><span class=sd>            It could be any valid Pydantic *field* type. So, it doesn&#39;t have to</span>
-<a id=__codelineno-0-578 name=__codelineno-0-578></a><span class=sd>            be a Pydantic model, it could be other things, like a `list`, `dict`,</span>
-<a id=__codelineno-0-579 name=__codelineno-0-579></a><span class=sd>            etc.</span>
-<a id=__codelineno-0-580 name=__codelineno-0-580></a>
-<a id=__codelineno-0-581 name=__codelineno-0-581></a><span class=sd>            It will be used for:</span>
-<a id=__codelineno-0-582 name=__codelineno-0-582></a>
-<a id=__codelineno-0-583 name=__codelineno-0-583></a><span class=sd>            * Documentation: the generated OpenAPI (and the UI at `/docs`) will</span>
-<a id=__codelineno-0-584 name=__codelineno-0-584></a><span class=sd>                show it as the response (JSON Schema).</span>
-<a id=__codelineno-0-585 name=__codelineno-0-585></a><span class=sd>            * Serialization: you could return an arbitrary object and the</span>
-<a id=__codelineno-0-586 name=__codelineno-0-586></a><span class=sd>                `response_model` would be used to serialize that object into the</span>
-<a id=__codelineno-0-587 name=__codelineno-0-587></a><span class=sd>                corresponding JSON.</span>
-<a id=__codelineno-0-588 name=__codelineno-0-588></a><span class=sd>            * Filtering: the JSON sent to the client will only contain the data</span>
-<a id=__codelineno-0-589 name=__codelineno-0-589></a><span class=sd>                (fields) defined in the `response_model`. If you returned an object</span>
-<a id=__codelineno-0-590 name=__codelineno-0-590></a><span class=sd>                that contains an attribute `password` but the `response_model` does</span>
-<a id=__codelineno-0-591 name=__codelineno-0-591></a><span class=sd>                not include that field, the JSON sent to the client would not have</span>
-<a id=__codelineno-0-592 name=__codelineno-0-592></a><span class=sd>                that `password`.</span>
-<a id=__codelineno-0-593 name=__codelineno-0-593></a><span class=sd>            * Validation: whatever you return will be serialized with the</span>
-<a id=__codelineno-0-594 name=__codelineno-0-594></a><span class=sd>                `response_model`, converting any data as necessary to generate the</span>
-<a id=__codelineno-0-595 name=__codelineno-0-595></a><span class=sd>                corresponding JSON. But if the data in the object returned is not</span>
-<a id=__codelineno-0-596 name=__codelineno-0-596></a><span class=sd>                valid, that would mean a violation of the contract with the client,</span>
-<a id=__codelineno-0-597 name=__codelineno-0-597></a><span class=sd>                so it&#39;s an error from the API developer. So, FastAPI will raise an</span>
-<a id=__codelineno-0-598 name=__codelineno-0-598></a><span class=sd>                error and return a 500 error code (Internal Server Error).</span>
-<a id=__codelineno-0-599 name=__codelineno-0-599></a>
-<a id=__codelineno-0-600 name=__codelineno-0-600></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-601 name=__codelineno-0-601></a><span class=sd>            [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).</span>
-<a id=__codelineno-0-602 name=__codelineno-0-602></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-603 name=__codelineno-0-603></a>        <span class=p>),</span>
-<a id=__codelineno-0-604 name=__codelineno-0-604></a>    <span class=p>]</span> <span class=o>=</span> <span class=n>Default</span><span class=p>(</span><span class=kc>None</span><span class=p>),</span>
-<a id=__codelineno-0-605 name=__codelineno-0-605></a>    <span class=n>response_model_include</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-606 name=__codelineno-0-606></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;IncEx&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-607 name=__codelineno-0-607></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-608 name=__codelineno-0-608></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-609 name=__codelineno-0-609></a><span class=sd>            Configuration passed to Pydantic to include only certain fields in the</span>
-<a id=__codelineno-0-610 name=__codelineno-0-610></a><span class=sd>            response data.</span>
-<a id=__codelineno-0-611 name=__codelineno-0-611></a>
-<a id=__codelineno-0-612 name=__codelineno-0-612></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-613 name=__codelineno-0-613></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).</span>
-<a id=__codelineno-0-614 name=__codelineno-0-614></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-615 name=__codelineno-0-615></a>        <span class=p>),</span>
-<a id=__codelineno-0-616 name=__codelineno-0-616></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-617 name=__codelineno-0-617></a>    <span class=n>response_model_exclude</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-618 name=__codelineno-0-618></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;IncEx&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-619 name=__codelineno-0-619></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-620 name=__codelineno-0-620></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-621 name=__codelineno-0-621></a><span class=sd>            Configuration passed to Pydantic to exclude certain fields in the</span>
-<a id=__codelineno-0-622 name=__codelineno-0-622></a><span class=sd>            response data.</span>
-<a id=__codelineno-0-623 name=__codelineno-0-623></a>
-<a id=__codelineno-0-624 name=__codelineno-0-624></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-625 name=__codelineno-0-625></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).</span>
-<a id=__codelineno-0-626 name=__codelineno-0-626></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-627 name=__codelineno-0-627></a>        <span class=p>),</span>
-<a id=__codelineno-0-628 name=__codelineno-0-628></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-629 name=__codelineno-0-629></a>    <span class=n>response_model_by_alias</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-630 name=__codelineno-0-630></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-631 name=__codelineno-0-631></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-632 name=__codelineno-0-632></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-633 name=__codelineno-0-633></a><span class=sd>            Configuration passed to Pydantic to define if the response model</span>
-<a id=__codelineno-0-634 name=__codelineno-0-634></a><span class=sd>            should be serialized by alias when an alias is used.</span>
-<a id=__codelineno-0-635 name=__codelineno-0-635></a>
-<a id=__codelineno-0-636 name=__codelineno-0-636></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-637 name=__codelineno-0-637></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).</span>
-<a id=__codelineno-0-638 name=__codelineno-0-638></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-639 name=__codelineno-0-639></a>        <span class=p>),</span>
-<a id=__codelineno-0-640 name=__codelineno-0-640></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-641 name=__codelineno-0-641></a>    <span class=n>response_model_exclude_unset</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-642 name=__codelineno-0-642></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-643 name=__codelineno-0-643></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-644 name=__codelineno-0-644></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-645 name=__codelineno-0-645></a><span class=sd>            Configuration passed to Pydantic to define if the response data</span>
-<a id=__codelineno-0-646 name=__codelineno-0-646></a><span class=sd>            should have all the fields, including the ones that were not set and</span>
-<a id=__codelineno-0-647 name=__codelineno-0-647></a><span class=sd>            have their default values. This is different from</span>
-<a id=__codelineno-0-648 name=__codelineno-0-648></a><span class=sd>            `response_model_exclude_defaults` in that if the fields are set,</span>
-<a id=__codelineno-0-649 name=__codelineno-0-649></a><span class=sd>            they will be included in the response, even if the value is the same</span>
-<a id=__codelineno-0-650 name=__codelineno-0-650></a><span class=sd>            as the default.</span>
-<a id=__codelineno-0-651 name=__codelineno-0-651></a>
-<a id=__codelineno-0-652 name=__codelineno-0-652></a><span class=sd>            When `True`, default values are omitted from the response.</span>
-<a id=__codelineno-0-653 name=__codelineno-0-653></a>
-<a id=__codelineno-0-654 name=__codelineno-0-654></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-655 name=__codelineno-0-655></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).</span>
-<a id=__codelineno-0-656 name=__codelineno-0-656></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-657 name=__codelineno-0-657></a>        <span class=p>),</span>
-<a id=__codelineno-0-658 name=__codelineno-0-658></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-659 name=__codelineno-0-659></a>    <span class=n>response_model_exclude_defaults</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-660 name=__codelineno-0-660></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-661 name=__codelineno-0-661></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-662 name=__codelineno-0-662></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-663 name=__codelineno-0-663></a><span class=sd>            Configuration passed to Pydantic to define if the response data</span>
-<a id=__codelineno-0-664 name=__codelineno-0-664></a><span class=sd>            should have all the fields, including the ones that have the same value</span>
-<a id=__codelineno-0-665 name=__codelineno-0-665></a><span class=sd>            as the default. This is different from `response_model_exclude_unset`</span>
-<a id=__codelineno-0-666 name=__codelineno-0-666></a><span class=sd>            in that if the fields are set but contain the same default values,</span>
-<a id=__codelineno-0-667 name=__codelineno-0-667></a><span class=sd>            they will be excluded from the response.</span>
-<a id=__codelineno-0-668 name=__codelineno-0-668></a>
-<a id=__codelineno-0-669 name=__codelineno-0-669></a><span class=sd>            When `True`, default values are omitted from the response.</span>
-<a id=__codelineno-0-670 name=__codelineno-0-670></a>
-<a id=__codelineno-0-671 name=__codelineno-0-671></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-672 name=__codelineno-0-672></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).</span>
-<a id=__codelineno-0-673 name=__codelineno-0-673></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-674 name=__codelineno-0-674></a>        <span class=p>),</span>
-<a id=__codelineno-0-675 name=__codelineno-0-675></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-676 name=__codelineno-0-676></a>    <span class=n>response_model_exclude_none</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-677 name=__codelineno-0-677></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-678 name=__codelineno-0-678></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-679 name=__codelineno-0-679></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-680 name=__codelineno-0-680></a><span class=sd>            Configuration passed to Pydantic to define if the response data should</span>
-<a id=__codelineno-0-681 name=__codelineno-0-681></a><span class=sd>            exclude fields set to `None`.</span>
-<a id=__codelineno-0-682 name=__codelineno-0-682></a>
-<a id=__codelineno-0-683 name=__codelineno-0-683></a><span class=sd>            This is much simpler (less smart) than `response_model_exclude_unset`</span>
-<a id=__codelineno-0-684 name=__codelineno-0-684></a><span class=sd>            and `response_model_exclude_defaults`. You probably want to use one of</span>
-<a id=__codelineno-0-685 name=__codelineno-0-685></a><span class=sd>            those two instead of this one, as those allow returning `None` values</span>
-<a id=__codelineno-0-686 name=__codelineno-0-686></a><span class=sd>            when it makes sense.</span>
-<a id=__codelineno-0-687 name=__codelineno-0-687></a>
-<a id=__codelineno-0-688 name=__codelineno-0-688></a><span class=sd>            Read more about it in the</span>
-<a id=__codelineno-0-689 name=__codelineno-0-689></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).</span>
-<a id=__codelineno-0-690 name=__codelineno-0-690></a><span class=sd>            &quot;&quot;&quot;</span>
-<a id=__codelineno-0-691 name=__codelineno-0-691></a>        <span class=p>),</span>
-<a id=__codelineno-0-692 name=__codelineno-0-692></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-693 name=__codelineno-0-693></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>AsyncAPISubscriber</span><span class=p>:</span>
-<a id=__codelineno-0-694 name=__codelineno-0-694></a>    <span class=k>return</span> <span class=n>cast</span><span class=p>(</span>
-<a id=__codelineno-0-695 name=__codelineno-0-695></a>        <span class=s2>&quot;AsyncAPISubscriber&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-696 name=__codelineno-0-696></a>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span>
-<a id=__codelineno-0-697 name=__codelineno-0-697></a>            <span class=n>queue</span><span class=o>=</span><span class=n>queue</span><span class=p>,</span>
-<a id=__codelineno-0-698 name=__codelineno-0-698></a>            <span class=n>exchange</span><span class=o>=</span><span class=n>exchange</span><span class=p>,</span>
-<a id=__codelineno-0-699 name=__codelineno-0-699></a>            <span class=n>consume_args</span><span class=o>=</span><span class=n>consume_args</span><span class=p>,</span>
-<a id=__codelineno-0-700 name=__codelineno-0-700></a>            <span class=n>reply_config</span><span class=o>=</span><span class=n>reply_config</span><span class=p>,</span>
-<a id=__codelineno-0-701 name=__codelineno-0-701></a>            <span class=n>dependencies</span><span class=o>=</span><span class=n>dependencies</span><span class=p>,</span>
-<a id=__codelineno-0-702 name=__codelineno-0-702></a>            <span class=n>parser</span><span class=o>=</span><span class=n>parser</span><span class=p>,</span>
-<a id=__codelineno-0-703 name=__codelineno-0-703></a>            <span class=n>decoder</span><span class=o>=</span><span class=n>decoder</span><span class=p>,</span>
-<a id=__codelineno-0-704 name=__codelineno-0-704></a>            <span class=n>middlewares</span><span class=o>=</span><span class=n>middlewares</span><span class=p>,</span>
-<a id=__codelineno-0-705 name=__codelineno-0-705></a>            <span class=nb>filter</span><span class=o>=</span><span class=nb>filter</span><span class=p>,</span>
-<a id=__codelineno-0-706 name=__codelineno-0-706></a>            <span class=n>retry</span><span class=o>=</span><span class=n>retry</span><span class=p>,</span>
-<a id=__codelineno-0-707 name=__codelineno-0-707></a>            <span class=n>no_ack</span><span class=o>=</span><span class=n>no_ack</span><span class=p>,</span>
-<a id=__codelineno-0-708 name=__codelineno-0-708></a>            <span class=n>no_reply</span><span class=o>=</span><span class=n>no_reply</span><span class=p>,</span>
-<a id=__codelineno-0-709 name=__codelineno-0-709></a>            <span class=n>title</span><span class=o>=</span><span class=n>title</span><span class=p>,</span>
-<a id=__codelineno-0-710 name=__codelineno-0-710></a>            <span class=n>description</span><span class=o>=</span><span class=n>description</span><span class=p>,</span>
-<a id=__codelineno-0-711 name=__codelineno-0-711></a>            <span class=n>include_in_schema</span><span class=o>=</span><span class=n>include_in_schema</span><span class=p>,</span>
-<a id=__codelineno-0-712 name=__codelineno-0-712></a>            <span class=c1># FastAPI args</span>
-<a id=__codelineno-0-713 name=__codelineno-0-713></a>            <span class=n>response_model</span><span class=o>=</span><span class=n>response_model</span><span class=p>,</span>
-<a id=__codelineno-0-714 name=__codelineno-0-714></a>            <span class=n>response_model_include</span><span class=o>=</span><span class=n>response_model_include</span><span class=p>,</span>
-<a id=__codelineno-0-715 name=__codelineno-0-715></a>            <span class=n>response_model_exclude</span><span class=o>=</span><span class=n>response_model_exclude</span><span class=p>,</span>
-<a id=__codelineno-0-716 name=__codelineno-0-716></a>            <span class=n>response_model_by_alias</span><span class=o>=</span><span class=n>response_model_by_alias</span><span class=p>,</span>
-<a id=__codelineno-0-717 name=__codelineno-0-717></a>            <span class=n>response_model_exclude_unset</span><span class=o>=</span><span class=n>response_model_exclude_unset</span><span class=p>,</span>
-<a id=__codelineno-0-718 name=__codelineno-0-718></a>            <span class=n>response_model_exclude_defaults</span><span class=o>=</span><span class=n>response_model_exclude_defaults</span><span class=p>,</span>
-<a id=__codelineno-0-719 name=__codelineno-0-719></a>            <span class=n>response_model_exclude_none</span><span class=o>=</span><span class=n>response_model_exclude_none</span><span class=p>,</span>
-<a id=__codelineno-0-720 name=__codelineno-0-720></a>        <span class=p>),</span>
-<a id=__codelineno-0-721 name=__codelineno-0-721></a>    <span class=p>)</span>
+<a id=__codelineno-0-497 name=__codelineno-0-497></a>    <span class=n>channel</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;Channel&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-498 name=__codelineno-0-498></a>    <span class=n>consume_args</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-499 name=__codelineno-0-499></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-500 name=__codelineno-0-500></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Extra consumer arguments to use in `queue.consume(...)` method.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-501 name=__codelineno-0-501></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-502 name=__codelineno-0-502></a>    <span class=n>reply_config</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-503 name=__codelineno-0-503></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;ReplyConfig&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-504 name=__codelineno-0-504></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Extra options to use at replies publishing.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-505 name=__codelineno-0-505></a>        <span class=n>deprecated</span><span class=p>(</span>
+<a id=__codelineno-0-506 name=__codelineno-0-506></a>            <span class=s2>&quot;Deprecated in **FastStream 0.5.16**. &quot;</span>
+<a id=__codelineno-0-507 name=__codelineno-0-507></a>            <span class=s2>&quot;Please, use `RabbitResponse` object as a handler return instead. &quot;</span>
+<a id=__codelineno-0-508 name=__codelineno-0-508></a>            <span class=s2>&quot;Argument will be removed in **FastStream 0.6.0**.&quot;</span>
+<a id=__codelineno-0-509 name=__codelineno-0-509></a>        <span class=p>),</span>
+<a id=__codelineno-0-510 name=__codelineno-0-510></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-511 name=__codelineno-0-511></a>    <span class=c1># broker arguments</span>
+<a id=__codelineno-0-512 name=__codelineno-0-512></a>    <span class=n>dependencies</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-513 name=__codelineno-0-513></a>        <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;params.Depends&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-514 name=__codelineno-0-514></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Dependencies list (`[Depends(),]`) to apply to the subscriber.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-515 name=__codelineno-0-515></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
+<a id=__codelineno-0-516 name=__codelineno-0-516></a>    <span class=n>parser</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-517 name=__codelineno-0-517></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-518 name=__codelineno-0-518></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-519 name=__codelineno-0-519></a>            <span class=s2>&quot;Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one.&quot;</span>
+<a id=__codelineno-0-520 name=__codelineno-0-520></a>        <span class=p>),</span>
+<a id=__codelineno-0-521 name=__codelineno-0-521></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-522 name=__codelineno-0-522></a>    <span class=n>decoder</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-523 name=__codelineno-0-523></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-524 name=__codelineno-0-524></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Function to decode FastStream msg bytes body to python objects.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-525 name=__codelineno-0-525></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-526 name=__codelineno-0-526></a>    <span class=n>middlewares</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-527 name=__codelineno-0-527></a>        <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SubscriberMiddleware[RabbitMessage]&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-528 name=__codelineno-0-528></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Subscriber middlewares to wrap incoming message processing.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-529 name=__codelineno-0-529></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
+<a id=__codelineno-0-530 name=__codelineno-0-530></a>    <span class=nb>filter</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-531 name=__codelineno-0-531></a>        <span class=s2>&quot;Filter[RabbitMessage]&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-532 name=__codelineno-0-532></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-533 name=__codelineno-0-533></a>            <span class=s2>&quot;Overload subscriber to consume various messages from the same source.&quot;</span>
+<a id=__codelineno-0-534 name=__codelineno-0-534></a>        <span class=p>),</span>
+<a id=__codelineno-0-535 name=__codelineno-0-535></a>        <span class=n>deprecated</span><span class=p>(</span>
+<a id=__codelineno-0-536 name=__codelineno-0-536></a>            <span class=s2>&quot;Deprecated in **FastStream 0.5.0**. &quot;</span>
+<a id=__codelineno-0-537 name=__codelineno-0-537></a>            <span class=s2>&quot;Please, create `subscriber` object and use it explicitly instead. &quot;</span>
+<a id=__codelineno-0-538 name=__codelineno-0-538></a>            <span class=s2>&quot;Argument will be removed in **FastStream 0.6.0**.&quot;</span>
+<a id=__codelineno-0-539 name=__codelineno-0-539></a>        <span class=p>),</span>
+<a id=__codelineno-0-540 name=__codelineno-0-540></a>    <span class=p>]</span> <span class=o>=</span> <span class=n>default_filter</span><span class=p>,</span>
+<a id=__codelineno-0-541 name=__codelineno-0-541></a>    <span class=n>retry</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-542 name=__codelineno-0-542></a>        <span class=n>Union</span><span class=p>[</span><span class=nb>bool</span><span class=p>,</span> <span class=nb>int</span><span class=p>],</span>
+<a id=__codelineno-0-543 name=__codelineno-0-543></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whether to `nack` message at processing exception.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-544 name=__codelineno-0-544></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-545 name=__codelineno-0-545></a>    <span class=n>no_ack</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-546 name=__codelineno-0-546></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-547 name=__codelineno-0-547></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whether to disable **FastStream** autoacknowledgement logic or not.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-548 name=__codelineno-0-548></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-549 name=__codelineno-0-549></a>    <span class=n>no_reply</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-550 name=__codelineno-0-550></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-551 name=__codelineno-0-551></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-552 name=__codelineno-0-552></a>            <span class=s2>&quot;Whether to disable **FastStream** RPC and Reply To auto responses or not.&quot;</span>
+<a id=__codelineno-0-553 name=__codelineno-0-553></a>        <span class=p>),</span>
+<a id=__codelineno-0-554 name=__codelineno-0-554></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-555 name=__codelineno-0-555></a>    <span class=c1># AsyncAPI information</span>
+<a id=__codelineno-0-556 name=__codelineno-0-556></a>    <span class=n>title</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-557 name=__codelineno-0-557></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-558 name=__codelineno-0-558></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;AsyncAPI subscriber object title.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-559 name=__codelineno-0-559></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-560 name=__codelineno-0-560></a>    <span class=n>description</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-561 name=__codelineno-0-561></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-562 name=__codelineno-0-562></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-563 name=__codelineno-0-563></a>            <span class=s2>&quot;AsyncAPI subscriber object description. &quot;</span>
+<a id=__codelineno-0-564 name=__codelineno-0-564></a>            <span class=s2>&quot;Uses decorated docstring as default.&quot;</span>
+<a id=__codelineno-0-565 name=__codelineno-0-565></a>        <span class=p>),</span>
+<a id=__codelineno-0-566 name=__codelineno-0-566></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-567 name=__codelineno-0-567></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-568 name=__codelineno-0-568></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-569 name=__codelineno-0-569></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whetever to include operation in AsyncAPI schema or not.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-570 name=__codelineno-0-570></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-571 name=__codelineno-0-571></a>    <span class=c1># FastAPI args</span>
+<a id=__codelineno-0-572 name=__codelineno-0-572></a>    <span class=n>response_model</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-573 name=__codelineno-0-573></a>        <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-574 name=__codelineno-0-574></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-575 name=__codelineno-0-575></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-576 name=__codelineno-0-576></a><span class=sd>            The type to use for the response.</span>
+<a id=__codelineno-0-577 name=__codelineno-0-577></a>
+<a id=__codelineno-0-578 name=__codelineno-0-578></a><span class=sd>            It could be any valid Pydantic *field* type. So, it doesn&#39;t have to</span>
+<a id=__codelineno-0-579 name=__codelineno-0-579></a><span class=sd>            be a Pydantic model, it could be other things, like a `list`, `dict`,</span>
+<a id=__codelineno-0-580 name=__codelineno-0-580></a><span class=sd>            etc.</span>
+<a id=__codelineno-0-581 name=__codelineno-0-581></a>
+<a id=__codelineno-0-582 name=__codelineno-0-582></a><span class=sd>            It will be used for:</span>
+<a id=__codelineno-0-583 name=__codelineno-0-583></a>
+<a id=__codelineno-0-584 name=__codelineno-0-584></a><span class=sd>            * Documentation: the generated OpenAPI (and the UI at `/docs`) will</span>
+<a id=__codelineno-0-585 name=__codelineno-0-585></a><span class=sd>                show it as the response (JSON Schema).</span>
+<a id=__codelineno-0-586 name=__codelineno-0-586></a><span class=sd>            * Serialization: you could return an arbitrary object and the</span>
+<a id=__codelineno-0-587 name=__codelineno-0-587></a><span class=sd>                `response_model` would be used to serialize that object into the</span>
+<a id=__codelineno-0-588 name=__codelineno-0-588></a><span class=sd>                corresponding JSON.</span>
+<a id=__codelineno-0-589 name=__codelineno-0-589></a><span class=sd>            * Filtering: the JSON sent to the client will only contain the data</span>
+<a id=__codelineno-0-590 name=__codelineno-0-590></a><span class=sd>                (fields) defined in the `response_model`. If you returned an object</span>
+<a id=__codelineno-0-591 name=__codelineno-0-591></a><span class=sd>                that contains an attribute `password` but the `response_model` does</span>
+<a id=__codelineno-0-592 name=__codelineno-0-592></a><span class=sd>                not include that field, the JSON sent to the client would not have</span>
+<a id=__codelineno-0-593 name=__codelineno-0-593></a><span class=sd>                that `password`.</span>
+<a id=__codelineno-0-594 name=__codelineno-0-594></a><span class=sd>            * Validation: whatever you return will be serialized with the</span>
+<a id=__codelineno-0-595 name=__codelineno-0-595></a><span class=sd>                `response_model`, converting any data as necessary to generate the</span>
+<a id=__codelineno-0-596 name=__codelineno-0-596></a><span class=sd>                corresponding JSON. But if the data in the object returned is not</span>
+<a id=__codelineno-0-597 name=__codelineno-0-597></a><span class=sd>                valid, that would mean a violation of the contract with the client,</span>
+<a id=__codelineno-0-598 name=__codelineno-0-598></a><span class=sd>                so it&#39;s an error from the API developer. So, FastAPI will raise an</span>
+<a id=__codelineno-0-599 name=__codelineno-0-599></a><span class=sd>                error and return a 500 error code (Internal Server Error).</span>
+<a id=__codelineno-0-600 name=__codelineno-0-600></a>
+<a id=__codelineno-0-601 name=__codelineno-0-601></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-602 name=__codelineno-0-602></a><span class=sd>            [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).</span>
+<a id=__codelineno-0-603 name=__codelineno-0-603></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-604 name=__codelineno-0-604></a>        <span class=p>),</span>
+<a id=__codelineno-0-605 name=__codelineno-0-605></a>    <span class=p>]</span> <span class=o>=</span> <span class=n>Default</span><span class=p>(</span><span class=kc>None</span><span class=p>),</span>
+<a id=__codelineno-0-606 name=__codelineno-0-606></a>    <span class=n>response_model_include</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-607 name=__codelineno-0-607></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;IncEx&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-608 name=__codelineno-0-608></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-609 name=__codelineno-0-609></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-610 name=__codelineno-0-610></a><span class=sd>            Configuration passed to Pydantic to include only certain fields in the</span>
+<a id=__codelineno-0-611 name=__codelineno-0-611></a><span class=sd>            response data.</span>
+<a id=__codelineno-0-612 name=__codelineno-0-612></a>
+<a id=__codelineno-0-613 name=__codelineno-0-613></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-614 name=__codelineno-0-614></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).</span>
+<a id=__codelineno-0-615 name=__codelineno-0-615></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-616 name=__codelineno-0-616></a>        <span class=p>),</span>
+<a id=__codelineno-0-617 name=__codelineno-0-617></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-618 name=__codelineno-0-618></a>    <span class=n>response_model_exclude</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-619 name=__codelineno-0-619></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;IncEx&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-620 name=__codelineno-0-620></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-621 name=__codelineno-0-621></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-622 name=__codelineno-0-622></a><span class=sd>            Configuration passed to Pydantic to exclude certain fields in the</span>
+<a id=__codelineno-0-623 name=__codelineno-0-623></a><span class=sd>            response data.</span>
+<a id=__codelineno-0-624 name=__codelineno-0-624></a>
+<a id=__codelineno-0-625 name=__codelineno-0-625></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-626 name=__codelineno-0-626></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).</span>
+<a id=__codelineno-0-627 name=__codelineno-0-627></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-628 name=__codelineno-0-628></a>        <span class=p>),</span>
+<a id=__codelineno-0-629 name=__codelineno-0-629></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-630 name=__codelineno-0-630></a>    <span class=n>response_model_by_alias</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-631 name=__codelineno-0-631></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-632 name=__codelineno-0-632></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-633 name=__codelineno-0-633></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-634 name=__codelineno-0-634></a><span class=sd>            Configuration passed to Pydantic to define if the response model</span>
+<a id=__codelineno-0-635 name=__codelineno-0-635></a><span class=sd>            should be serialized by alias when an alias is used.</span>
+<a id=__codelineno-0-636 name=__codelineno-0-636></a>
+<a id=__codelineno-0-637 name=__codelineno-0-637></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-638 name=__codelineno-0-638></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).</span>
+<a id=__codelineno-0-639 name=__codelineno-0-639></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-640 name=__codelineno-0-640></a>        <span class=p>),</span>
+<a id=__codelineno-0-641 name=__codelineno-0-641></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-642 name=__codelineno-0-642></a>    <span class=n>response_model_exclude_unset</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-643 name=__codelineno-0-643></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-644 name=__codelineno-0-644></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-645 name=__codelineno-0-645></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-646 name=__codelineno-0-646></a><span class=sd>            Configuration passed to Pydantic to define if the response data</span>
+<a id=__codelineno-0-647 name=__codelineno-0-647></a><span class=sd>            should have all the fields, including the ones that were not set and</span>
+<a id=__codelineno-0-648 name=__codelineno-0-648></a><span class=sd>            have their default values. This is different from</span>
+<a id=__codelineno-0-649 name=__codelineno-0-649></a><span class=sd>            `response_model_exclude_defaults` in that if the fields are set,</span>
+<a id=__codelineno-0-650 name=__codelineno-0-650></a><span class=sd>            they will be included in the response, even if the value is the same</span>
+<a id=__codelineno-0-651 name=__codelineno-0-651></a><span class=sd>            as the default.</span>
+<a id=__codelineno-0-652 name=__codelineno-0-652></a>
+<a id=__codelineno-0-653 name=__codelineno-0-653></a><span class=sd>            When `True`, default values are omitted from the response.</span>
+<a id=__codelineno-0-654 name=__codelineno-0-654></a>
+<a id=__codelineno-0-655 name=__codelineno-0-655></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-656 name=__codelineno-0-656></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).</span>
+<a id=__codelineno-0-657 name=__codelineno-0-657></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-658 name=__codelineno-0-658></a>        <span class=p>),</span>
+<a id=__codelineno-0-659 name=__codelineno-0-659></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-660 name=__codelineno-0-660></a>    <span class=n>response_model_exclude_defaults</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-661 name=__codelineno-0-661></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-662 name=__codelineno-0-662></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-663 name=__codelineno-0-663></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-664 name=__codelineno-0-664></a><span class=sd>            Configuration passed to Pydantic to define if the response data</span>
+<a id=__codelineno-0-665 name=__codelineno-0-665></a><span class=sd>            should have all the fields, including the ones that have the same value</span>
+<a id=__codelineno-0-666 name=__codelineno-0-666></a><span class=sd>            as the default. This is different from `response_model_exclude_unset`</span>
+<a id=__codelineno-0-667 name=__codelineno-0-667></a><span class=sd>            in that if the fields are set but contain the same default values,</span>
+<a id=__codelineno-0-668 name=__codelineno-0-668></a><span class=sd>            they will be excluded from the response.</span>
+<a id=__codelineno-0-669 name=__codelineno-0-669></a>
+<a id=__codelineno-0-670 name=__codelineno-0-670></a><span class=sd>            When `True`, default values are omitted from the response.</span>
+<a id=__codelineno-0-671 name=__codelineno-0-671></a>
+<a id=__codelineno-0-672 name=__codelineno-0-672></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-673 name=__codelineno-0-673></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).</span>
+<a id=__codelineno-0-674 name=__codelineno-0-674></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-675 name=__codelineno-0-675></a>        <span class=p>),</span>
+<a id=__codelineno-0-676 name=__codelineno-0-676></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-677 name=__codelineno-0-677></a>    <span class=n>response_model_exclude_none</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-678 name=__codelineno-0-678></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-679 name=__codelineno-0-679></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-680 name=__codelineno-0-680></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-681 name=__codelineno-0-681></a><span class=sd>            Configuration passed to Pydantic to define if the response data should</span>
+<a id=__codelineno-0-682 name=__codelineno-0-682></a><span class=sd>            exclude fields set to `None`.</span>
+<a id=__codelineno-0-683 name=__codelineno-0-683></a>
+<a id=__codelineno-0-684 name=__codelineno-0-684></a><span class=sd>            This is much simpler (less smart) than `response_model_exclude_unset`</span>
+<a id=__codelineno-0-685 name=__codelineno-0-685></a><span class=sd>            and `response_model_exclude_defaults`. You probably want to use one of</span>
+<a id=__codelineno-0-686 name=__codelineno-0-686></a><span class=sd>            those two instead of this one, as those allow returning `None` values</span>
+<a id=__codelineno-0-687 name=__codelineno-0-687></a><span class=sd>            when it makes sense.</span>
+<a id=__codelineno-0-688 name=__codelineno-0-688></a>
+<a id=__codelineno-0-689 name=__codelineno-0-689></a><span class=sd>            Read more about it in the</span>
+<a id=__codelineno-0-690 name=__codelineno-0-690></a><span class=sd>            [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).</span>
+<a id=__codelineno-0-691 name=__codelineno-0-691></a><span class=sd>            &quot;&quot;&quot;</span>
+<a id=__codelineno-0-692 name=__codelineno-0-692></a>        <span class=p>),</span>
+<a id=__codelineno-0-693 name=__codelineno-0-693></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-694 name=__codelineno-0-694></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>AsyncAPISubscriber</span><span class=p>:</span>
+<a id=__codelineno-0-695 name=__codelineno-0-695></a>    <span class=k>return</span> <span class=n>cast</span><span class=p>(</span>
+<a id=__codelineno-0-696 name=__codelineno-0-696></a>        <span class=s2>&quot;AsyncAPISubscriber&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-697 name=__codelineno-0-697></a>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span>
+<a id=__codelineno-0-698 name=__codelineno-0-698></a>            <span class=n>queue</span><span class=o>=</span><span class=n>queue</span><span class=p>,</span>
+<a id=__codelineno-0-699 name=__codelineno-0-699></a>            <span class=n>exchange</span><span class=o>=</span><span class=n>exchange</span><span class=p>,</span>
+<a id=__codelineno-0-700 name=__codelineno-0-700></a>            <span class=n>consume_args</span><span class=o>=</span><span class=n>consume_args</span><span class=p>,</span>
+<a id=__codelineno-0-701 name=__codelineno-0-701></a>            <span class=n>reply_config</span><span class=o>=</span><span class=n>reply_config</span><span class=p>,</span>
+<a id=__codelineno-0-702 name=__codelineno-0-702></a>            <span class=n>channel</span><span class=o>=</span><span class=n>channel</span><span class=p>,</span>
+<a id=__codelineno-0-703 name=__codelineno-0-703></a>            <span class=n>dependencies</span><span class=o>=</span><span class=n>dependencies</span><span class=p>,</span>
+<a id=__codelineno-0-704 name=__codelineno-0-704></a>            <span class=n>parser</span><span class=o>=</span><span class=n>parser</span><span class=p>,</span>
+<a id=__codelineno-0-705 name=__codelineno-0-705></a>            <span class=n>decoder</span><span class=o>=</span><span class=n>decoder</span><span class=p>,</span>
+<a id=__codelineno-0-706 name=__codelineno-0-706></a>            <span class=n>middlewares</span><span class=o>=</span><span class=n>middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-707 name=__codelineno-0-707></a>            <span class=nb>filter</span><span class=o>=</span><span class=nb>filter</span><span class=p>,</span>
+<a id=__codelineno-0-708 name=__codelineno-0-708></a>            <span class=n>retry</span><span class=o>=</span><span class=n>retry</span><span class=p>,</span>
+<a id=__codelineno-0-709 name=__codelineno-0-709></a>            <span class=n>no_ack</span><span class=o>=</span><span class=n>no_ack</span><span class=p>,</span>
+<a id=__codelineno-0-710 name=__codelineno-0-710></a>            <span class=n>no_reply</span><span class=o>=</span><span class=n>no_reply</span><span class=p>,</span>
+<a id=__codelineno-0-711 name=__codelineno-0-711></a>            <span class=n>title</span><span class=o>=</span><span class=n>title</span><span class=p>,</span>
+<a id=__codelineno-0-712 name=__codelineno-0-712></a>            <span class=n>description</span><span class=o>=</span><span class=n>description</span><span class=p>,</span>
+<a id=__codelineno-0-713 name=__codelineno-0-713></a>            <span class=n>include_in_schema</span><span class=o>=</span><span class=n>include_in_schema</span><span class=p>,</span>
+<a id=__codelineno-0-714 name=__codelineno-0-714></a>            <span class=c1># FastAPI args</span>
+<a id=__codelineno-0-715 name=__codelineno-0-715></a>            <span class=n>response_model</span><span class=o>=</span><span class=n>response_model</span><span class=p>,</span>
+<a id=__codelineno-0-716 name=__codelineno-0-716></a>            <span class=n>response_model_include</span><span class=o>=</span><span class=n>response_model_include</span><span class=p>,</span>
+<a id=__codelineno-0-717 name=__codelineno-0-717></a>            <span class=n>response_model_exclude</span><span class=o>=</span><span class=n>response_model_exclude</span><span class=p>,</span>
+<a id=__codelineno-0-718 name=__codelineno-0-718></a>            <span class=n>response_model_by_alias</span><span class=o>=</span><span class=n>response_model_by_alias</span><span class=p>,</span>
+<a id=__codelineno-0-719 name=__codelineno-0-719></a>            <span class=n>response_model_exclude_unset</span><span class=o>=</span><span class=n>response_model_exclude_unset</span><span class=p>,</span>
+<a id=__codelineno-0-720 name=__codelineno-0-720></a>            <span class=n>response_model_exclude_defaults</span><span class=o>=</span><span class=n>response_model_exclude_defaults</span><span class=p>,</span>
+<a id=__codelineno-0-721 name=__codelineno-0-721></a>            <span class=n>response_model_exclude_none</span><span class=o>=</span><span class=n>response_model_exclude_none</span><span class=p>,</span>
+<a id=__codelineno-0-722 name=__codelineno-0-722></a>        <span class=p>),</span>
+<a id=__codelineno-0-723 name=__codelineno-0-723></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.fastapi.router.RabbitRouter.publisher class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">publisher</span> <a href=#faststream.rabbit.fastapi.router.RabbitRouter.publisher class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>publisher</span><span class=p>(</span>
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>    <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>    <span class=n>exchange</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
@@ -1452,9 +1457,7 @@
 <a id=__codelineno-0-21 name=__codelineno-0-21 href=#__codelineno-0-21></a>    <span class=n>message_type</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22 href=#__codelineno-0-22></a>    <span class=n>user_id</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23 href=#__codelineno-0-23></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/rabbit/fastapi/router.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-723>723</a></span>
-<span class=normal><a href=#__codelineno-0-724>724</a></span>
-<span class=normal><a href=#__codelineno-0-725>725</a></span>
+</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/rabbit/fastapi/router.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-725>725</a></span>
 <span class=normal><a href=#__codelineno-0-726>726</a></span>
 <span class=normal><a href=#__codelineno-0-727>727</a></span>
 <span class=normal><a href=#__codelineno-0-728>728</a></span>
@@ -1582,137 +1585,139 @@
 <span class=normal><a href=#__codelineno-0-850>850</a></span>
 <span class=normal><a href=#__codelineno-0-851>851</a></span>
 <span class=normal><a href=#__codelineno-0-852>852</a></span>
-<span class=normal><a href=#__codelineno-0-853>853</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-723 name=__codelineno-0-723></a><span class=nd>@override</span>
-<a id=__codelineno-0-724 name=__codelineno-0-724></a><span class=k>def</span><span class=w> </span><span class=nf>publisher</span><span class=p>(</span>
-<a id=__codelineno-0-725 name=__codelineno-0-725></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-726 name=__codelineno-0-726></a>    <span class=n>queue</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-727 name=__codelineno-0-727></a>        <span class=n>Union</span><span class=p>[</span><span class=n>RabbitQueue</span><span class=p>,</span> <span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-728 name=__codelineno-0-728></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Default message routing key to publish with.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-729 name=__codelineno-0-729></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-730 name=__codelineno-0-730></a>    <span class=n>exchange</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-731 name=__codelineno-0-731></a>        <span class=n>Union</span><span class=p>[</span><span class=n>RabbitExchange</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=kc>None</span><span class=p>],</span>
-<a id=__codelineno-0-732 name=__codelineno-0-732></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Target exchange to publish message to.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-733 name=__codelineno-0-733></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-734 name=__codelineno-0-734></a>    <span class=o>*</span><span class=p>,</span>
-<a id=__codelineno-0-735 name=__codelineno-0-735></a>    <span class=n>routing_key</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-736 name=__codelineno-0-736></a>        <span class=nb>str</span><span class=p>,</span>
-<a id=__codelineno-0-737 name=__codelineno-0-737></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-738 name=__codelineno-0-738></a>            <span class=s2>&quot;Default message routing key to publish with. &quot;</span>
-<a id=__codelineno-0-739 name=__codelineno-0-739></a>            <span class=s2>&quot;Overrides `queue` option if presented.&quot;</span>
-<a id=__codelineno-0-740 name=__codelineno-0-740></a>        <span class=p>),</span>
-<a id=__codelineno-0-741 name=__codelineno-0-741></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-742 name=__codelineno-0-742></a>    <span class=n>mandatory</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-743 name=__codelineno-0-743></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-744 name=__codelineno-0-744></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-745 name=__codelineno-0-745></a>            <span class=s2>&quot;Client waits for confirmation that the message is placed to some queue. &quot;</span>
-<a id=__codelineno-0-746 name=__codelineno-0-746></a>            <span class=s2>&quot;RabbitMQ returns message to client if there is no suitable queue.&quot;</span>
-<a id=__codelineno-0-747 name=__codelineno-0-747></a>        <span class=p>),</span>
-<a id=__codelineno-0-748 name=__codelineno-0-748></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-749 name=__codelineno-0-749></a>    <span class=n>immediate</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-750 name=__codelineno-0-750></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-751 name=__codelineno-0-751></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-752 name=__codelineno-0-752></a>            <span class=s2>&quot;Client expects that there is consumer ready to take the message to work. &quot;</span>
-<a id=__codelineno-0-753 name=__codelineno-0-753></a>            <span class=s2>&quot;RabbitMQ returns message to client if there is no suitable consumer.&quot;</span>
-<a id=__codelineno-0-754 name=__codelineno-0-754></a>        <span class=p>),</span>
-<a id=__codelineno-0-755 name=__codelineno-0-755></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-756 name=__codelineno-0-756></a>    <span class=n>timeout</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-757 name=__codelineno-0-757></a>        <span class=s2>&quot;TimeoutType&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-758 name=__codelineno-0-758></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Send confirmation time from RabbitMQ.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-759 name=__codelineno-0-759></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-760 name=__codelineno-0-760></a>    <span class=n>persist</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-761 name=__codelineno-0-761></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-762 name=__codelineno-0-762></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Restore the message on RabbitMQ reboot.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-763 name=__codelineno-0-763></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-764 name=__codelineno-0-764></a>    <span class=n>reply_to</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-765 name=__codelineno-0-765></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-766 name=__codelineno-0-766></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-767 name=__codelineno-0-767></a>            <span class=s2>&quot;Reply message routing key to send with (always sending to default exchange).&quot;</span>
-<a id=__codelineno-0-768 name=__codelineno-0-768></a>        <span class=p>),</span>
-<a id=__codelineno-0-769 name=__codelineno-0-769></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-770 name=__codelineno-0-770></a>    <span class=n>priority</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-771 name=__codelineno-0-771></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span>
-<a id=__codelineno-0-772 name=__codelineno-0-772></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;The message priority (0 by default).&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-773 name=__codelineno-0-773></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-774 name=__codelineno-0-774></a>    <span class=c1># specific</span>
-<a id=__codelineno-0-775 name=__codelineno-0-775></a>    <span class=n>middlewares</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-776 name=__codelineno-0-776></a>        <span class=n>Sequence</span><span class=p>[</span><span class=s2>&quot;PublisherMiddleware&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-777 name=__codelineno-0-777></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Publisher middlewares to wrap outgoing messages.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-778 name=__codelineno-0-778></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
-<a id=__codelineno-0-779 name=__codelineno-0-779></a>    <span class=c1># AsyncAPI information</span>
-<a id=__codelineno-0-780 name=__codelineno-0-780></a>    <span class=n>title</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-781 name=__codelineno-0-781></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-782 name=__codelineno-0-782></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;AsyncAPI publisher object title.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-783 name=__codelineno-0-783></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-784 name=__codelineno-0-784></a>    <span class=n>description</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-785 name=__codelineno-0-785></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-786 name=__codelineno-0-786></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;AsyncAPI publisher object description.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-787 name=__codelineno-0-787></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-788 name=__codelineno-0-788></a>    <span class=n>schema</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-789 name=__codelineno-0-789></a>        <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>],</span>
-<a id=__codelineno-0-790 name=__codelineno-0-790></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-791 name=__codelineno-0-791></a>            <span class=s2>&quot;AsyncAPI publishing message type. &quot;</span>
-<a id=__codelineno-0-792 name=__codelineno-0-792></a>            <span class=s2>&quot;Should be any python-native object annotation or `pydantic.BaseModel`.&quot;</span>
-<a id=__codelineno-0-793 name=__codelineno-0-793></a>        <span class=p>),</span>
-<a id=__codelineno-0-794 name=__codelineno-0-794></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-795 name=__codelineno-0-795></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-796 name=__codelineno-0-796></a>        <span class=nb>bool</span><span class=p>,</span>
-<a id=__codelineno-0-797 name=__codelineno-0-797></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whetever to include operation in AsyncAPI schema or not.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-798 name=__codelineno-0-798></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-799 name=__codelineno-0-799></a>    <span class=c1># message args</span>
-<a id=__codelineno-0-800 name=__codelineno-0-800></a>    <span class=n>headers</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-801 name=__codelineno-0-801></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;HeadersType&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-802 name=__codelineno-0-802></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-803 name=__codelineno-0-803></a>            <span class=s2>&quot;Message headers to store metainformation. &quot;</span>
-<a id=__codelineno-0-804 name=__codelineno-0-804></a>            <span class=s2>&quot;Can be overridden by `publish.headers` if specified.&quot;</span>
-<a id=__codelineno-0-805 name=__codelineno-0-805></a>        <span class=p>),</span>
-<a id=__codelineno-0-806 name=__codelineno-0-806></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-807 name=__codelineno-0-807></a>    <span class=n>content_type</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-808 name=__codelineno-0-808></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-809 name=__codelineno-0-809></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-810 name=__codelineno-0-810></a>            <span class=s2>&quot;Message **content-type** header. &quot;</span>
-<a id=__codelineno-0-811 name=__codelineno-0-811></a>            <span class=s2>&quot;Used by application, not core RabbitMQ. &quot;</span>
-<a id=__codelineno-0-812 name=__codelineno-0-812></a>            <span class=s2>&quot;Will be set automatically if not specified.&quot;</span>
-<a id=__codelineno-0-813 name=__codelineno-0-813></a>        <span class=p>),</span>
-<a id=__codelineno-0-814 name=__codelineno-0-814></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-815 name=__codelineno-0-815></a>    <span class=n>content_encoding</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-816 name=__codelineno-0-816></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-817 name=__codelineno-0-817></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message body content encoding, e.g. **gzip**.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-818 name=__codelineno-0-818></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-819 name=__codelineno-0-819></a>    <span class=n>expiration</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-820 name=__codelineno-0-820></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;DateType&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-821 name=__codelineno-0-821></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message expiration (lifetime) in seconds (or datetime or timedelta).&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-822 name=__codelineno-0-822></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-823 name=__codelineno-0-823></a>    <span class=n>message_type</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-824 name=__codelineno-0-824></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-825 name=__codelineno-0-825></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Application-specific message type, e.g. **orders.created**.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-826 name=__codelineno-0-826></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-827 name=__codelineno-0-827></a>    <span class=n>user_id</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-828 name=__codelineno-0-828></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-829 name=__codelineno-0-829></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Publisher connection User ID, validated if set.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-830 name=__codelineno-0-830></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-831 name=__codelineno-0-831></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>AsyncAPIPublisher</span><span class=p>:</span>
-<a id=__codelineno-0-832 name=__codelineno-0-832></a>    <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>broker</span><span class=o>.</span><span class=n>publisher</span><span class=p>(</span>
-<a id=__codelineno-0-833 name=__codelineno-0-833></a>        <span class=n>queue</span><span class=o>=</span><span class=n>queue</span><span class=p>,</span>
-<a id=__codelineno-0-834 name=__codelineno-0-834></a>        <span class=n>exchange</span><span class=o>=</span><span class=n>exchange</span><span class=p>,</span>
-<a id=__codelineno-0-835 name=__codelineno-0-835></a>        <span class=n>routing_key</span><span class=o>=</span><span class=n>routing_key</span><span class=p>,</span>
-<a id=__codelineno-0-836 name=__codelineno-0-836></a>        <span class=n>mandatory</span><span class=o>=</span><span class=n>mandatory</span><span class=p>,</span>
-<a id=__codelineno-0-837 name=__codelineno-0-837></a>        <span class=n>immediate</span><span class=o>=</span><span class=n>immediate</span><span class=p>,</span>
-<a id=__codelineno-0-838 name=__codelineno-0-838></a>        <span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>,</span>
-<a id=__codelineno-0-839 name=__codelineno-0-839></a>        <span class=n>persist</span><span class=o>=</span><span class=n>persist</span><span class=p>,</span>
-<a id=__codelineno-0-840 name=__codelineno-0-840></a>        <span class=n>reply_to</span><span class=o>=</span><span class=n>reply_to</span><span class=p>,</span>
-<a id=__codelineno-0-841 name=__codelineno-0-841></a>        <span class=n>priority</span><span class=o>=</span><span class=n>priority</span><span class=p>,</span>
-<a id=__codelineno-0-842 name=__codelineno-0-842></a>        <span class=n>middlewares</span><span class=o>=</span><span class=n>middlewares</span><span class=p>,</span>
-<a id=__codelineno-0-843 name=__codelineno-0-843></a>        <span class=n>title</span><span class=o>=</span><span class=n>title</span><span class=p>,</span>
-<a id=__codelineno-0-844 name=__codelineno-0-844></a>        <span class=n>description</span><span class=o>=</span><span class=n>description</span><span class=p>,</span>
-<a id=__codelineno-0-845 name=__codelineno-0-845></a>        <span class=n>schema</span><span class=o>=</span><span class=n>schema</span><span class=p>,</span>
-<a id=__codelineno-0-846 name=__codelineno-0-846></a>        <span class=n>include_in_schema</span><span class=o>=</span><span class=n>include_in_schema</span><span class=p>,</span>
-<a id=__codelineno-0-847 name=__codelineno-0-847></a>        <span class=n>headers</span><span class=o>=</span><span class=n>headers</span><span class=p>,</span>
-<a id=__codelineno-0-848 name=__codelineno-0-848></a>        <span class=n>content_type</span><span class=o>=</span><span class=n>content_type</span><span class=p>,</span>
-<a id=__codelineno-0-849 name=__codelineno-0-849></a>        <span class=n>content_encoding</span><span class=o>=</span><span class=n>content_encoding</span><span class=p>,</span>
-<a id=__codelineno-0-850 name=__codelineno-0-850></a>        <span class=n>expiration</span><span class=o>=</span><span class=n>expiration</span><span class=p>,</span>
-<a id=__codelineno-0-851 name=__codelineno-0-851></a>        <span class=n>message_type</span><span class=o>=</span><span class=n>message_type</span><span class=p>,</span>
-<a id=__codelineno-0-852 name=__codelineno-0-852></a>        <span class=n>user_id</span><span class=o>=</span><span class=n>user_id</span><span class=p>,</span>
-<a id=__codelineno-0-853 name=__codelineno-0-853></a>    <span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-853>853</a></span>
+<span class=normal><a href=#__codelineno-0-854>854</a></span>
+<span class=normal><a href=#__codelineno-0-855>855</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-725 name=__codelineno-0-725></a><span class=nd>@override</span>
+<a id=__codelineno-0-726 name=__codelineno-0-726></a><span class=k>def</span><span class=w> </span><span class=nf>publisher</span><span class=p>(</span>
+<a id=__codelineno-0-727 name=__codelineno-0-727></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-728 name=__codelineno-0-728></a>    <span class=n>queue</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-729 name=__codelineno-0-729></a>        <span class=n>Union</span><span class=p>[</span><span class=n>RabbitQueue</span><span class=p>,</span> <span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-730 name=__codelineno-0-730></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Default message routing key to publish with.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-731 name=__codelineno-0-731></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-732 name=__codelineno-0-732></a>    <span class=n>exchange</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-733 name=__codelineno-0-733></a>        <span class=n>Union</span><span class=p>[</span><span class=n>RabbitExchange</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=kc>None</span><span class=p>],</span>
+<a id=__codelineno-0-734 name=__codelineno-0-734></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Target exchange to publish message to.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-735 name=__codelineno-0-735></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-736 name=__codelineno-0-736></a>    <span class=o>*</span><span class=p>,</span>
+<a id=__codelineno-0-737 name=__codelineno-0-737></a>    <span class=n>routing_key</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-738 name=__codelineno-0-738></a>        <span class=nb>str</span><span class=p>,</span>
+<a id=__codelineno-0-739 name=__codelineno-0-739></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-740 name=__codelineno-0-740></a>            <span class=s2>&quot;Default message routing key to publish with. &quot;</span>
+<a id=__codelineno-0-741 name=__codelineno-0-741></a>            <span class=s2>&quot;Overrides `queue` option if presented.&quot;</span>
+<a id=__codelineno-0-742 name=__codelineno-0-742></a>        <span class=p>),</span>
+<a id=__codelineno-0-743 name=__codelineno-0-743></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-744 name=__codelineno-0-744></a>    <span class=n>mandatory</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-745 name=__codelineno-0-745></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-746 name=__codelineno-0-746></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-747 name=__codelineno-0-747></a>            <span class=s2>&quot;Client waits for confirmation that the message is placed to some queue. &quot;</span>
+<a id=__codelineno-0-748 name=__codelineno-0-748></a>            <span class=s2>&quot;RabbitMQ returns message to client if there is no suitable queue.&quot;</span>
+<a id=__codelineno-0-749 name=__codelineno-0-749></a>        <span class=p>),</span>
+<a id=__codelineno-0-750 name=__codelineno-0-750></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-751 name=__codelineno-0-751></a>    <span class=n>immediate</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-752 name=__codelineno-0-752></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-753 name=__codelineno-0-753></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-754 name=__codelineno-0-754></a>            <span class=s2>&quot;Client expects that there is consumer ready to take the message to work. &quot;</span>
+<a id=__codelineno-0-755 name=__codelineno-0-755></a>            <span class=s2>&quot;RabbitMQ returns message to client if there is no suitable consumer.&quot;</span>
+<a id=__codelineno-0-756 name=__codelineno-0-756></a>        <span class=p>),</span>
+<a id=__codelineno-0-757 name=__codelineno-0-757></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-758 name=__codelineno-0-758></a>    <span class=n>timeout</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-759 name=__codelineno-0-759></a>        <span class=s2>&quot;TimeoutType&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-760 name=__codelineno-0-760></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Send confirmation time from RabbitMQ.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-761 name=__codelineno-0-761></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-762 name=__codelineno-0-762></a>    <span class=n>persist</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-763 name=__codelineno-0-763></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-764 name=__codelineno-0-764></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Restore the message on RabbitMQ reboot.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-765 name=__codelineno-0-765></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-766 name=__codelineno-0-766></a>    <span class=n>reply_to</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-767 name=__codelineno-0-767></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-768 name=__codelineno-0-768></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-769 name=__codelineno-0-769></a>            <span class=s2>&quot;Reply message routing key to send with (always sending to default exchange).&quot;</span>
+<a id=__codelineno-0-770 name=__codelineno-0-770></a>        <span class=p>),</span>
+<a id=__codelineno-0-771 name=__codelineno-0-771></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-772 name=__codelineno-0-772></a>    <span class=n>priority</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-773 name=__codelineno-0-773></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span>
+<a id=__codelineno-0-774 name=__codelineno-0-774></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;The message priority (0 by default).&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-775 name=__codelineno-0-775></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-776 name=__codelineno-0-776></a>    <span class=c1># specific</span>
+<a id=__codelineno-0-777 name=__codelineno-0-777></a>    <span class=n>middlewares</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-778 name=__codelineno-0-778></a>        <span class=n>Sequence</span><span class=p>[</span><span class=s2>&quot;PublisherMiddleware&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-779 name=__codelineno-0-779></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Publisher middlewares to wrap outgoing messages.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-780 name=__codelineno-0-780></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
+<a id=__codelineno-0-781 name=__codelineno-0-781></a>    <span class=c1># AsyncAPI information</span>
+<a id=__codelineno-0-782 name=__codelineno-0-782></a>    <span class=n>title</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-783 name=__codelineno-0-783></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-784 name=__codelineno-0-784></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;AsyncAPI publisher object title.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-785 name=__codelineno-0-785></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-786 name=__codelineno-0-786></a>    <span class=n>description</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-787 name=__codelineno-0-787></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-788 name=__codelineno-0-788></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;AsyncAPI publisher object description.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-789 name=__codelineno-0-789></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-790 name=__codelineno-0-790></a>    <span class=n>schema</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-791 name=__codelineno-0-791></a>        <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>],</span>
+<a id=__codelineno-0-792 name=__codelineno-0-792></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-793 name=__codelineno-0-793></a>            <span class=s2>&quot;AsyncAPI publishing message type. &quot;</span>
+<a id=__codelineno-0-794 name=__codelineno-0-794></a>            <span class=s2>&quot;Should be any python-native object annotation or `pydantic.BaseModel`.&quot;</span>
+<a id=__codelineno-0-795 name=__codelineno-0-795></a>        <span class=p>),</span>
+<a id=__codelineno-0-796 name=__codelineno-0-796></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-797 name=__codelineno-0-797></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-798 name=__codelineno-0-798></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-799 name=__codelineno-0-799></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Whetever to include operation in AsyncAPI schema or not.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-800 name=__codelineno-0-800></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-801 name=__codelineno-0-801></a>    <span class=c1># message args</span>
+<a id=__codelineno-0-802 name=__codelineno-0-802></a>    <span class=n>headers</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-803 name=__codelineno-0-803></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;HeadersType&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-804 name=__codelineno-0-804></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-805 name=__codelineno-0-805></a>            <span class=s2>&quot;Message headers to store metainformation. &quot;</span>
+<a id=__codelineno-0-806 name=__codelineno-0-806></a>            <span class=s2>&quot;Can be overridden by `publish.headers` if specified.&quot;</span>
+<a id=__codelineno-0-807 name=__codelineno-0-807></a>        <span class=p>),</span>
+<a id=__codelineno-0-808 name=__codelineno-0-808></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-809 name=__codelineno-0-809></a>    <span class=n>content_type</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-810 name=__codelineno-0-810></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-811 name=__codelineno-0-811></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-812 name=__codelineno-0-812></a>            <span class=s2>&quot;Message **content-type** header. &quot;</span>
+<a id=__codelineno-0-813 name=__codelineno-0-813></a>            <span class=s2>&quot;Used by application, not core RabbitMQ. &quot;</span>
+<a id=__codelineno-0-814 name=__codelineno-0-814></a>            <span class=s2>&quot;Will be set automatically if not specified.&quot;</span>
+<a id=__codelineno-0-815 name=__codelineno-0-815></a>        <span class=p>),</span>
+<a id=__codelineno-0-816 name=__codelineno-0-816></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-817 name=__codelineno-0-817></a>    <span class=n>content_encoding</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-818 name=__codelineno-0-818></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-819 name=__codelineno-0-819></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message body content encoding, e.g. **gzip**.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-820 name=__codelineno-0-820></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-821 name=__codelineno-0-821></a>    <span class=n>expiration</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-822 name=__codelineno-0-822></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;DateType&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-823 name=__codelineno-0-823></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message expiration (lifetime) in seconds (or datetime or timedelta).&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-824 name=__codelineno-0-824></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-825 name=__codelineno-0-825></a>    <span class=n>message_type</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-826 name=__codelineno-0-826></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-827 name=__codelineno-0-827></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Application-specific message type, e.g. **orders.created**.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-828 name=__codelineno-0-828></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-829 name=__codelineno-0-829></a>    <span class=n>user_id</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-830 name=__codelineno-0-830></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-831 name=__codelineno-0-831></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Publisher connection User ID, validated if set.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-832 name=__codelineno-0-832></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-833 name=__codelineno-0-833></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>AsyncAPIPublisher</span><span class=p>:</span>
+<a id=__codelineno-0-834 name=__codelineno-0-834></a>    <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>broker</span><span class=o>.</span><span class=n>publisher</span><span class=p>(</span>
+<a id=__codelineno-0-835 name=__codelineno-0-835></a>        <span class=n>queue</span><span class=o>=</span><span class=n>queue</span><span class=p>,</span>
+<a id=__codelineno-0-836 name=__codelineno-0-836></a>        <span class=n>exchange</span><span class=o>=</span><span class=n>exchange</span><span class=p>,</span>
+<a id=__codelineno-0-837 name=__codelineno-0-837></a>        <span class=n>routing_key</span><span class=o>=</span><span class=n>routing_key</span><span class=p>,</span>
+<a id=__codelineno-0-838 name=__codelineno-0-838></a>        <span class=n>mandatory</span><span class=o>=</span><span class=n>mandatory</span><span class=p>,</span>
+<a id=__codelineno-0-839 name=__codelineno-0-839></a>        <span class=n>immediate</span><span class=o>=</span><span class=n>immediate</span><span class=p>,</span>
+<a id=__codelineno-0-840 name=__codelineno-0-840></a>        <span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>,</span>
+<a id=__codelineno-0-841 name=__codelineno-0-841></a>        <span class=n>persist</span><span class=o>=</span><span class=n>persist</span><span class=p>,</span>
+<a id=__codelineno-0-842 name=__codelineno-0-842></a>        <span class=n>reply_to</span><span class=o>=</span><span class=n>reply_to</span><span class=p>,</span>
+<a id=__codelineno-0-843 name=__codelineno-0-843></a>        <span class=n>priority</span><span class=o>=</span><span class=n>priority</span><span class=p>,</span>
+<a id=__codelineno-0-844 name=__codelineno-0-844></a>        <span class=n>middlewares</span><span class=o>=</span><span class=n>middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-845 name=__codelineno-0-845></a>        <span class=n>title</span><span class=o>=</span><span class=n>title</span><span class=p>,</span>
+<a id=__codelineno-0-846 name=__codelineno-0-846></a>        <span class=n>description</span><span class=o>=</span><span class=n>description</span><span class=p>,</span>
+<a id=__codelineno-0-847 name=__codelineno-0-847></a>        <span class=n>schema</span><span class=o>=</span><span class=n>schema</span><span class=p>,</span>
+<a id=__codelineno-0-848 name=__codelineno-0-848></a>        <span class=n>include_in_schema</span><span class=o>=</span><span class=n>include_in_schema</span><span class=p>,</span>
+<a id=__codelineno-0-849 name=__codelineno-0-849></a>        <span class=n>headers</span><span class=o>=</span><span class=n>headers</span><span class=p>,</span>
+<a id=__codelineno-0-850 name=__codelineno-0-850></a>        <span class=n>content_type</span><span class=o>=</span><span class=n>content_type</span><span class=p>,</span>
+<a id=__codelineno-0-851 name=__codelineno-0-851></a>        <span class=n>content_encoding</span><span class=o>=</span><span class=n>content_encoding</span><span class=p>,</span>
+<a id=__codelineno-0-852 name=__codelineno-0-852></a>        <span class=n>expiration</span><span class=o>=</span><span class=n>expiration</span><span class=p>,</span>
+<a id=__codelineno-0-853 name=__codelineno-0-853></a>        <span class=n>message_type</span><span class=o>=</span><span class=n>message_type</span><span class=p>,</span>
+<a id=__codelineno-0-854 name=__codelineno-0-854></a>        <span class=n>user_id</span><span class=o>=</span><span class=n>user_id</span><span class=p>,</span>
+<a id=__codelineno-0-855 name=__codelineno-0-855></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.fastapi.router.RabbitRouter.not_found class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">not_found</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.rabbit.fastapi.router.RabbitRouter.not_found class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>not_found</span><span class=p>(</span><span class=n>scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>,</span> <span class=n>send</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>starlette/routing.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-640>640</a></span>
 <span class=normal><a href=#__codelineno-0-641>641</a></span>

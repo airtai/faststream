@@ -694,19 +694,27 @@
 <a id=__codelineno-0-18 name=__codelineno-0-18></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Name property fallback.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-19 name=__codelineno-0-19></a>    <span class=k>raise</span> <span class=ne>NotImplementedError</span><span class=p>()</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.get_description class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_description</span> <a href=#faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.get_description class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_description</span><span class=p>()</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Returns the description of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-441>441</a></span>
-<span class=normal><a href=#__codelineno-0-442>442</a></span>
-<span class=normal><a href=#__codelineno-0-443>443</a></span>
-<span class=normal><a href=#__codelineno-0-444>444</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Returns the description of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-444>444</a></span>
 <span class=normal><a href=#__codelineno-0-445>445</a></span>
 <span class=normal><a href=#__codelineno-0-446>446</a></span>
-<span class=normal><a href=#__codelineno-0-447>447</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-441 name=__codelineno-0-441></a><span class=k>def</span><span class=w> </span><span class=nf>get_description</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]:</span>
-<a id=__codelineno-0-442 name=__codelineno-0-442></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Returns the description of the handler.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-443 name=__codelineno-0-443></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
-<a id=__codelineno-0-444 name=__codelineno-0-444></a>        <span class=k>return</span> <span class=kc>None</span>
-<a id=__codelineno-0-445 name=__codelineno-0-445></a>
-<a id=__codelineno-0-446 name=__codelineno-0-446></a>    <span class=k>else</span><span class=p>:</span>
-<a id=__codelineno-0-447 name=__codelineno-0-447></a>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>description</span>
+<span class=normal><a href=#__codelineno-0-447>447</a></span>
+<span class=normal><a href=#__codelineno-0-448>448</a></span>
+<span class=normal><a href=#__codelineno-0-449>449</a></span>
+<span class=normal><a href=#__codelineno-0-450>450</a></span>
+<span class=normal><a href=#__codelineno-0-451>451</a></span>
+<span class=normal><a href=#__codelineno-0-452>452</a></span>
+<span class=normal><a href=#__codelineno-0-453>453</a></span>
+<span class=normal><a href=#__codelineno-0-454>454</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-444 name=__codelineno-0-444></a><span class=k>def</span><span class=w> </span><span class=nf>get_description</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]:</span>
+<a id=__codelineno-0-445 name=__codelineno-0-445></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Returns the description of the handler.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-446 name=__codelineno-0-446></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
+<a id=__codelineno-0-447 name=__codelineno-0-447></a>        <span class=k>return</span> <span class=kc>None</span>
+<a id=__codelineno-0-448 name=__codelineno-0-448></a>
+<a id=__codelineno-0-449 name=__codelineno-0-449></a>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>)</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+<a id=__codelineno-0-450 name=__codelineno-0-450></a>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>description</span>
+<a id=__codelineno-0-451 name=__codelineno-0-451></a>
+<a id=__codelineno-0-452 name=__codelineno-0-452></a>    <span class=k>return</span> <span class=s2>&quot;</span><span class=se>\n</span><span class=s2>&quot;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span>
+<a id=__codelineno-0-453 name=__codelineno-0-453></a>        <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=n>to_camelcase</span><span class=p>(</span><span class=n>h</span><span class=o>.</span><span class=n>call_name</span><span class=p>)</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>h</span><span class=o>.</span><span class=n>description</span><span class=si>}</span><span class=s2>&quot;</span> <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span>
+<a id=__codelineno-0-454 name=__codelineno-0-454></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.get_schema class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_schema</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small> </span> <a href=#faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.get_schema class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_schema</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Generate AsyncAPI schema.</p> <details class=quote> <summary>Source code in <code>faststream/asyncapi/abc.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-37>37</a></span>
 <span class=normal><a href=#__codelineno-0-38>38</a></span>
@@ -716,14 +724,7 @@
 <a id=__codelineno-0-39 name=__codelineno-0-39></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Generate AsyncAPI schema.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-40 name=__codelineno-0-40></a>    <span class=k>raise</span> <span class=ne>NotImplementedError</span><span class=p>()</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.get_payloads class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_payloads</span> <a href=#faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.get_payloads class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_payloads</span><span class=p>()</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Get the payloads of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-449>449</a></span>
-<span class=normal><a href=#__codelineno-0-450>450</a></span>
-<span class=normal><a href=#__codelineno-0-451>451</a></span>
-<span class=normal><a href=#__codelineno-0-452>452</a></span>
-<span class=normal><a href=#__codelineno-0-453>453</a></span>
-<span class=normal><a href=#__codelineno-0-454>454</a></span>
-<span class=normal><a href=#__codelineno-0-455>455</a></span>
-<span class=normal><a href=#__codelineno-0-456>456</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Get the payloads of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-456>456</a></span>
 <span class=normal><a href=#__codelineno-0-457>457</a></span>
 <span class=normal><a href=#__codelineno-0-458>458</a></span>
 <span class=normal><a href=#__codelineno-0-459>459</a></span>
@@ -741,32 +742,39 @@
 <span class=normal><a href=#__codelineno-0-471>471</a></span>
 <span class=normal><a href=#__codelineno-0-472>472</a></span>
 <span class=normal><a href=#__codelineno-0-473>473</a></span>
-<span class=normal><a href=#__codelineno-0-474>474</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-449 name=__codelineno-0-449></a><span class=k>def</span><span class=w> </span><span class=nf>get_payloads</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]:</span>
-<a id=__codelineno-0-450 name=__codelineno-0-450></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Get the payloads of the handler.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-451 name=__codelineno-0-451></a>    <span class=n>payloads</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]</span> <span class=o>=</span> <span class=p>[]</span>
-<a id=__codelineno-0-452 name=__codelineno-0-452></a>
-<a id=__codelineno-0-453 name=__codelineno-0-453></a>    <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
-<a id=__codelineno-0-454 name=__codelineno-0-454></a>        <span class=k>if</span> <span class=n>h</span><span class=o>.</span><span class=n>dependant</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-455 name=__codelineno-0-455></a>            <span class=k>raise</span> <span class=n>SetupError</span><span class=p>(</span><span class=s2>&quot;You should setup `Handler` at first.&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-456 name=__codelineno-0-456></a>
-<a id=__codelineno-0-457 name=__codelineno-0-457></a>        <span class=n>body</span> <span class=o>=</span> <span class=n>parse_handler_params</span><span class=p>(</span>
-<a id=__codelineno-0-458 name=__codelineno-0-458></a>            <span class=n>h</span><span class=o>.</span><span class=n>dependant</span><span class=p>,</span>
-<a id=__codelineno-0-459 name=__codelineno-0-459></a>            <span class=n>prefix</span><span class=o>=</span><span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-460 name=__codelineno-0-460></a>        <span class=p>)</span>
-<a id=__codelineno-0-461 name=__codelineno-0-461></a>
-<a id=__codelineno-0-462 name=__codelineno-0-462></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>body</span><span class=p>,</span> <span class=n>to_camelcase</span><span class=p>(</span><span class=n>h</span><span class=o>.</span><span class=n>call_name</span><span class=p>)))</span>
+<span class=normal><a href=#__codelineno-0-474>474</a></span>
+<span class=normal><a href=#__codelineno-0-475>475</a></span>
+<span class=normal><a href=#__codelineno-0-476>476</a></span>
+<span class=normal><a href=#__codelineno-0-477>477</a></span>
+<span class=normal><a href=#__codelineno-0-478>478</a></span>
+<span class=normal><a href=#__codelineno-0-479>479</a></span>
+<span class=normal><a href=#__codelineno-0-480>480</a></span>
+<span class=normal><a href=#__codelineno-0-481>481</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-456 name=__codelineno-0-456></a><span class=k>def</span><span class=w> </span><span class=nf>get_payloads</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]:</span>
+<a id=__codelineno-0-457 name=__codelineno-0-457></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Get the payloads of the handler.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-458 name=__codelineno-0-458></a>    <span class=n>payloads</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]</span> <span class=o>=</span> <span class=p>[]</span>
+<a id=__codelineno-0-459 name=__codelineno-0-459></a>
+<a id=__codelineno-0-460 name=__codelineno-0-460></a>    <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
+<a id=__codelineno-0-461 name=__codelineno-0-461></a>        <span class=k>if</span> <span class=n>h</span><span class=o>.</span><span class=n>dependant</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-462 name=__codelineno-0-462></a>            <span class=k>raise</span> <span class=n>SetupError</span><span class=p>(</span><span class=s2>&quot;You should setup `Handler` at first.&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-463 name=__codelineno-0-463></a>
-<a id=__codelineno-0-464 name=__codelineno-0-464></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
-<a id=__codelineno-0-465 name=__codelineno-0-465></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>(</span>
-<a id=__codelineno-0-466 name=__codelineno-0-466></a>            <span class=p>(</span>
-<a id=__codelineno-0-467 name=__codelineno-0-467></a>                <span class=p>{</span>
-<a id=__codelineno-0-468 name=__codelineno-0-468></a>                    <span class=s2>&quot;title&quot;</span><span class=p>:</span> <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message:Payload&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-469 name=__codelineno-0-469></a>                <span class=p>},</span>
-<a id=__codelineno-0-470 name=__codelineno-0-470></a>                <span class=n>to_camelcase</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=p>),</span>
-<a id=__codelineno-0-471 name=__codelineno-0-471></a>            <span class=p>)</span>
-<a id=__codelineno-0-472 name=__codelineno-0-472></a>        <span class=p>)</span>
-<a id=__codelineno-0-473 name=__codelineno-0-473></a>
-<a id=__codelineno-0-474 name=__codelineno-0-474></a>    <span class=k>return</span> <span class=n>payloads</span>
+<a id=__codelineno-0-464 name=__codelineno-0-464></a>        <span class=n>body</span> <span class=o>=</span> <span class=n>parse_handler_params</span><span class=p>(</span>
+<a id=__codelineno-0-465 name=__codelineno-0-465></a>            <span class=n>h</span><span class=o>.</span><span class=n>dependant</span><span class=p>,</span>
+<a id=__codelineno-0-466 name=__codelineno-0-466></a>            <span class=n>prefix</span><span class=o>=</span><span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-467 name=__codelineno-0-467></a>        <span class=p>)</span>
+<a id=__codelineno-0-468 name=__codelineno-0-468></a>
+<a id=__codelineno-0-469 name=__codelineno-0-469></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>body</span><span class=p>,</span> <span class=n>to_camelcase</span><span class=p>(</span><span class=n>h</span><span class=o>.</span><span class=n>call_name</span><span class=p>)))</span>
+<a id=__codelineno-0-470 name=__codelineno-0-470></a>
+<a id=__codelineno-0-471 name=__codelineno-0-471></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
+<a id=__codelineno-0-472 name=__codelineno-0-472></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>(</span>
+<a id=__codelineno-0-473 name=__codelineno-0-473></a>            <span class=p>(</span>
+<a id=__codelineno-0-474 name=__codelineno-0-474></a>                <span class=p>{</span>
+<a id=__codelineno-0-475 name=__codelineno-0-475></a>                    <span class=s2>&quot;title&quot;</span><span class=p>:</span> <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message:Payload&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-476 name=__codelineno-0-476></a>                <span class=p>},</span>
+<a id=__codelineno-0-477 name=__codelineno-0-477></a>                <span class=n>to_camelcase</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=p>),</span>
+<a id=__codelineno-0-478 name=__codelineno-0-478></a>            <span class=p>)</span>
+<a id=__codelineno-0-479 name=__codelineno-0-479></a>        <span class=p>)</span>
+<a id=__codelineno-0-480 name=__codelineno-0-480></a>
+<a id=__codelineno-0-481 name=__codelineno-0-481></a>    <span class=k>return</span> <span class=n>payloads</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.add_task class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">add_task</span> <a href=#faststream.kafka.subscriber.usecase.ConcurrentBetweenPartitionsSubscriber.add_task class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>add_task</span><span class=p>(</span><span class=n>coro</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/mixins.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-25>25</a></span>
 <span class=normal><a href=#__codelineno-0-26>26</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-25 name=__codelineno-0-25></a><span class=k>def</span><span class=w> </span><span class=nf>add_task</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>coro</span><span class=p>:</span> <span class=n>Coroutine</span><span class=p>[</span><span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
