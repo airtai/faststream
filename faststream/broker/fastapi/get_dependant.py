@@ -11,6 +11,7 @@ from fastapi.dependencies.utils import (
 from typing_extensions import Annotated, get_args, get_origin
 
 from faststream._compat import PYDANTIC_V2
+from faststream.utils.context.types import Context as FSContext
 
 if TYPE_CHECKING:
     from fastapi import params
@@ -140,8 +141,8 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     return dependant
 
 
-def has_faststream_depends(orig_call: Callable[..., Any]) -> bool:
-    """Check if faststream.Depends is used in the handler."""
+def has_faststream_depends_or_context(orig_call: Callable[..., Any]) -> bool:
+    """Check if faststream.Depends and/or faststream.Context are used in the handler instead of fastapi-compatible ones."""
     endpoint_signature = get_typed_signature(orig_call)
     signature_params = endpoint_signature.parameters
     for param in signature_params.values():
@@ -149,9 +150,9 @@ def has_faststream_depends(orig_call: Callable[..., Any]) -> bool:
         if ann is not inspect.Signature.empty and get_origin(ann) is Annotated:
             annotated_args = get_args(ann)
             for arg in annotated_args:
-                if isinstance(arg, model.Depends):
+                if isinstance(arg, (model.Depends, FSContext)):
                     return True
-        if isinstance(param.default, model.Depends):
+        if isinstance(param.default, (model.Depends, FSContext)):
             return True
     return False
 
