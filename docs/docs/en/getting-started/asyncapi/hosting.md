@@ -10,6 +10,136 @@ search:
 
 # Serving the AsyncAPI Documentation
 
+## Built-in ASGI for FastStream Applications
+
+FastStream includes a lightweight ASGI server that you can use to serve both your application and AsyncAPI documentation.
+
+```python linenums="1"
+import uvicorn
+from faststream import FastStream
+from faststream.kafka import KafkaBroker
+from pydantic import BaseModel, Field, NonNegativeFloat
+
+broker = KafkaBroker("localhost:9092")
+
+
+class DataBasic(BaseModel):
+    data: NonNegativeFloat = Field(
+        ..., examples=[0.5], description="Float data example"
+    )
+
+@broker.subscriber('topic')
+async def my_handler(msg: DataBasic) -> None:
+    print(msg.data + 1.0)
+
+
+app = FastStream(broker).as_asgi(
+    asyncapi_path="/docs/asyncapi",
+)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+After running the script, AsyncAPI docs will be available at: <http://localhost:8000/docs/asyncapi>
+
+## Integration with different http framework (FastAPI)
+
+FastStream provides two robust approaches to combine your message broker documentation with FastAPI's web framework.
+You may choose the method that best fits with your application architecture.
+
+=== "Option 1"
+    ```python linenums="1"
+    import uvicorn
+    from fastapi import FastAPI
+    from fastapi.responses import HTMLResponse
+    from pydantic import BaseModel, Field, NonNegativeFloat
+
+    from faststream import FastStream
+    from faststream.asyncapi import get_asyncapi_html
+    from faststream.asyncapi.generate import get_app_schema
+    from faststream.kafka import KafkaBroker
+
+    broker = KafkaBroker("localhost:9092")
+    app = FastAPI(
+        on_startup=[broker.start],
+        on_shutdown=[broker.close],
+    )
+
+
+    class DataBasic(BaseModel):
+        data: NonNegativeFloat = Field(
+            ..., examples=[0.5], description="Float data example"
+        )
+
+
+    @broker.subscriber('topic')
+    async def my_handler(msg: DataBasic) -> None:
+        print(msg.data + 1.0)
+
+
+    @app.get('/')
+    async def index() -> str:
+        return "index page"
+
+
+    @app.get('/docs/asyncapi')
+    async def asyncapi() -> HTMLResponse:
+        schema = get_app_schema(FastStream(broker))
+        return HTMLResponse(get_asyncapi_html(schema))
+
+
+    if __name__ == "__main__":
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    ```
+
+=== "Option 2"
+    ```python linenums="1"
+    import uvicorn
+    from fastapi import FastAPI
+    from pydantic import BaseModel, Field, NonNegativeFloat
+
+    from faststream import FastStream
+    from faststream.asgi import make_asyncapi_asgi
+    from faststream.kafka import KafkaBroker
+
+    broker = KafkaBroker("localhost:9092")
+    fs_app = FastStream(broker)
+    app = FastAPI(
+        on_startup=[broker.start],
+        on_shutdown=[broker.close]
+    )
+
+
+    class DataBasic(BaseModel):
+        data: NonNegativeFloat = Field(
+            ..., examples=[0.5], description="Float data example"
+        )
+
+
+    @broker.subscriber('topic')
+    async def my_handler(msg: DataBasic) -> None:
+        print(msg.data + 1.0)
+
+    @app.get('/')
+    async def index() -> str:
+        return "index page"
+
+
+    app.mount("/docs/asyncapi", make_asyncapi_asgi(fs_app))
+
+    if __name__ == "__main__":
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    ```
+After running the script docs will be available at:
+
+* OpenAPI Docs: <http://localhost:8000/docs>
+* AsyncAPI Docs: <http://localhost:8000/docs/asyncapi>
+
+## Using CLI and http.server
+
 FastStream provides a command to serve the AsyncAPI documentation.
 
 !!! note
