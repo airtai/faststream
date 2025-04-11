@@ -109,7 +109,7 @@ class AsyncAPIHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(html_content.encode())
-    
+
     # Make the server quieter by overriding log_message
     def log_message(self, format, *args):
         pass
@@ -129,7 +129,7 @@ async def main():
         # Start the broker
         await broker.start()
         print("FastStream application is running. Press Ctrl+C to stop.")
-        
+
         try:
             # Keep the application running
             while True:
