@@ -112,7 +112,7 @@ class FastAPITestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        async def hello(msg=Annotated[Any, Context(context_key)]):
+        async def hello(msg: Annotated[Any, Context(context_key)]):
             event.set()
             return mock(msg == context.resolve(context_key))
 
