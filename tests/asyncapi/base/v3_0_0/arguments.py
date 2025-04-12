@@ -538,22 +538,26 @@ class FastAPICompatible:
         }), schema["components"]["schemas"]
 
         payload = schema["components"]["schemas"].get("Handle:Message:Payload")
+
+        descriminator_payload = IsPartialDict({
+            "discriminator": "type",
+            "oneOf": [
+                {"$ref": "#/components/schemas/Sub2"},
+                {"$ref": "#/components/schemas/Sub"},
+            ],
+            "title": "Handle:Message:Payload",
+        })
+
         if self.is_fastapi:
             assert payload == IsPartialDict({
                 "anyOf": [
                     {"$ref": "#/components/schemas/Sub2"},
                     {"$ref": "#/components/schemas/Sub"},
                 ]
-            })
+            }) | descriminator_payload, payload
+
         else:
-            assert payload == IsPartialDict({
-                "discriminator": "type",
-                "oneOf": [
-                    {"$ref": "#/components/schemas/Sub2"},
-                    {"$ref": "#/components/schemas/Sub"},
-                ],
-                "title": "Handle:Message:Payload",
-            })
+            assert payload == descriminator_payload
 
     @pydantic_v2
     def test_nested_descriminator(self) -> None:

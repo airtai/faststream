@@ -87,12 +87,12 @@ class RabbitExchange(NameRequired):
                 "If you want to connect to an existing exchange, set this to `False`. "
                 "Copy of `passive` aio-pike option."
             ),
-        ] = EMPTY,
+        ] = True,
         passive: Annotated[
             bool,
             deprecated("Use `declare` instead. Will be removed in the 0.7.0 release."),
             Doc("Do not create exchange automatically."),
-        ] = False,
+        ] = EMPTY,
         arguments: Annotated[
             Optional[AnyDict],
             Doc(
@@ -146,7 +146,7 @@ class RabbitExchange(NameRequired):
         self.timeout = timeout
         self.arguments = arguments
 
-        if declare is EMPTY:
+        if passive is not EMPTY:
             self.declare = not passive
         else:
             self.declare = declare

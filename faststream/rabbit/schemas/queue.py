@@ -62,7 +62,10 @@ class RabbitQueue(NameRequired):
         else:
             body = ""
 
-        return f"{self.__class__.__name__}({self.name}, routing_key='{self.routing}'{body})"
+        if self.routing != self.name:
+            body = f", routing_key='{self.routing}'{body}"
+
+        return f"{self.__class__.__name__}({self.name}{body})"
 
     def __hash__(self) -> int:
         """Supports hash to store real objects in declarer."""
@@ -87,8 +90,8 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.CLASSIC] = QueueType.CLASSIC,
         durable: bool = EMPTY,
         exclusive: bool = False,
-        declare: bool = EMPTY,
-        passive: bool = False,
+        declare: bool = True,
+        passive: bool = EMPTY,
         auto_delete: bool = False,
         arguments: Optional["ClassicQueueArgs"] = None,
         timeout: "TimeoutType" = None,
@@ -104,8 +107,8 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.QUORUM],
         durable: Literal[True],
         exclusive: bool = False,
-        declare: bool = EMPTY,
-        passive: bool = False,
+        declare: bool = True,
+        passive: bool = EMPTY,
         auto_delete: bool = False,
         arguments: Optional["QuorumQueueArgs"] = None,
         timeout: "TimeoutType" = None,
@@ -121,8 +124,8 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.STREAM],
         durable: Literal[True],
         exclusive: bool = False,
-        declare: bool = EMPTY,
-        passive: bool = False,
+        declare: bool = True,
+        passive: bool = EMPTY,
         auto_delete: bool = False,
         arguments: Optional["StreamQueueArgs"] = None,
         timeout: "TimeoutType" = None,
@@ -137,11 +140,11 @@ class RabbitQueue(NameRequired):
         queue_type: QueueType = QueueType.CLASSIC,
         durable: bool = EMPTY,
         exclusive: bool = False,
-        declare: bool = EMPTY,
+        declare: bool = True,
         passive: Annotated[
             bool,
             deprecated("Use `declare` instead. Will be removed in the 0.7.0 release."),
-        ] = False,
+        ] = EMPTY,
         auto_delete: bool = False,
         arguments: Union[
             "QuorumQueueArgs",
@@ -200,7 +203,7 @@ class RabbitQueue(NameRequired):
         self.arguments = {"x-queue-type": queue_type.value, **(arguments or {})}
         self.timeout = timeout
 
-        if declare is EMPTY:
+        if passive is not EMPTY:
             self.declare = not passive
         else:
             self.declare = declare

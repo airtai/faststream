@@ -26,10 +26,11 @@ if TYPE_CHECKING:
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
     from faststream.middlewares import AckPolicy
-    from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.helpers import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
+        Channel,
         RabbitExchange,
         RabbitQueue,
     )
@@ -49,6 +50,8 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         self,
         *,
         queue: "RabbitQueue",
+        exchange: "RabbitExchange",
+        channel: Optional["Channel"],
         consume_args: Optional["AnyDict"],
         # Subscriber args
         ack_policy: "AckPolicy",
@@ -58,6 +61,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
     ) -> None:
         self.queue = queue
+        self.exchange = exchange
 
         parser = AioPikaParser(pattern=queue.path_regex)
 
@@ -76,6 +80,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
 
         self._consumer_tag = None
         self._queue_obj = None
+        self.channel = channel
 
         # Setup it later
         self.declarer = None
@@ -109,14 +114,18 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
             msg = "You should setup subscriber at first."
             raise SetupError(msg)
 
-        self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
+        self._queue_obj = queue = await self.declarer.declare_queue(
+            self.queue, channel=self.channel
+        )
 
         if (
             self.exchange is not None
-            and queue.declare  # queue just getted from RMQ
+            and self.queue.declare  # queue just getted from RMQ
             and self.exchange.name  # check Exchange is not default
         ):
-            exchange = await self.declarer.declare_exchange(self.exchange)
+            exchange = await self.declarer.declare_exchange(
+                self.exchange, channel=self.channel
+            )
 
             await queue.bind(
                 exchange,

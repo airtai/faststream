@@ -60,9 +60,10 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
         def h(m) -> None:
             event.set()
 
-        async with self.patch_broker(consume_broker) as br:
-            await br.declare_queue(RabbitQueue(queue))
-            await br.declare_exchange(exchange)
+        async with self.patch_broker(consume_broker, connect_only=True) as br:
+            q = await br.declare_queue(RabbitQueue(queue))
+            ex = await br.declare_exchange(exchange)
+            await q.bind(ex, routing_key=queue)
 
             await br.start()
 

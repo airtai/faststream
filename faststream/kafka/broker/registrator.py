@@ -17,6 +17,7 @@ from typing_extensions import Doc, deprecated, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
+from faststream.exceptions import SetupError
 from faststream.kafka.publisher.factory import create_publisher
 from faststream.kafka.subscriber.factory import create_subscriber
 from faststream.middlewares import AckPolicy
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import (
+        BrokerMiddleware,
         CustomCallable,
         PublisherMiddleware,
         SubscriberMiddleware,
@@ -1753,6 +1755,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "SpecificationDefaultPublisher": ...
 
     @overload
@@ -1831,6 +1837,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "SpecificationBatchPublisher": ...
 
     @overload
@@ -1909,6 +1919,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "SpecificationBatchPublisher",
         "SpecificationDefaultPublisher",
@@ -1990,6 +2004,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "SpecificationBatchPublisher",
         "SpecificationDefaultPublisher",
@@ -2002,6 +2020,7 @@ class KafkaRegistrator(
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
         publisher = create_publisher(
+            autoflush=autoflush,
             # batch flag
             batch=batch,
             # default args
@@ -2024,3 +2043,30 @@ class KafkaRegistrator(
         if batch:
             return cast("SpecificationBatchPublisher", super().publisher(publisher))
         return cast("SpecificationDefaultPublisher", super().publisher(publisher))
+
+    @override
+    def include_router(
+        self,
+        router: "KafkaRegistrator",  # type: ignore[override]
+        *,
+        prefix: str = "",
+        dependencies: Iterable["Dependant"] = (),
+        middlewares: Iterable[
+            "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
+        ] = (),
+        include_in_schema: Optional[bool] = None,
+    ) -> None:
+        if not isinstance(router, KafkaRegistrator):
+            msg = (
+                f"Router must be an instance of KafkaRegistrator, "
+                f"got {type(router).__name__} instead"
+            )
+            raise SetupError(msg)
+
+        super().include_router(
+            router,
+            prefix=prefix,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            include_in_schema=include_in_schema,
+        )

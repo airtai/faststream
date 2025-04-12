@@ -552,15 +552,24 @@ class FastAPICompatible:
                 "title": "Handle:Message:Payload",
             }
         )
+
+        fastapi_payload = schema["components"]["schemas"].get("Handle:Message:Payload")
         if self.is_fastapi:
-            expected_schema = (
-                IsPartialDict(
+            if fastapi_payload:
+                assert fastapi_payload == IsPartialDict(
                     {
-                        "$ref": "#/components/schemas/Handle:Message:Payload",
+                        "anyOf": [
+                            {"$ref": "#/components/schemas/Sub2"},
+                            {"$ref": "#/components/schemas/Sub"},
+                        ]
                     }
                 )
-                | expected_schema
-            )
+
+            expected_schema = IsPartialDict(
+                {
+                    "$ref": "#/components/schemas/Handle:Message:Payload"
+                }
+            ) | expected_schema
 
         assert schema["components"]["messages"][key]["payload"] == expected_schema, (
             schema["components"]
@@ -586,17 +595,6 @@ class FastAPICompatible:
                 },
             }
         ), schema["components"]["schemas"]
-
-        payload = schema["components"]["schemas"].get("Handle:Message:Payload")
-        if self.is_fastapi:
-            assert payload == IsPartialDict(
-                {
-                    "anyOf": [
-                        {"$ref": "#/components/schemas/Sub2"},
-                        {"$ref": "#/components/schemas/Sub"},
-                    ]
-                }
-            )
 
     @pydantic_v2
     def test_nested_descriminator(self) -> None:
@@ -680,14 +678,13 @@ class FastAPICompatible:
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
-        assert (
-            len(
-                next(iter(schema["components"]["messages"].values()))["payload"][
-                    "oneOf"
-                ],
-            )
-            == 2
-        )
+        name, message = next(iter(schema["components"]["messages"].items()))
+
+        assert name == IsStr(
+            regex=r"test[\w:]*:\[Handle,HandleDefault\]:Message"
+        ), name
+
+        assert len(message["payload"]["oneOf"]) == 2
 
         payload = schema["components"]["schemas"]
 

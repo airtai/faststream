@@ -1,11 +1,13 @@
-from faststream.rabbit.schemas.constants import ExchangeType
-from faststream.rabbit.schemas.exchange import RabbitExchange
-from faststream.rabbit.schemas.proto import BaseRMQInformation
-from faststream.rabbit.schemas.queue import QueueType, RabbitQueue
+from .channel import Channel
+from .constants import ExchangeType
+from .exchange import RabbitExchange
+from .proto import BaseRMQInformation
+from .queue import QueueType, RabbitQueue
 
 __all__ = (
     "RABBIT_REPLY",
     "BaseRMQInformation",
+    "Channel",
     "ExchangeType",
     "QueueType",
     "RabbitExchange",

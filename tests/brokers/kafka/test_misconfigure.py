@@ -4,11 +4,13 @@ import pytest
 
 from faststream import AckPolicy
 from faststream.exceptions import SetupError
-from faststream.kafka import KafkaBroker, TopicPartition
+from faststream.kafka import KafkaBroker, KafkaRouter, TopicPartition
 from faststream.kafka.subscriber.specified import (
     SpecificationConcurrentBetweenPartitionsSubscriber,
     SpecificationConcurrentDefaultSubscriber,
 )
+from faststream.nats import NatsRouter
+from faststream.rabbit import RabbitRouter
 
 
 @pytest.mark.parametrize(
@@ -101,3 +103,22 @@ def test_max_workers_configuration(queue: str) -> None:
 
     sub = broker.subscriber(queue, max_workers=3, ack_policy=AckPolicy.REJECT_ON_ERROR)
     assert isinstance(sub, SpecificationConcurrentBetweenPartitionsSubscriber)
+    with pytest.raises(SetupError):
+        broker.subscriber(
+            partitions=[TopicPartition(topic="topic", partition=1)],
+            max_workers=3,
+            auto_commit=False,
+        )
+
+
+def test_use_only_kafka_router() -> None:
+    broker = KafkaBroker()
+    router = NatsRouter()
+
+    with pytest.raises(SetupError):
+        broker.include_router(router)
+
+    routers = [KafkaRouter(), NatsRouter(), RabbitRouter()]
+
+    with pytest.raises(SetupError):
+        broker.include_routers(routers)
