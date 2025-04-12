@@ -1,7 +1,6 @@
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
-from fast_depends.dependencies import model
 from fast_depends.utils import get_typed_annotation
 from fastapi.dependencies.utils import (
     get_dependant,
@@ -11,7 +10,6 @@ from fastapi.dependencies.utils import (
 from typing_extensions import Annotated, get_args, get_origin
 
 from faststream._compat import PYDANTIC_V2
-from faststream.utils.context.types import Context as FSContext
 
 if TYPE_CHECKING:
     from fastapi import params
@@ -141,8 +139,8 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     return dependant
 
 
-def has_faststream_depends_or_context(orig_call: Callable[..., Any]) -> bool:
-    """Check if faststream.Depends and/or faststream.Context are used in the handler instead of fastapi-compatible ones."""
+def has_signature_param(orig_call: Callable[..., Any], param_type: type) -> bool:
+    """Check if any param of param_type is presented as default or `Annotated` within the call signature."""
     endpoint_signature = get_typed_signature(orig_call)
     signature_params = endpoint_signature.parameters
     for param in signature_params.values():
@@ -150,9 +148,9 @@ def has_faststream_depends_or_context(orig_call: Callable[..., Any]) -> bool:
         if ann is not inspect.Signature.empty and get_origin(ann) is Annotated:
             annotated_args = get_args(ann)
             for arg in annotated_args:
-                if isinstance(arg, (model.Depends, FSContext)):
+                if isinstance(arg, param_type):
                     return True
-        if isinstance(param.default, (model.Depends, FSContext)):
+        if isinstance(param.default, param_type):
             return True
     return False
 
