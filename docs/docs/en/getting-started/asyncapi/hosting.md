@@ -56,32 +56,24 @@ And you should be able to see the following page in your browser:
 
 ## Built-in ASGI for FastStream Applications
 
-FastStream includes a lightweight **ASGI** server that you can use to serve both your application and **AsyncAPI** documentation.
+FastStream includes a lightweight [**ASGI** support](../asgi.md){.internal-link} that you can use to serve both your application and **AsyncAPI** documentation.
 
 ```python linenums="1"
-import uvicorn
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
-from pydantic import BaseModel, Field, NonNegativeFloat
 
-broker = KafkaBroker("localhost:9092")
-
-
-class DataBasic(BaseModel):
-    data: NonNegativeFloat = Field(
-        ..., examples=[0.5], description="Float data example"
-    )
+broker = KafkaBroker()
 
 @broker.subscriber('topic')
-async def my_handler(msg: DataBasic) -> None:
-    print(msg.data + 1.0)
-
+async def my_handler(msg: str) -> None:
+    print(msg)
 
 app = FastStream(broker).as_asgi(
     asyncapi_path="/docs/asyncapi",
 )
 
 if __name__ == "__main__":
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
@@ -102,7 +94,7 @@ You can choose the method that best fits with your application architecture.
     from faststream.asyncapi import get_asyncapi_html, get_app_schema
     from faststream.kafka import KafkaBroker
 
-    broker = KafkaBroker("localhost:9092")
+    broker = KafkaBroker()
 
     @broker.subscriber('topic')
     async def my_handler(msg: str) -> None:
@@ -149,7 +141,7 @@ You can choose the method that best fits with your application architecture.
     app.mount("/docs/asyncapi", make_asyncapi_asgi(fs_app))
     ```
 
-After running the script docs will be available at:
+After running the app docs will be available at:
 
 * OpenAPI Docs: <http://localhost:8000/docs>
 * AsyncAPI Docs: <http://localhost:8000/docs/asyncapi>
