@@ -10,9 +10,53 @@ search:
 
 # Serving the AsyncAPI Documentation
 
+## Using CLI and http.server
+
+**FastStream** provides a command to serve the **AsyncAPI** documentation.
+
+!!! note
+    This feature requires an Internet connection to obtain the **AsyncAPI HTML** via **CDN**.
+
+```shell
+{! docs_src/getting_started/asyncapi/serve.py [ln:17] !}
+```
+
+In the above command, we are providing the path in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the **AsyncAPI** documentation.
+
+=== "JSON"
+    ```shell
+    {!> docs_src/getting_started/asyncapi/serve.py [ln:21] !}
+    ```
+
+=== "YAML"
+    ```shell
+    {!> docs_src/getting_started/asyncapi/serve.py [ln:25] !}
+    ```
+
+After running the command, it should serve the **AsyncAPI** documentation on port **8000** and display the following logs in the terminal.
+
+```{.shell .no-copy}
+INFO:     Started server process [2364992]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
+```
+{ data-search-exclude }
+
+And you should be able to see the following page in your browser:
+
+=== "Short"
+    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png){ .on-glb loading=lazy }
+
+=== "Expand"
+    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-full.png){ .on-glb loading=lazy }
+
+!!! tip
+    The command also offers options to serve the documentation on a different host and port.
+
 ## Built-in ASGI for FastStream Applications
 
-FastStream includes a lightweight ASGI server that you can use to serve both your application and AsyncAPI documentation.
+FastStream includes a lightweight **ASGI** server that you can use to serve both your application and **AsyncAPI** documentation.
 
 ```python linenums="1"
 import uvicorn
@@ -41,146 +85,74 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
-After running the script, AsyncAPI docs will be available at: <http://localhost:8000/docs/asyncapi>
+After running the script, **AsyncAPI** docs will be available at: <http://localhost:8000/docs/asyncapi>
 
-## Integration with different http framework (FastAPI)
+## Integration with different HTTP framework (**FastAPI** example)
 
-FastStream provides two robust approaches to combine your message broker documentation with FastAPI's web framework.
-You may choose the method that best fits with your application architecture.
+**FastStream** provides two robust approaches to combine your message broker documentation with any **ASGI** web frameworks.
+You can choose the method that best fits with your application architecture.
 
 === "Option 1"
-    ```python linenums="1"
-    import uvicorn
-    from fastapi import FastAPI
-    from fastapi.responses import HTMLResponse
-    from pydantic import BaseModel, Field, NonNegativeFloat
+    ```python linenums="1" hl_lines="23-26"
+    from typing import AsyncIterator
+    from contextlib import asynccontextmanager
 
+    from fastapi import FastAPI, responses
     from faststream import FastStream
-    from faststream.asyncapi import get_asyncapi_html
-    from faststream.asyncapi.generate import get_app_schema
+    from faststream.asyncapi import get_asyncapi_html, get_app_schema
     from faststream.kafka import KafkaBroker
 
     broker = KafkaBroker("localhost:9092")
-    app = FastAPI(
-        on_startup=[broker.start],
-        on_shutdown=[broker.close],
-    )
-
-
-    class DataBasic(BaseModel):
-        data: NonNegativeFloat = Field(
-            ..., examples=[0.5], description="Float data example"
-        )
-
 
     @broker.subscriber('topic')
-    async def my_handler(msg: DataBasic) -> None:
-        print(msg.data + 1.0)
+    async def my_handler(msg: str) -> None:
+        print(msg)
 
+    @asynccontextmanager
+    async def broker_lifespan(app: FastAPI) -> AsyncIterator[None]:
+        async with broker:
+            await broker.start()
+            yield
 
-    @app.get('/')
-    async def index() -> str:
-        return "index page"
-
+    app = FastAPI(lifespan=broker_lifespan)
 
     @app.get('/docs/asyncapi')
-    async def asyncapi() -> HTMLResponse:
+    async def asyncapi() -> responses.HTMLResponse:
         schema = get_app_schema(FastStream(broker))
-        return HTMLResponse(get_asyncapi_html(schema))
-
-
-    if __name__ == "__main__":
-        uvicorn.run(app, host="0.0.0.0", port=8000)
-
+        return responses.HTMLResponse(get_asyncapi_html(schema))
     ```
 
 === "Option 2"
-    ```python linenums="1"
-    import uvicorn
-    from fastapi import FastAPI
-    from pydantic import BaseModel, Field, NonNegativeFloat
+    ```python linenums="1" hl_lines="23"
+    from typing import AsyncIterator
+    from contextlib import asynccontextmanager
 
+    from fastapi import FastAPI
     from faststream import FastStream
     from faststream.asgi import make_asyncapi_asgi
     from faststream.kafka import KafkaBroker
 
-    broker = KafkaBroker("localhost:9092")
+    broker = KafkaBroker()
     fs_app = FastStream(broker)
-    app = FastAPI(
-        on_startup=[broker.start],
-        on_shutdown=[broker.close]
-    )
-
-
-    class DataBasic(BaseModel):
-        data: NonNegativeFloat = Field(
-            ..., examples=[0.5], description="Float data example"
-        )
-
 
     @broker.subscriber('topic')
-    async def my_handler(msg: DataBasic) -> None:
-        print(msg.data + 1.0)
+    async def my_handler(msg: str) -> None:
+        print(msg)
 
-    @app.get('/')
-    async def index() -> str:
-        return "index page"
+    @asynccontextmanager
+    async def broker_lifespan(app: FastAPI) -> AsyncIterator[None]:
+        async with broker:
+            await broker.start()
+            yield
 
-
+    app = FastAPI(lifespan=broker_lifespan)
     app.mount("/docs/asyncapi", make_asyncapi_asgi(fs_app))
-
-    if __name__ == "__main__":
-        uvicorn.run(app, host="0.0.0.0", port=8000)
-
     ```
+
 After running the script docs will be available at:
 
 * OpenAPI Docs: <http://localhost:8000/docs>
 * AsyncAPI Docs: <http://localhost:8000/docs/asyncapi>
-
-## Using CLI and http.server
-
-FastStream provides a command to serve the AsyncAPI documentation.
-
-!!! note
-    This feature requires an Internet connection to obtain the **AsyncAPI HTML** via **CDN**.
-
-```shell
-{! docs_src/getting_started/asyncapi/serve.py [ln:17] !}
-```
-
-In the above command, we are providing the path in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the AsyncAPI documentation.
-
-=== "JSON"
-    ```shell
-    {!> docs_src/getting_started/asyncapi/serve.py [ln:21] !}
-    ```
-
-=== "YAML"
-    ```shell
-    {!> docs_src/getting_started/asyncapi/serve.py [ln:25] !}
-    ```
-
-After running the command, it should serve the AsyncAPI documentation on port **8000** and display the following logs in the terminal.
-
-```{.shell .no-copy}
-INFO:     Started server process [2364992]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
-```
-{ data-search-exclude }
-
-And you should be able to see the following page in your browser:
-
-=== "Short"
-    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png){ .on-glb loading=lazy }
-
-=== "Expand"
-    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-full.png){ .on-glb loading=lazy }
-
-!!! tip
-    The command also offers options to serve the documentation on a different host and port.
 
 ## Customizing AsyncAPI Documentation
 
