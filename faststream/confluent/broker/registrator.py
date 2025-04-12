@@ -1,6 +1,9 @@
+from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
+    Callable,
     Dict,
     Iterable,
     Literal,
@@ -1346,6 +1349,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "AsyncAPIDefaultPublisher": ...
 
     @overload
@@ -1420,6 +1427,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "AsyncAPIBatchPublisher": ...
 
     @overload
@@ -1494,6 +1505,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
@@ -1571,6 +1586,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
@@ -1601,6 +1620,17 @@ class KafkaRegistrator(
             schema_=schema,
             include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
+
+        if autoflush:
+            default_publish: Callable[..., Awaitable[Optional[Any]]] = publisher.publish
+
+            @wraps(default_publish)
+            async def autoflush_wrapper(*args: Any, **kwargs: Any) -> Optional[Any]:
+                result = await default_publish(*args, **kwargs)
+                await publisher.flush()
+                return result
+
+            publisher.publish = autoflush_wrapper  # type: ignore[method-assign]
 
         if batch:
             publisher = cast("AsyncAPIBatchPublisher", publisher)
