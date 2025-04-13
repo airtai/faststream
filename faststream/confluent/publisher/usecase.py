@@ -132,7 +132,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
     async def flush(self) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        return await self._producer.flush()
+        await self._producer.flush()
 
 
 class DefaultPublisher(LogicPublisher[Message]):

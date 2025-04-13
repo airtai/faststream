@@ -1,9 +1,6 @@
-from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
-    Callable,
     Dict,
     Iterable,
     Literal,
@@ -19,8 +16,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
-from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
-from faststream.confluent.subscriber.factory import create_subscriber
+from faststream.confluent.subscriber.factory import create_publisher, create_subscriber
 from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
@@ -1601,7 +1597,7 @@ class KafkaRegistrator(
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        publisher = AsyncAPIPublisher.create(
+        publisher = create_publisher(
             # batch flag
             batch=batch,
             # default args
@@ -1619,18 +1615,8 @@ class KafkaRegistrator(
             description_=description,
             schema_=schema,
             include_in_schema=self._solve_include_in_schema(include_in_schema),
+            autoflush=autoflush,
         )
-
-        if autoflush:
-            default_publish: Callable[..., Awaitable[Optional[Any]]] = publisher.publish
-
-            @wraps(default_publish)
-            async def autoflush_wrapper(*args: Any, **kwargs: Any) -> Optional[Any]:
-                result = await default_publish(*args, **kwargs)
-                await publisher.flush()
-                return result
-
-            publisher.publish = autoflush_wrapper  # type: ignore[method-assign]
 
         if batch:
             publisher = cast("AsyncAPIBatchPublisher", publisher)
