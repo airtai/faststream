@@ -585,6 +585,7 @@ search:
                         - [AsyncAPIDefaultSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
+                        - [create_publisher](api/faststream/confluent/subscriber/factory/create_publisher.md)
                         - [create_subscriber](api/faststream/confluent/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/confluent/subscriber/usecase/BatchSubscriber.md)
@@ -695,6 +696,7 @@ search:
                         - [AsyncAPIDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
+                        - [create_publisher](api/faststream/kafka/subscriber/factory/create_publisher.md)
                         - [create_subscriber](api/faststream/kafka/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/kafka/subscriber/usecase/BatchSubscriber.md)
