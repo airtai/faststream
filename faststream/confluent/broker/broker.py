@@ -439,6 +439,7 @@ class KafkaBroker(  # type: ignore[misc]
             config=self.config,
         )
 
+        await native_producer.start()
         self._producer = AsyncConfluentFastProducer(
             producer=native_producer,
             parser=self._parser,

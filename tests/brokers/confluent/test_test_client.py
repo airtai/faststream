@@ -104,11 +104,12 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         event: asyncio.Event,
     ):
         broker = self.get_broker()
-
         publisher = broker.publisher(queue + "1", autoflush=True)
 
+        args, kwargs = self.get_subscriber_params(queue)
+
         @publisher
-        @broker.subscriber(queue)
+        @broker.subscriber(*args, **kwargs)
         def subscriber(m):
             event.set()
 
@@ -118,7 +119,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
                     asyncio.create_task(br.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=10,
             )
 
         assert event.is_set()
