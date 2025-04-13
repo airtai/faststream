@@ -190,6 +190,7 @@ search:
                 - [TelemetryMiddleware](public_api/faststream/opentelemetry/TelemetryMiddleware.md)
                 - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
             - rabbit
+                - [Channel](public_api/faststream/rabbit/Channel.md)
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
                 - [QueueType](public_api/faststream/rabbit/QueueType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
@@ -886,6 +887,7 @@ search:
                     - [ProcessingStatus](api/faststream/prometheus/types/ProcessingStatus.md)
                     - [PublishingStatus](api/faststream/prometheus/types/PublishingStatus.md)
             - rabbit
+                - [Channel](api/faststream/rabbit/Channel.md)
                 - [ExchangeType](api/faststream/rabbit/ExchangeType.md)
                 - [QueueType](api/faststream/rabbit/QueueType.md)
                 - [RabbitBroker](api/faststream/rabbit/RabbitBroker.md)
@@ -912,6 +914,10 @@ search:
                     - router
                         - [RabbitRouter](api/faststream/rabbit/fastapi/router/RabbitRouter.md)
                 - helpers
+                    - [ChannelManager](api/faststream/rabbit/helpers/ChannelManager.md)
+                    - [RabbitDeclarer](api/faststream/rabbit/helpers/RabbitDeclarer.md)
+                    - channel_manager
+                        - [ChannelManager](api/faststream/rabbit/helpers/channel_manager/ChannelManager.md)
                     - declarer
                         - [RabbitDeclarer](api/faststream/rabbit/helpers/declarer/RabbitDeclarer.md)
                 - message
@@ -947,11 +953,14 @@ search:
                     - [RabbitRouter](api/faststream/rabbit/router/RabbitRouter.md)
                 - schemas
                     - [BaseRMQInformation](api/faststream/rabbit/schemas/BaseRMQInformation.md)
+                    - [Channel](api/faststream/rabbit/schemas/Channel.md)
                     - [ExchangeType](api/faststream/rabbit/schemas/ExchangeType.md)
                     - [QueueType](api/faststream/rabbit/schemas/QueueType.md)
                     - [RabbitExchange](api/faststream/rabbit/schemas/RabbitExchange.md)
                     - [RabbitQueue](api/faststream/rabbit/schemas/RabbitQueue.md)
                     - [ReplyConfig](api/faststream/rabbit/schemas/ReplyConfig.md)
+                    - channel
+                        - [Channel](api/faststream/rabbit/schemas/channel/Channel.md)
                     - constants
                         - [ExchangeType](api/faststream/rabbit/schemas/constants/ExchangeType.md)
                     - exchange

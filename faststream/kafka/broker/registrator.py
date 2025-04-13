@@ -1,6 +1,8 @@
+from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Collection,
     Dict,
@@ -20,6 +22,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
+from faststream.exceptions import SetupError
 from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
 from faststream.kafka.subscriber.factory import create_subscriber
 
@@ -30,6 +33,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import (
+        BrokerMiddleware,
         CustomCallable,
         Filter,
         PublisherMiddleware,
@@ -1805,6 +1809,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "AsyncAPIDefaultPublisher": ...
 
     @overload
@@ -1879,6 +1887,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "AsyncAPIBatchPublisher": ...
 
     @overload
@@ -1953,6 +1965,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
@@ -2030,6 +2046,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
@@ -2061,7 +2081,45 @@ class KafkaRegistrator(
             include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
+        if autoflush:
+            default_publish: Callable[..., Awaitable[Optional[Any]]] = publisher.publish
+
+            @wraps(default_publish)
+            async def autoflush_wrapper(*args: Any, **kwargs: Any) -> Optional[Any]:
+                result = await default_publish(*args, **kwargs)
+                await publisher.flush()
+                return result
+
+            publisher.publish = autoflush_wrapper  # type: ignore[method-assign]
+
         if batch:
             return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
         else:
             return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))
+
+    @override
+    def include_router(
+        self,
+        router: "KafkaRegistrator",  # type: ignore[override]
+        *,
+        prefix: str = "",
+        dependencies: Iterable["Depends"] = (),
+        middlewares: Iterable[
+            "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
+        ] = (),
+        include_in_schema: Optional[bool] = None,
+    ) -> None:
+        if not isinstance(router, KafkaRegistrator):
+            msg = (
+                f"Router must be an instance of KafkaRegistrator, "
+                f"got {type(router).__name__} instead"
+            )
+            raise SetupError(msg)
+
+        super().include_router(
+            router,
+            prefix=prefix,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            include_in_schema=include_in_schema,
+        )
