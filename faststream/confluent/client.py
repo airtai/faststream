@@ -109,11 +109,9 @@ class AsyncConfluentProducer:
         self.producer = Producer(final_config, logger=self.logger)  # type: ignore[call-arg]
 
         self.__running = True
-        self._poll_task: Optional[asyncio.Task[None]] = None
-        self._poll_started_flag = asyncio.Event()
+        self._poll_task = asyncio.create_task(self._poll_loop())
 
     async def _poll_loop(self) -> None:
-        self._poll_started_flag.set()
         while self.__running:
             with suppress(Exception):
                 await call_or_await(self.producer.poll, 0.1)
@@ -122,16 +120,9 @@ class AsyncConfluentProducer:
         """Stop the Kafka producer and flush remaining messages."""
         if self.__running:
             self.__running = False
-            if self._poll_task and not self._poll_task.done():
+            if not self._poll_task.done():
                 self._poll_task.cancel()
             await call_or_await(self.producer.flush)
-
-    async def start(self) -> None:
-        """Start the Kafka producer and waiting until start the first polling."""
-        if not self._poll_task or self._poll_task.done():
-            self._poll_started_flag.clear()
-            self._poll_task = asyncio.create_task(self._poll_loop())
-            await self._poll_started_flag.wait()
 
     async def flush(self) -> None:
         await call_or_await(self.producer.flush)

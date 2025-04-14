@@ -104,7 +104,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         event: asyncio.Event,
     ):
         broker = self.get_broker()
-        publisher = broker.publisher(queue + "1", autoflush=True)
+        publisher = broker.publisher(queue, autoflush=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
