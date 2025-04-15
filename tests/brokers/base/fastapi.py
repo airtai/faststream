@@ -144,8 +144,11 @@ class FastAPITestcase(BaseTestcaseConfig):
             event.set()
             return mock(msg == context.resolve(context_key))
 
-        with pytest.raises(SetupError):
-            await router.broker.start()
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
 
     async def test_faststream_context_annotated(
         self, mock: Mock, queue: str, event: asyncio.Event
@@ -161,8 +164,11 @@ class FastAPITestcase(BaseTestcaseConfig):
             event.set()
             return mock(msg == context.resolve(context_key))
 
-        with pytest.raises(SetupError):
-            await router.broker.start()
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
 
     async def test_initial_context(self, queue: str, event: asyncio.Event):
         router = self.router_class()
