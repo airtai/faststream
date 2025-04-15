@@ -21,7 +21,7 @@ search:
 {! docs_src/getting_started/asyncapi/serve.py [ln:17] !}
 ```
 
-In the above command, we are providing the path in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the **AsyncAPI** documentation.
+In the above command, the path is specified in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the **AsyncAPI** documentation.
 
 === "JSON"
     ```shell
@@ -33,7 +33,7 @@ In the above command, we are providing the path in the format of `python_module:
     {!> docs_src/getting_started/asyncapi/serve.py [ln:25] !}
     ```
 
-After running the command, it should serve the **AsyncAPI** documentation on port **8000** and display the following logs in the terminal.
+After running the command, the **AsyncAPI** documentation will be served on port **8000**, and the terminal should display the following logs.
 
 ```{.shell .no-copy}
 INFO:     Started server process [2364992]
@@ -56,7 +56,7 @@ And you should be able to see the following page in your browser:
 
 ## Built-in ASGI for FastStream Applications
 
-FastStream includes a lightweight [**ASGI** support](../asgi.md){.internal-link} that you can use to serve both your application and **AsyncAPI** documentation.
+FastStream includes lightweight [**ASGI** support](../asgi.md){.internal-link} that you can use to serve both your application and the **AsyncAPI** documentation.
 
 ```python linenums="1"
 from faststream import FastStream
@@ -77,9 +77,9 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
-After running the script, **AsyncAPI** docs will be available at: <http://localhost:8000/docs/asyncapi>
+After running the script, the **AsyncAPI** docs will be available at: <http://localhost:8000/docs/asyncapi>
 
-## Integration with different HTTP framework (**FastAPI** example)
+## Integration with Different HTTP Frameworks (**FastAPI** Example)
 
 **FastStream** provides two robust approaches to combine your message broker documentation with any **ASGI** web frameworks.
 You can choose the method that best fits with your application architecture.
@@ -141,7 +141,7 @@ You can choose the method that best fits with your application architecture.
     app.mount("/docs/asyncapi", make_asyncapi_asgi(fs_app))
     ```
 
-After running the app docs will be available at:
+After running the app, the documentation will be available at:
 
 * OpenAPI Docs: <http://localhost:8000/docs>
 * AsyncAPI Docs: <http://localhost:8000/docs/asyncapi>
