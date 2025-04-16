@@ -1340,6 +1340,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "SpecificationDefaultPublisher": ...
 
     @overload
@@ -1418,6 +1422,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> "SpecificationBatchPublisher": ...
 
     @overload
@@ -1496,6 +1504,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "SpecificationBatchPublisher",
         "SpecificationDefaultPublisher",
@@ -1577,6 +1589,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        autoflush: Annotated[
+            bool,
+            Doc("Whether to flush the producer or not on every publish call."),
+        ] = False,
     ) -> Union[
         "SpecificationBatchPublisher",
         "SpecificationDefaultPublisher",
@@ -1606,6 +1622,7 @@ class KafkaRegistrator(
             description_=description,
             schema_=schema,
             include_in_schema=self._solve_include_in_schema(include_in_schema),
+            autoflush=autoflush,
         )
 
         if batch:

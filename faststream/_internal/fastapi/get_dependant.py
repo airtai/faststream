@@ -47,7 +47,7 @@ def get_fastapi_native_dependant(
     return dependent
 
 
-def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
+def _patch_fastapi_dependent(dependant: "params.Depends") -> "params.Depends":
     """Patch FastAPI by adding fields for AsyncAPI schema generation."""
     from pydantic import Field, create_model  # FastAPI always has pydantic
 

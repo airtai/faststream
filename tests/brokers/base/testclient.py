@@ -189,9 +189,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
 
         async with self.patch_broker(test_broker, with_real=True) as br:
             await br.publish("hello", queue)
-
             await m.wait_call(self.timeout)
-
             m.mock.assert_called_once_with("hello")
 
             with anyio.fail_after(self.timeout):

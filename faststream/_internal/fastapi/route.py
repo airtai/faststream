@@ -16,6 +16,7 @@ from fast_depends.dependencies import Dependant
 from fastapi.routing import run_endpoint_function, serialize_response
 from starlette.requests import Request
 
+from faststream._internal.context import Context
 from faststream._internal.types import P_HandlerParams, T_HandlerReturn
 from faststream.exceptions import SetupError
 from faststream.response import Response, ensure_response
@@ -86,7 +87,14 @@ def wrap_callable_to_fastapi_compatible(
     if has_forbidden_types(user_callable, (Dependant,)):
         msg = (
             f"Incorrect `faststream.Depends` usage at `{user_callable.__name__}`. "
-            "For FastAPI integration use `fastapi.Depends` instead"
+            "For FastAPI integration use `fastapi.Depends` instead."
+        )
+        raise SetupError(msg)
+
+    if has_forbidden_types(user_callable, (Context,)):
+        msg = (
+            f"Incorrect `faststream.Context` usage at `{user_callable.__name__}`. "
+            "For FastAPI integration use `faststream.[broker].fastapi.Context` instead."
         )
         raise SetupError(msg)
 

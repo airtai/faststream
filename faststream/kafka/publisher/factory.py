@@ -4,10 +4,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Literal,
     Optional,
     Union,
-    overload,
 )
 
 from faststream.exceptions import SetupError
@@ -18,71 +16,6 @@ if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
 
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
-
-
-@overload
-def create_publisher(
-    *,
-    batch: Literal[True],
-    key: Optional[bytes],
-    topic: str,
-    partition: Optional[int],
-    headers: Optional[dict[str, str]],
-    reply_to: str,
-    # Publisher args
-    broker_middlewares: Sequence["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
-    middlewares: Sequence["PublisherMiddleware"],
-    # Specification args
-    schema_: Optional[Any],
-    title_: Optional[str],
-    description_: Optional[str],
-    include_in_schema: bool,
-) -> "SpecificationBatchPublisher": ...
-
-
-@overload
-def create_publisher(
-    *,
-    batch: Literal[False],
-    key: Optional[bytes],
-    topic: str,
-    partition: Optional[int],
-    headers: Optional[dict[str, str]],
-    reply_to: str,
-    # Publisher args
-    broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
-    middlewares: Sequence["PublisherMiddleware"],
-    # Specification args
-    schema_: Optional[Any],
-    title_: Optional[str],
-    description_: Optional[str],
-    include_in_schema: bool,
-) -> "SpecificationDefaultPublisher": ...
-
-
-@overload
-def create_publisher(
-    *,
-    batch: bool,
-    key: Optional[bytes],
-    topic: str,
-    partition: Optional[int],
-    headers: Optional[dict[str, str]],
-    reply_to: str,
-    # Publisher args
-    broker_middlewares: Sequence[
-        "BrokerMiddleware[Union[tuple[ConsumerRecord, ...], ConsumerRecord]]"
-    ],
-    middlewares: Sequence["PublisherMiddleware"],
-    # Specification args
-    schema_: Optional[Any],
-    title_: Optional[str],
-    description_: Optional[str],
-    include_in_schema: bool,
-) -> Union[
-    "SpecificationBatchPublisher",
-    "SpecificationDefaultPublisher",
-]: ...
 
 
 def create_publisher(
@@ -113,7 +46,10 @@ def create_publisher(
             msg = "You can't setup `key` with batch publisher"
             raise SetupError(msg)
 
-        publisher = SpecificationBatchPublisher(
+        publisher: Union[
+            SpecificationBatchPublisher,
+            SpecificationDefaultPublisher,
+        ] = SpecificationBatchPublisher(
             topic=topic,
             partition=partition,
             headers=headers,

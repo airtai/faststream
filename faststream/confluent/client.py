@@ -122,6 +122,9 @@ class AsyncConfluentProducer:
                 self._poll_task.cancel()
             await call_or_await(self.producer.flush)
 
+    async def flush(self) -> None:
+        await call_or_await(self.producer.flush)
+
     async def send(
         self,
         topic: str,

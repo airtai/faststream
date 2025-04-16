@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
 from faststream import (
+    Context as FSContext,
     Depends as FSDepends,
     Response,
 )
@@ -118,9 +119,72 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with(True)
 
-    async def test_initial_context(self, queue: str) -> None:
+    async def test_context_annotated(
+        self, mock: Mock, queue: str, event: asyncio.Event
+    ):
         event = asyncio.Event()
 
+        router = self.router_class()
+        context = router.context
+
+        context_key = "message.headers"
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
+        async def hello(msg: Annotated[Any, Context(context_key)]):
+            try:
+                mock(msg == context.resolve(context_key) and msg["1"] == "1")
+            finally:
+                event.set()
+
+        router._setup()
+        async with router.broker:
+            await router.broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        router.broker.publish("", queue, headers={"1": "1"})
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with(True)
+
+    async def test_faststream_context(self, queue: str) -> None:
+        router = self.router_class()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
+        async def hello(msg=FSContext()):
+            pass
+
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
+
+    async def test_faststream_context_annotated(self, queue: str) -> None:
+        router = self.router_class()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
+        async def hello(msg: Annotated[Any, FSContext()]):
+            pass
+
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
+
+    async def test_initial_context(self, queue: str, event: asyncio.Event) -> None:
         router = self.router_class()
         context = router.context
 
