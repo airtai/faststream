@@ -122,10 +122,10 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.11.4",
+    "ruff==0.11.5",
     "bandit==1.8.3; python_version >= '3.9'",
     "bandit==1.7.10; python_version < '3.9'",
-    "semgrep==1.117.0; python_version >= '3.9'",
+    "semgrep==1.118.0; python_version >= '3.9'",
     "semgrep==1.99.0; python_version < '3.9'",
     "codespell==2.4.1",
 ]
