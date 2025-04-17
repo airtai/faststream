@@ -1,4 +1,5 @@
 import logging
+import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -11,8 +12,6 @@ from typing import (
     cast,
 )
 from urllib.parse import urlparse
-import warnings
-
 
 from faststream.exceptions import INSTALL_FASTSTREAM_RABBIT
 

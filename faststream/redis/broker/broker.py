@@ -1,4 +1,5 @@
 import logging
+import warnings
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -12,8 +13,6 @@ from typing import (
     Union,
 )
 from urllib.parse import urlparse
-
-import warnings
 
 import anyio
 from anyio import move_on_after
