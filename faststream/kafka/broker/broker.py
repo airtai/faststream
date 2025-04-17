@@ -1,4 +1,5 @@
 import logging
+import warnings
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -16,7 +17,6 @@ from typing import (
     Union,
 )
 
-import warnings
 import aiokafka
 import anyio
 from aiokafka.partitioner import DefaultPartitioner
