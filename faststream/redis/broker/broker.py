@@ -13,6 +13,8 @@ from typing import (
 )
 from urllib.parse import urlparse
 
+import warnings
+
 import anyio
 from anyio import move_on_after
 from redis.asyncio.client import Redis
@@ -259,6 +261,14 @@ class RedisBroker(
     ) -> "Redis[bytes]":
         """Connect to the Redis server."""
         if url is not EMPTY:
+            warnings.warn(
+                "Deprecated in **FastStream 0.5.40**. "
+                "Please, use `Broker(...)` instead. "
+                "All these arguments will be removed in **FastStream 0.6.0**.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+
             connect_kwargs: AnyDict = {
                 "url": url,
                 **kwargs,

@@ -1,4 +1,5 @@
-from aio_pika import RobustChannel, RobustConnection
+
+from faststream.exceptions import INSTALL_FASTSTREAM_RABBIT
 from typing_extensions import Annotated
 
 from faststream.annotations import ContextRepo, Logger, NoCast
@@ -6,6 +7,11 @@ from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.utils.context import Context
+
+try:
+    from aio_pika import RobustChannel, RobustConnection
+except:
+    raise ImportError(INSTALL_FASTSTREAM_RABBIT)
 
 __all__ = (
     "Channel",

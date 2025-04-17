@@ -16,6 +16,7 @@ from typing import (
     Union,
 )
 
+import warnings
 import aiokafka
 import anyio
 from aiokafka.partitioner import DefaultPartitioner
@@ -606,6 +607,14 @@ class KafkaBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if bootstrap_servers is not EMPTY:
+            warnings.warn(
+                "Deprecated in **FastStream 0.5.40**. "
+                "Please, use `Broker(...)` instead. "
+                "All these arguments will be removed in **FastStream 0.6.0**.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+
             connect_kwargs: AnyDict = {
                 **kwargs,
                 "bootstrap_servers": bootstrap_servers,

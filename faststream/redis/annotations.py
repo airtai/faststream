@@ -1,4 +1,10 @@
-from redis.asyncio.client import Redis as RedisClient
+from faststream.exceptions import INSTALL_FASTSTREAM_REDIS
+
+try:
+    from redis.asyncio.client import Redis as RedisClient
+except ImportError:
+    raise ImportError(INSTALL_FASTSTREAM_REDIS)
+
 from typing_extensions import Annotated
 
 from faststream.annotations import ContextRepo, Logger, NoCast

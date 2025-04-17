@@ -11,9 +11,17 @@ from typing import (
     cast,
 )
 from urllib.parse import urlparse
+import warnings
+
+
+from faststream.exceptions import INSTALL_FASTSTREAM_RABBIT
+
+try:
+    from aio_pika import connect_robust
+except ImportError:
+    raise ImportError(INSTALL_FASTSTREAM_RABBIT)
 
 import anyio
-from aio_pika import connect_robust
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -329,6 +337,37 @@ class RabbitBroker(
                 when mandatory message will be returned
         """
         kwargs: AnyDict = {}
+
+        if (
+            url is not EMPTY
+            or host is not None
+            or port is not None
+            or virtualhost is not None
+            or ssl_options is not None
+            or client_properties is not None
+            or security is not None
+            or timeout is not None
+            or fail_fast is not EMPTY
+            or reconnect_interval is not EMPTY
+        ):
+            warnings.warn(
+                "Deprecated in **FastStream 0.5.40**. "
+                "Please, use `Broker(...)` instead. "
+                "All these arguments will be removed in **FastStream 0.6.0**.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+
+        return
+
+        if fail_fast is not EMPTY:
+            warnings.warn(
+                "'fail_fast' is deprecated and will be removed in future versions. "
+                "Use 'timeout' or connection retry strategies instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+
 
         if not default_channel and (
             channel_number is not EMPTY

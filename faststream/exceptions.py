@@ -128,3 +128,23 @@ INSTALL_WATCHFILES = """
 To use restart feature, please install dependencies:\n
 pip install watchfiles
 """
+
+INSTALL_FASTSTREAM_RABBIT = """
+To use RabbitMQ with fastream, please install dependencies:\n
+pip install faststream[rabbit]
+"""
+
+INSTALL_FASTSTREAM_KAFKA = """
+To use Apache Kafka with fastream, please install dependencies:\n
+pip install faststream[kafka]
+"""
+
+INSTALL_FASTSTREAM_REDIS = """
+To use Redis with fastream, please install dependencies:\n
+pip install faststream[redis]
+"""
+
+INSTALL_FASTSTREAM_NATS = """
+To use NATS with fastream, please install dependencies:\n
+pip install faststream[nats]
+"""
