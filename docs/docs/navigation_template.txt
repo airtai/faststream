@@ -120,6 +120,7 @@ search:
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
     - [Security Configuration](nats/security.md)
+    - [Broker Events](nats/broker-events.md)
     - [How-To](howto/nats/index.md)
         - [DynaConf](howto/nats/dynaconf.md)
         - [In-Progress](howto/nats/in-progress.md)
