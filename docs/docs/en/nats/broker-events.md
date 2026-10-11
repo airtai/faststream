@@ -16,6 +16,9 @@ Pass callbacks as keyword arguments when creating `NatsBroker`. FastStream uses 
 
 Each callback must be an async function returning `None`. Only `error_cb` receives an argument: the reported `Exception`. The other four callbacks take no arguments. All five arguments are optional and default to `None`. Register only the events your application needs.
 
+!!! note "Built-in connection logging"
+    FastStream wraps `error_cb` and `reconnected_cb` with its built-in connection logging. Depending on the broker's connection state, these wrappers can log `Connection broken with ...` at `WARNING` and `Connection established` at `INFO`. If you provide a callback, FastStream awaits it before running the wrapper's own logic. The wrappers are also used when these callbacks are `None`.
+
 ```python linenums="1" hl_lines="10-27 32-36"
 {!> docs_src/nats/broker_events.py !}
 ```
