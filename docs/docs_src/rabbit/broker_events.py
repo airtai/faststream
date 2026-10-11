@@ -25,8 +25,8 @@ async def on_reconnected(connection: AbstractRobustConnection | None) -> None:
 
 broker = RabbitBroker(
     "amqp://guest:guest@localhost:5672/",
-    on_close=on_close,
-    on_reconnected=on_reconnected,
+    on_close=[on_close],
+    on_reconnected=[on_reconnected],
 )
 app = FastStream(broker)
 

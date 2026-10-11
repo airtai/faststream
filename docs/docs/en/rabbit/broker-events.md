@@ -10,11 +10,13 @@ search:
 
 Use broker event callbacks to observe the RabbitMQ connection: log failures, record metrics, or signal a change in availability to other parts of your application.
 
-Pass callbacks as keyword arguments when creating `RabbitBroker`. FastStream registers `on_close` in aio-pika's `close_callbacks` collection and `on_reconnected` in its `reconnect_callbacks` collection. See the official [connection implementation](https://docs.aio-pika.com/_modules/aio_pika/connection.html){.external-link target="_blank"} and [robust connection implementation](https://docs.aio-pika.com/_modules/aio_pika/robust_connection.html){.external-link target="_blank"} for the underlying events.
+Pass sequences of callbacks as keyword arguments when creating `RabbitBroker`. FastStream registers each `on_close` callback in aio-pika's `close_callbacks` collection and each `on_reconnected` callback in its `reconnect_callbacks` collection. See the official [connection implementation](https://docs.aio-pika.com/_modules/aio_pika/connection.html){.external-link target="_blank"} and [robust connection implementation](https://docs.aio-pika.com/_modules/aio_pika/robust_connection.html){.external-link target="_blank"} for the underlying events.
 
 ## Register callbacks
 
-Both arguments are optional and default to `None`. Each callback can be a sync or async function returning `None`. The example uses async functions. Register only the events your application needs.
+Both arguments accept a sequence of callbacks, such as a list or tuple, and default to `None`. Pass even a single callback inside a sequence. Each callback can be a sync or async function returning `None`, and a sequence can contain both. Use multiple callbacks to keep actions such as logging and metrics separate. The example uses one async function for each event.
+
+Callback execution order is not guaranteed because aio-pika stores callbacks in a set. Register only the events your application needs.
 
 ```python linenums="1" hl_lines="12-23 28-29"
 {!> docs_src/rabbit/broker_events.py !}

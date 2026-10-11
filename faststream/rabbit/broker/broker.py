@@ -97,12 +97,12 @@ class RabbitBroker(
         timeout: "TimeoutType" = None,
         fail_fast: bool = True,
         reconnect_interval: "TimeoutType" = 5.0,
-        on_close: Optional[
+        on_close: Sequence[
             "CallbackType[AbstractConnection, [BaseException | None], None]"
-        ] = None,
-        on_reconnected: Optional[
-            "CallbackType[AbstractRobustConnection, [], None]"
-        ] = None,
+        ]
+        | None = None,
+        on_reconnected: Sequence["CallbackType[AbstractRobustConnection, [], None]"]
+        | None = None,
         default_channel: Optional["Channel"] = None,
         app_id: str | None = SERVICE_NAME,
         # broker base args
@@ -143,8 +143,8 @@ class RabbitBroker(
             timeout: Connection establishment timeout.
             fail_fast: Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.
             reconnect_interval: Time to sleep between reconnection attempts.
-            on_close: Callback receiving the connection and closing exception when the connection closes, including during shutdown. Supports sync and async functions.
-            on_reconnected: Callback receiving the connection after reconnection. Supports sync and async functions.
+            on_close: Callbacks receiving the connection and closing exception when the connection closes, including during shutdown. Supports sync and async functions. Execution order is not guaranteed.
+            on_reconnected: Callbacks receiving the connection after reconnection. Supports sync and async functions. Execution order is not guaranteed.
             default_channel: Default channel settings to use.
             app_id: Application name to mark outgoing messages by.
             graceful_timeout: Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.
@@ -254,8 +254,8 @@ class RabbitBroker(
         )
 
         self._channel: RobustChannel | None = None
-        self._on_close = on_close
-        self._on_reconnected = on_reconnected
+        self._on_close = tuple(on_close) if on_close is not None else ()
+        self._on_reconnected = tuple(on_reconnected) if on_reconnected is not None else ()
 
     @override
     async def _connect(self) -> "RobustConnection":
@@ -264,10 +264,10 @@ class RabbitBroker(
             await connect_robust(**self._connection_kwargs),
         )
 
-        if self._on_close is not None:
-            connection.close_callbacks.add(self._on_close)
-        if self._on_reconnected is not None:
-            connection.reconnect_callbacks.add(self._on_reconnected)
+        for close_callback in self._on_close:
+            connection.close_callbacks.add(close_callback)
+        for reconnect_callback in self._on_reconnected:
+            connection.reconnect_callbacks.add(reconnect_callback)
 
         if self._channel is None:
             self.config.connect(connection)

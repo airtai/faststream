@@ -37,8 +37,13 @@ def sync_on_reconnected(connection: AbstractRobustConnection | None) -> None: ..
 async def async_on_reconnected(connection: AbstractRobustConnection | None) -> None: ...
 
 
-RabbitBroker(on_close=sync_on_close, on_reconnected=sync_on_reconnected)
-RabbitBroker(on_close=async_on_close, on_reconnected=async_on_reconnected)
+RabbitBroker(on_close=[sync_on_close], on_reconnected=[sync_on_reconnected])
+RabbitBroker(on_close=(async_on_close,), on_reconnected=(async_on_reconnected,))
+RabbitBroker(
+    on_close=[sync_on_close, async_on_close],
+    on_reconnected=[sync_on_reconnected, async_on_reconnected],
+)
+RabbitBroker(on_close=[], on_reconnected=())
 
 
 async def check_multiple_test_brokers() -> None:
