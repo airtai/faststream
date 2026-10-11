@@ -52,7 +52,15 @@ if TYPE_CHECKING:
         RobustExchange,
         RobustQueue,
     )
-    from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
+    from aio_pika.abc import (
+        AbstractConnection,
+        AbstractRobustConnection,
+        CallbackType,
+        DateType,
+        HeadersType,
+        SSLOptions,
+        TimeoutType,
+    )
     from fast_depends.dependencies import Dependant
     from fast_depends.library.serializer import SerializerProto
     from yarl import URL
@@ -89,6 +97,12 @@ class RabbitBroker(
         timeout: "TimeoutType" = None,
         fail_fast: bool = True,
         reconnect_interval: "TimeoutType" = 5.0,
+        on_close: Optional[
+            "CallbackType[AbstractConnection, [BaseException | None], None]"
+        ] = None,
+        on_reconnected: Optional[
+            "CallbackType[AbstractRobustConnection, [], None]"
+        ] = None,
         default_channel: Optional["Channel"] = None,
         app_id: str | None = SERVICE_NAME,
         # broker base args
@@ -129,6 +143,8 @@ class RabbitBroker(
             timeout: Connection establishment timeout.
             fail_fast: Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.
             reconnect_interval: Time to sleep between reconnection attempts.
+            on_close: Callback receiving the connection and closing exception when the connection closes, including during shutdown. Supports sync and async functions.
+            on_reconnected: Callback receiving the connection after reconnection. Supports sync and async functions.
             default_channel: Default channel settings to use.
             app_id: Application name to mark outgoing messages by.
             graceful_timeout: Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.
@@ -238,6 +254,8 @@ class RabbitBroker(
         )
 
         self._channel: RobustChannel | None = None
+        self._on_close = on_close
+        self._on_reconnected = on_reconnected
 
     @override
     async def _connect(self) -> "RobustConnection":
@@ -245,6 +263,11 @@ class RabbitBroker(
             "RobustConnection",
             await connect_robust(**self._connection_kwargs),
         )
+
+        if self._on_close is not None:
+            connection.close_callbacks.add(self._on_close)
+        if self._on_reconnected is not None:
+            connection.reconnect_callbacks.add(self._on_reconnected)
 
         if self._channel is None:
             self.config.connect(connection)

@@ -97,6 +97,7 @@ search:
     - [Queue Arguments](rabbit/queue_arguments.md)
     - [Message Information](rabbit/message.md)
     - [Security Configuration](rabbit/security.md)
+    - [Broker Events](rabbit/broker-events.md)
     - [How-To](howto/rabbit/index.md)
         - [Batch Subscriber](howto/rabbit/batch.md)
 - [MQTT](mqtt/index.md)
