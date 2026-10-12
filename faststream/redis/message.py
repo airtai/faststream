@@ -155,10 +155,7 @@ _DEPRECATION_MESSAGE = (
     "The client and group are bound to the message now."
     " `redis` and `group` arguments will be removed in 1.0.0."
 )
-_RedisDeprecatedType = Annotated[
-    Optional["Redis[bytes]"], deprecated(_DEPRECATION_MESSAGE)
-]
-_GroupDeprecatedType = Annotated[str | None, deprecated(_DEPRECATION_MESSAGE)]
+_DeprecatedType = Annotated[T, deprecated(_DEPRECATION_MESSAGE)]
 
 
 class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
@@ -229,8 +226,8 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
 class RedisStreamMessage(_RedisStreamMessageMixin[DefaultStreamMessage]):
     async def get_delivery_count(
         self,
-        redis: Annotated["Redis[bytes]", deprecated(_DEPRECATION_MESSAGE)] = EMPTY,
-        group: Annotated[str, deprecated(_DEPRECATION_MESSAGE)] = EMPTY,
+        redis: _DeprecatedType["Redis[bytes]"] = EMPTY,
+        group: _DeprecatedType["str"] = EMPTY,
     ) -> int:
         """Return this message's current delivery count from the Redis PEL.
 
