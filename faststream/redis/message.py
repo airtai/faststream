@@ -155,6 +155,7 @@ _DEPRECATION_MESSAGE = (
     "The client and group are bound to the message now."
     " `redis` and `group` arguments will be removed in 1.0.0."
 )
+T = TypeVar("T")
 _DeprecatedType = Annotated[T, deprecated(_DEPRECATION_MESSAGE)]
 
 
@@ -183,8 +184,8 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
     @override
     async def ack(
         self,
-        redis: _RedisDeprecatedType = EMPTY,
-        group: _GroupDeprecatedType = EMPTY,
+        redis: _DeprecatedType[Optional["Redis[bytes]"]] = EMPTY,
+        group: _DeprecatedType[str | None] = EMPTY,
     ) -> None:
         redis_resolved, group_resolved = self._resolve_consumer_context(redis, group)
         if (
@@ -200,8 +201,8 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
     @override
     async def nack(
         self,
-        redis: _RedisDeprecatedType = EMPTY,
-        group: _GroupDeprecatedType = EMPTY,
+        redis: _DeprecatedType[Optional["Redis[bytes]"]] = EMPTY,
+        group: _DeprecatedType[str | None] = EMPTY,
     ) -> None:
         self._resolve_consumer_context(redis, group)
         await super().nack()
@@ -209,13 +210,15 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
     @override
     async def reject(
         self,
-        redis: _RedisDeprecatedType = EMPTY,
-        group: _GroupDeprecatedType = EMPTY,
+        redis: _DeprecatedType[Optional["Redis[bytes]"]] = EMPTY,
+        group: _DeprecatedType[str | None] = EMPTY,
     ) -> None:
         self._resolve_consumer_context(redis, group)
         await super().reject()
 
-    async def delete(self, redis: _RedisDeprecatedType = EMPTY) -> None:
+    async def delete(
+        self, redis: _DeprecatedType[Optional["Redis[bytes]"]] = EMPTY
+    ) -> None:
         redis_resolved, _ = self._resolve_consumer_context(redis, EMPTY)
         if redis_resolved is not None:
             ids = self.raw_message["message_ids"]
@@ -227,7 +230,7 @@ class RedisStreamMessage(_RedisStreamMessageMixin[DefaultStreamMessage]):
     async def get_delivery_count(
         self,
         redis: _DeprecatedType["Redis[bytes]"] = EMPTY,
-        group: _DeprecatedType["str"] = EMPTY,
+        group: _DeprecatedType[str] = EMPTY,
     ) -> int:
         """Return this message's current delivery count from the Redis PEL.
 
