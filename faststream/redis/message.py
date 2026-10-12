@@ -121,6 +121,8 @@ _StreamMsgType = TypeVar("_StreamMsgType", bound=_StreamMessage)
 class ConsumerProtocol(Protocol):
     """A protocol for Redis consumers."""
 
+    __slots__ = ()
+
     async def xack(self, name: str, groupname: str, *ids: bytes) -> None:
         pass
 
@@ -133,8 +135,10 @@ class ConsumerProtocol(Protocol):
         pass
 
 
-class FakeConsumer:
+class FakeConsumer(ConsumerProtocol):
     """A fake Redis consumer."""
+
+    __slots__ = ()
 
     async def xack(self, name: str, groupname: str, *ids: bytes) -> None:
         pass

@@ -2,6 +2,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional, Protocol
 
+from typing_extensions import override
+
 from faststream._internal._compat import dump_json, json_loads
 from faststream._internal.basic_types import DecodedMessage
 from faststream._internal.constants import EMPTY, ContentTypes
@@ -158,6 +160,7 @@ class _StreamParser(SimpleParser):
         self.consumer = consumer
         self.group = group
 
+    @override
     def _build_message(
         self, *args: Any, **kwargs: Any
     ) -> "StreamMessage[Mapping[str, Any]]":
