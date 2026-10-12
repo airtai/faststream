@@ -20,9 +20,9 @@ broker = KafkaBroker(
 app = FastStream(broker)
 
 @broker.subscriber("test-topic")
-async def handle(msg: str, storage: StorageClient):
+async def handle(msg: str, storage: Storage) -> None:
     await storage.save(msg)
 
 @app.on_startup
-async def set_storage(context: ContextRepo):
+async def set_storage(context: ContextRepo) -> None:
     context.set_global("storage", Storage())
