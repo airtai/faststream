@@ -43,8 +43,8 @@ SyncFilter: TypeAlias = Callable[[StreamMsg], bool]
 AsyncFilter: TypeAlias = Callable[[StreamMsg], Awaitable[bool]]
 Filter: TypeAlias = SyncFilter[StreamMsg] | AsyncFilter[StreamMsg]
 
-SyncExceptionHandler: TypeAlias = Callable[[BaseException], bool]
-AsyncExceptionHandler: TypeAlias = Callable[[BaseException], Awaitable[bool]]
+SyncExceptionHandler: TypeAlias = Callable[..., bool]
+AsyncExceptionHandler: TypeAlias = Callable[..., Awaitable[bool]]
 ExceptionHandler: TypeAlias = SyncExceptionHandler | AsyncExceptionHandler
 
 SyncCallable: TypeAlias = Callable[

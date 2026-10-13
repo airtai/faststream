@@ -75,13 +75,13 @@ class FastStream(Application):
             specification=specification,
         )
 
-        self._exception_handler: AsyncExceptionHandler | None = None
         if exception_handler is not None:
-            self._exception_handler = apply_types(
+            self._exception_handler: AsyncExceptionHandler | None = apply_types(
                 to_async(exception_handler),
                 serializer_cls=self.config._serializer,
-                context__=self.context,
             )
+        else:
+            self._exception_handler = None
 
         self._should_exit = False
 

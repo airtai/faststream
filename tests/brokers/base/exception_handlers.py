@@ -4,19 +4,71 @@ from unittest.mock import MagicMock, call
 import pytest
 
 from faststream import Context, FastStream, TestApp
+from faststream.exceptions import StopApplication, StopConsume
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
 @pytest.mark.asyncio()
 class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
-    async def get_consume_message(
+    async def test_exception_handlers_are_not_called_for_successful_message(
         self,
-        broker: Any,
-        body: Any,
         queue: str,
-    ) -> Any:
-        """Build a raw message; Kafka overrides this with a ConsumerRecord."""
-        raise NotImplementedError
+        mock: MagicMock,
+        mock2: MagicMock,
+    ) -> None:
+        async def exception_handler(exc: BaseException) -> bool:
+            mock(exc)
+            return True
+
+        broker = self.get_broker(exception_handler=exception_handler)
+        args, kwargs = self.get_subscriber_params(
+            queue,
+            exception_handler=exception_handler,
+        )
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler(msg: Any) -> None:
+            mock2(msg)
+
+        app = FastStream(broker, exception_handler=exception_handler)
+
+        async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
+            await br.publish("hello", queue)
+
+        mock2.assert_called_once_with("hello")
+        mock.assert_not_called()
+
+    @pytest.mark.parametrize("error_type", (StopConsume, StopApplication))
+    async def test_exception_handlers_do_not_suppress_stop_commands(
+        self,
+        queue: str,
+        mock: MagicMock,
+        error_type: type[BaseException],
+    ) -> None:
+        error = error_type()
+
+        async def exception_handler(exc: BaseException) -> bool:
+            mock(exc)
+            return True
+
+        broker = self.get_broker(exception_handler=exception_handler)
+        args, kwargs = self.get_subscriber_params(
+            queue,
+            exception_handler=exception_handler,
+        )
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler(msg: Any) -> None:
+            raise error
+
+        app = FastStream(broker, exception_handler=exception_handler)
+
+        async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
+            with pytest.raises(error_type) as exc_info:
+                await br.publish(None, queue)
+
+        assert exc_info.value is error
+        mock.assert_not_called()
 
     async def test_subscriber_exception_handler_true_suppresses_error(
         self,
@@ -41,8 +93,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
 
@@ -75,8 +126,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error, expected_service)
 
@@ -108,8 +158,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
         mock2.assert_not_called()
@@ -141,8 +190,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         assert mock.call_args_list == [
             call("subscriber", error),
@@ -169,8 +217,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
 
@@ -203,8 +250,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error, expected_service)
 
@@ -231,12 +277,11 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
             with pytest.raises(
                 RuntimeError,
                 match="message processing failed",
             ) as exc_info:
-                await subscriber.consume(message)
+                await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
         assert exc_info.value is error
@@ -268,12 +313,11 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
             with pytest.raises(
                 RuntimeError,
                 match="message processing failed",
             ) as exc_info:
-                await subscriber.consume(message)
+                await br.publish(None, queue)
 
         assert mock.call_args_list == [
             call("subscriber", error),
@@ -301,12 +345,11 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             raise error
 
         async with self.patch_broker(broker) as br:
-            message = await self.get_consume_message(br, "hello", queue)
             with pytest.raises(
                 RuntimeError,
                 match="message processing failed",
             ) as exc_info:
-                await subscriber.consume(message)
+                await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
         assert exc_info.value is error
@@ -351,13 +394,11 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             self.patch_broker(broker2, connect_only=True) as br2,
             TestApp(app),
         ):
-            message1 = await self.get_consume_message(br1, "hello", queue)
-            await subscriber1.consume(message1)
+            await br1.publish(None, queue)
 
             mock2.assert_not_called()
 
-            message2 = await self.get_consume_message(br2, "hello", queue + "1")
-            await subscriber2.consume(message2)
+            await br2.publish(None, queue + "1")
 
         mock.assert_called_once_with(error1)
         mock2.assert_called_once_with(error2)
@@ -395,8 +436,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         )
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
 
@@ -422,12 +462,11 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app = FastStream(broker, exception_handler=exception_handler)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
             with pytest.raises(
                 RuntimeError,
                 match="message processing failed",
             ) as exc_info:
-                await subscriber.consume(message)
+                await br.publish(None, queue)
 
         mock.assert_called_once_with(error)
         assert exc_info.value is error
@@ -465,8 +504,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app = FastStream(broker, exception_handler=app_handler)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         assert mock.call_args_list == [
             call("subscriber", error),
@@ -510,8 +548,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app = FastStream(broker, exception_handler=app_handler)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         expected_calls = [call("subscriber", error)]
         if handled_by == "broker":
@@ -553,12 +590,11 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app = FastStream(broker, exception_handler=app_handler)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
             with pytest.raises(
                 RuntimeError,
                 match="message processing failed",
             ) as exc_info:
-                await subscriber.consume(message)
+                await br.publish(None, queue)
 
         assert mock.call_args_list == [
             call("subscriber", error),
@@ -594,8 +630,7 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app.context.set_global("error_service", expected_service)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error, expected_service)
 
@@ -639,17 +674,15 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
             TestApp(app1),
             TestApp(app2),
         ):
-            message1 = await self.get_consume_message(br1, "hello", queue)
-            await subscriber1.consume(message1)
+            await br1.publish(None, queue)
             mock2.assert_not_called()
 
-            message2 = await self.get_consume_message(br2, "hello", queue + "1")
-            await subscriber2.consume(message2)
+            await br2.publish(None, queue + "1")
 
         mock.assert_called_once_with(error1)
         mock2.assert_called_once_with(error2)
 
-    async def test_app_without_exception_handlers_preserves_error_suppression(
+    async def test_app_without_exception_handlers_propagates_error(
         self,
         queue: str,
         mock: MagicMock,
@@ -667,10 +700,14 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app = FastStream(broker)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            with pytest.raises(
+                RuntimeError,
+                match="message processing failed",
+            ) as exc_info:
+                await br.publish("hello", queue)
 
         mock.assert_called_once_with("hello")
+        assert exc_info.value is error
 
     @pytest.mark.parametrize("handler_level", ("subscriber", "broker"))
     async def test_exception_handler_receives_dependency_from_app_context(
@@ -712,7 +749,49 @@ class ExceptionHandlersTestcase(BaseTestcaseConfig[Any]):
         app.context.set_global("error_service", expected_service)
 
         async with self.patch_broker(broker, connect_only=True) as br, TestApp(app):
-            message = await self.get_consume_message(br, "hello", queue)
-            await subscriber.consume(message)
+            await br.publish(None, queue)
 
         mock.assert_called_once_with(error, expected_service)
+
+    async def test_app_exception_handler_receives_each_broker_context(
+        self,
+        queue: str,
+        mock: MagicMock,
+    ) -> None:
+        error1 = RuntimeError("first broker processing failed")
+        error2 = RuntimeError("second broker processing failed")
+
+        async def exception_handler(
+            exc: BaseException,
+            current_broker: Any = Context("broker"),
+        ) -> bool:
+            mock(exc, current_broker)
+            return True
+
+        broker1 = self.get_broker(apply_types=True)
+        broker2 = self.get_broker(apply_types=True)
+        args, kwargs = self.get_subscriber_params(queue)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @broker1.subscriber(*args, **kwargs)
+        async def handler1(msg: Any) -> None:
+            raise error1
+
+        @broker2.subscriber(*args2, **kwargs2)
+        async def handler2(msg: Any) -> None:
+            raise error2
+
+        app = FastStream(broker1, broker2, exception_handler=exception_handler)
+
+        async with (
+            self.patch_broker(broker1, connect_only=True) as br1,
+            self.patch_broker(broker2, connect_only=True) as br2,
+            TestApp(app),
+        ):
+            await br1.publish(None, queue)
+            await br2.publish(None, queue + "1")
+
+        assert mock.call_args_list == [
+            call(error1, broker1),
+            call(error2, broker2),
+        ]

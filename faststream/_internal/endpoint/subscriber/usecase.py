@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Sequence
+from collections.abc import AsyncIterator, Callable, Iterable, Sequence
 from contextlib import AbstractContextManager, AsyncExitStack, ExitStack, nullcontext
 from itertools import chain
 from types import TracebackType
@@ -339,26 +339,24 @@ class SubscriberUsecase(Endpoint, Generic[MsgType]):
         )
         return app_handler
 
-    async def _handle_exception(self, exc: BaseException) -> bool:
+    async def _handle_exception(
+        self,
+        _exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        _exc_tb: TracebackType | None,
+    ) -> bool:
+        if not isinstance(exc, Exception) or isinstance(exc, (StopConsume, SystemExit)):
+            return False
+
         context = self._outer_config.context
 
-        local_handler = cast(
-            "Callable[..., Awaitable[bool]] | None",
+        for handler in (
             self._exception_handler,
-        )
-        if local_handler is not None and await local_handler(exc, context__=context):
-            return True
-
-        broker_handler = cast(
-            "Callable[..., Awaitable[bool]] | None",
             self._outer_config.broker_exception_handler,
-        )
-        if broker_handler is not None and await broker_handler(exc, context__=context):
-            return True
-
-        app_handler = self._app_exception_handler
-        if app_handler is not None:
-            return await app_handler(exc)
+            self._app_exception_handler,
+        ):
+            if handler is not None and await handler(exc, context__=context):
+                return True
 
         return False
 
@@ -380,16 +378,6 @@ class SubscriberUsecase(Endpoint, Generic[MsgType]):
 
             if app := self._outer_config.context.get("app"):
                 app.exit()
-
-        except Exception as exc:
-            # All other exceptions were logged by CriticalLogMiddleware
-            has_handler = (
-                self._exception_handler is not None
-                or self._outer_config.broker_exception_handler is not None
-                or self._app_exception_handler is not None
-            )
-            if has_handler and not await self._handle_exception(exc):
-                raise
 
     async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
@@ -413,6 +401,7 @@ class SubscriberUsecase(Endpoint, Generic[MsgType]):
             # reserve place for context scope under the middlewares __aexit__
             # because middlewares should be exited before context scope release
             message_scope = stack.enter_context(ExitStack())
+            stack.push_async_exit(self._handle_exception)
 
             # enter all middlewares
             middlewares: list[BaseMiddleware] = []

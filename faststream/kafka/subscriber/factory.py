@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.endpoint.subscriber.call_item import CallsCollection
-from faststream._internal.utils import to_async
+from faststream._internal.utils import ensure_exception_handler
 from faststream.exceptions import SetupError
 from faststream.kafka._compat import validate_client_rack
 from faststream.kafka.schemas import Topic
@@ -74,9 +74,7 @@ def create_subscriber(
         listener=listener,
         pattern=pattern,
         no_reply=no_reply,
-        exception_handler=(
-            to_async(exception_handler) if exception_handler is not None else None
-        ),
+        exception_handler=ensure_exception_handler(exception_handler),
         _outer_config=config,
         _ack_policy=ack_policy,
     )
