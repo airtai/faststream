@@ -78,14 +78,12 @@ class SubscriberUsecase(Endpoint, Generic[MsgType]):
         "_parser",
         "ack_policy",
         "calls",
-        "extra_watcher_options",
         "lock",
         "running",
         "specification",
     )
 
     lock: "AbstractContextManager[Any]"
-    extra_watcher_options: dict[str, Any]
     graceful_timeout: float | None
 
     def __init__(
@@ -119,8 +117,6 @@ class SubscriberUsecase(Endpoint, Generic[MsgType]):
 
         self.running = False
         self.lock = nullcontext()
-
-        self.extra_watcher_options = {}
 
     @property
     def _broker_middlewares(self) -> Sequence["BrokerMiddleware[MsgType]"]:
@@ -482,7 +478,6 @@ class SubscriberUsecase(Endpoint, Generic[MsgType]):
                 AcknowledgementMiddleware(
                     logger=logger_state,
                     ack_policy=self.ack_policy,
-                    extra_options=self.extra_watcher_options,
                 ),
                 CriticalLogMiddleware(logger_state),
                 *self._broker_middlewares,

@@ -58,6 +58,6 @@ jobs:
       # the step must have either the default name or contain the text 'pre-commit-ci-lite'.
       # the application uses this to find the right workflow.
       - name: Run pre-commit-ci-lite
-        uses: pre-commit-ci/lite-action@5d6cc0eb514c891a40562a58a8e71576c5c7fb43 # v1.1.0
+        uses: pre-commit-ci/lite-action@062bca0919bc9d6e66755cc05074b70c77e111fc # v1.2.0
         # autofixes are pushed to a PR branch; a merge group has none
         if: always() && github.event_name == 'pull_request'
