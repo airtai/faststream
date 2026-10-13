@@ -67,8 +67,7 @@ async def test_real_timed_out_requests_remove_reply_subscriptions(
     queue: str,
 ) -> None:
     async with NatsBroker(settings.url) as broker:
-        connection = broker._connection
-        assert connection is not None
+        connection = await broker.connect()
         jetstream = connection.jetstream()
         await jetstream.add_stream(name=queue, subjects=[queue])
         try:
