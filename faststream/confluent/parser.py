@@ -26,7 +26,11 @@ class AsyncConfluentParser:
     def _decode_header(headers: dict[str, str | bytes | None], key: str) -> str | None:
         """Decode a single header value safely, handling non-UTF-8 bytes."""
         val = headers.get(key)
-        return val.decode(errors="replace") if isinstance(val, bytes) and val else val or None
+        return (
+            val.decode(errors="replace")
+            if isinstance(val, bytes) and val
+            else val or None
+        )
 
     async def parse_message(
         self,

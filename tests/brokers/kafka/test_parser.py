@@ -1,8 +1,9 @@
-import pytest
 from unittest.mock import MagicMock
 
-from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
+import pytest
+
 from faststream.kafka.message import KafkaMessage
+from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from tests.brokers.base.parser import CustomParserTestcase
 
 from .basic import KafkaTestcaseConfig
@@ -37,7 +38,7 @@ class TestNonUtf8KafkaHeaders:
     def _make_batch_parser(self):
         return AioKafkaBatchParser(msg_class=KafkaMessage, regex=None)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_non_utf8_header_does_not_raise(self):
         """parse_message must not raise UnicodeDecodeError on invalid UTF-8 bytes."""
         parser = self._make_parser()
@@ -45,7 +46,7 @@ class TestNonUtf8KafkaHeaders:
         result = await parser.parse_message(record)
         assert "trash_header" in result.headers
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_non_utf8_header_decoded_with_replace(self):
         """Non-UTF-8 header bytes should be decoded with errors='replace'."""
         parser = self._make_parser()
@@ -53,7 +54,7 @@ class TestNonUtf8KafkaHeaders:
         result = await parser.parse_message(record)
         assert isinstance(result.headers["key"], str)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_valid_utf8_decoded_correctly(self):
         """Valid UTF-8 headers should decode without modification."""
         parser = self._make_parser()
@@ -67,7 +68,7 @@ class TestNonUtf8KafkaHeaders:
         assert result.content_type == "application/json"
         assert result.correlation_id == "uuid-123"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_reply_to_defaults_to_empty_string(self):
         """reply_to must default to '' when header is absent."""
         parser = self._make_parser()
@@ -75,7 +76,7 @@ class TestNonUtf8KafkaHeaders:
         result = await parser.parse_message(record)
         assert result.reply_to == ""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_non_utf8_header_does_not_raise(self):
         """parse_batch must not raise on invalid UTF-8."""
         parser = self._make_batch_parser()
@@ -86,7 +87,7 @@ class TestNonUtf8KafkaHeaders:
         result = await parser.parse_batch(records)
         assert isinstance(result.reply_to, str)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_headers_decoded_with_replace(self):
         """All batch_headers should be decoded with errors='replace'."""
         parser = self._make_batch_parser()
