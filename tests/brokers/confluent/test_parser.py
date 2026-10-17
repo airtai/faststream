@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, cast
 
 import pytest
+from dirty_equals import IsUUID
 
 if TYPE_CHECKING:
     from confluent_kafka import Message
@@ -95,4 +96,66 @@ async def test_parse_batch_non_utf8_headers() -> None:
             {"content-type": "application/json", "binary": "\ufffd("},
         ],
         [{"value": 1}, {"value": 1}],
+    )
+
+
+@pytest.mark.confluent()
+@pytest.mark.asyncio()
+@pytest.mark.parametrize("batch", (False, True), ids=("single", "batch"))
+@pytest.mark.parametrize(
+    ("header", "value", "decoded"),
+    (
+        pytest.param(None, None, None, id="absent"),
+        pytest.param("reply_to", None, None, id="reply-null"),
+        pytest.param("reply_to", b"", "", id="reply-empty"),
+        pytest.param("reply_to", b"reply-\xff", "reply-\ufffd", id="reply-binary"),
+        pytest.param("content-type", None, None, id="content-null"),
+        pytest.param("content-type", b"", "", id="content-empty"),
+        pytest.param("content-type", b"type-\xff", "type-\ufffd", id="content-binary"),
+        pytest.param("correlation_id", None, None, id="correlation-null"),
+        pytest.param("correlation_id", b"", "", id="correlation-empty"),
+        pytest.param("correlation_id", b"id-\xff", "id-\ufffd", id="correlation-binary"),
+    ),
+)
+async def test_parse_reserved_headers(
+    header: str | None,
+    value: bytes | None,
+    decoded: str | None,
+    batch: bool,
+) -> None:
+    """Fixes https://github.com/ag2ai/faststream/issues/2458."""
+    parser = AsyncConfluentParser()
+    raw_headers: list[tuple[str, str | bytes | None]] = (
+        [(header, value)] if header is not None else []
+    )
+    message = make_message(raw_headers)
+    other_headers = {
+        "reply_to": "other-reply",
+        "content-type": "other-type",
+        "correlation_id": "other-id",
+    }
+    result = (
+        await parser.parse_batch((
+            message,
+            make_message([(key, value.encode()) for key, value in other_headers.items()]),
+        ))
+        if batch
+        else await parser.parse_message(message)
+    )
+    expected_headers = (
+        {header: decoded} if header is not None and decoded is not None else {}
+    )
+
+    assert (
+        result.headers,
+        result.batch_headers,
+        result.reply_to,
+        result.content_type,
+        result.correlation_id,
+    ) == (
+        expected_headers,
+        [expected_headers, other_headers] if batch else [],
+        decoded if header == "reply_to" and decoded is not None else "",
+        decoded if header == "content-type" else None,
+        decoded if header == "correlation_id" and decoded else IsUUID(version=4),
     )

@@ -46,7 +46,9 @@ class AioKafkaParser:
     ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
         headers = {
-            i: j.decode(errors="replace") for i, j in message.headers if j is not None
+            key: value.decode(errors="replace")
+            for key, value in message.headers
+            if value is not None
         }
 
         return self.msg_class(
@@ -86,7 +88,9 @@ class AioKafkaBatchParser(AioKafkaParser):
         for m in message:
             body.append(m.value or b"")
             batch_headers.append({
-                i: j.decode(errors="replace") for i, j in m.headers if j is not None
+                key: value.decode(errors="replace")
+                for key, value in m.headers
+                if value is not None
             })
 
         headers = next(iter(batch_headers), {})
