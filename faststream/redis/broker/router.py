@@ -9,7 +9,7 @@ from faststream._internal.broker.router import (
 from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.redis.configs.broker import RedisRouterConfig
-from faststream.redis.message import BaseMessage
+from faststream.redis.message import UnifyRedisDict
 
 from .registrator import RedisRegistrator
 
@@ -17,10 +17,12 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.redis.parser import MessageFormat
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 
@@ -32,16 +34,18 @@ class RedisPublisher(ArgsContainer):
 
     def __init__(
         self,
-        channel: str | None = None,
+        channel: Union[str, "PubSub"] | None = None,
         *,
-        list: str | None = None,
-        stream: str | None = None,
+        list: Union[str, "ListSub"] | None = None,
+        stream: Union[str, "StreamSub"] | None = None,
         headers: dict[str, Any] | None = None,
         reply_to: str = "",
         title: str | None = None,
         description: str | None = None,
         schema: Any | None = None,
         include_in_schema: bool = True,
+        persistent: bool = True,
+        message_format: type["MessageFormat"] | None = None,
     ) -> None:
         """Initialize the RedisPublisher.
 
@@ -65,6 +69,8 @@ class RedisPublisher(ArgsContainer):
             include_in_schema:
                 Whetever to include operation in AsyncAPI schema or not.
 
+            persistent: Whether to make the publisher persistent or not.
+            message_format: Which format to use when parsing messages.
         """
         super().__init__(
             channel=channel,
@@ -76,6 +82,8 @@ class RedisPublisher(ArgsContainer):
             description=description,
             schema=schema,
             include_in_schema=include_in_schema,
+            persistent=persistent,
+            message_format=message_format,
         )
 
 
@@ -91,7 +99,7 @@ class RedisRoute(SubscriberRoute):
         publishers: Iterable["RedisPublisher"] = (),
         list: Union[str, "ListSub"] | None = None,
         stream: Union[str, "StreamSub"] | None = None,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         ack_policy: AckPolicy = EMPTY,
@@ -100,6 +108,9 @@ class RedisRoute(SubscriberRoute):
         description: str | None = None,
         include_in_schema: bool = True,
         max_workers: int | None = None,
+        persistent: bool = True,
+        codec: Optional["CodecProto"] = None,
+        message_format: type["MessageFormat"] | None = None,
     ) -> None:
         """Initialize the RedisRoute.
 
@@ -132,6 +143,9 @@ class RedisRoute(SubscriberRoute):
                 Whetever to include operation in AsyncAPI schema or not.
             max_workers:
                 Number of workers to process messages concurrently.
+            persistent: Whether to make the subscriber persistent or not.
+            codec: Custom codec object.
+            message_format: Which format to use when parsing messages.
         """
         super().__init__(
             call,
@@ -148,12 +162,15 @@ class RedisRoute(SubscriberRoute):
             title=title,
             description=description,
             include_in_schema=include_in_schema,
+            persistent=persistent,
+            codec=codec,
+            message_format=message_format,
         )
 
 
 class RedisRouter(
     RedisRegistrator,
-    BrokerRouter[BaseMessage],
+    BrokerRouter[UnifyRedisDict, RedisRouterConfig],
 ):
     """Includable to RedisBroker router."""
 
@@ -162,7 +179,7 @@ class RedisRouter(
         prefix: str = "",
         handlers: Iterable[RedisRoute] = (),
         *,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         routers: Iterable[RedisRegistrator] = (),
         parser: Optional["CustomCallable"] = None,

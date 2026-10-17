@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 from aio_pika import IncomingMessage
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from fast_depends.dependencies import Dependant
 
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -43,9 +44,10 @@ class RabbitRegistrator(Registrator[IncomingMessage, RabbitBrokerConfig]):
         consume_args: dict[str, Any] | None = None,
         ack_policy: AckPolicy = EMPTY,
         # broker arguments
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         no_reply: bool = False,
         persistent: bool = True,
         # AsyncAPI information
@@ -61,9 +63,10 @@ class RabbitRegistrator(Registrator[IncomingMessage, RabbitBrokerConfig]):
             channel (Optional[Channel], optional): Channel to use for consuming messages.
             consume_args (dict[str, Any] | None, optional): Extra consumer arguments to use in `queue.consume(...)` method.
             ack_policy (AckPolicy, optional): Acknowledgement policy for message processing.
-            dependencies (Iterable[Dependant], optional): Dependencies list (`[Dependant(),]`) to apply to the subscriber.
+            dependencies (Sequence[Dependant], optional): Dependencies list (`[Dependant(),]`) to apply to the subscriber.
             parser (Optional[CustomCallable], optional): Parser to map original **IncomingMessage** Msg to FastStream one.
             decoder (Optional[CustomCallable], optional): Function to decode FastStream msg bytes body to python objects.
+            codec (Optional[CodecProto], optional): Custom codec object.
             no_reply (bool, optional): Whether to disable **FastStream** RPC and Reply To auto responses or not.
             title (Optional[str], optional): AsyncAPI subscriber object title.
             description (Optional[str], optional): AsyncAPI subscriber object description. Uses decorated docstring as default.
@@ -94,6 +97,7 @@ class RabbitRegistrator(Registrator[IncomingMessage, RabbitBrokerConfig]):
         return subscriber.add_call(
             parser_=parser,
             decoder_=decoder,
+            codec_=codec,
             dependencies_=dependencies,
         )
 
@@ -198,7 +202,7 @@ class RabbitRegistrator(Registrator[IncomingMessage, RabbitBrokerConfig]):
         router: "RabbitRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         include_in_schema: bool | None = None,
     ) -> None:

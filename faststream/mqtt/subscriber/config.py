@@ -7,13 +7,14 @@ from faststream._internal.configs import (
     SubscriberUsecaseConfig,
 )
 from faststream._internal.constants import EMPTY
+from faststream._internal.utils.path import Address
 from faststream.middlewares.acknowledgement.config import AckPolicy
 from faststream.mqtt.broker.config import MQTTBrokerConfig
 
 
 @dataclass(kw_only=True)
 class MQTTSubscriberSpecificationConfig(SubscriberSpecificationConfig):
-    topic: str
+    address: Address
     qos: QoS = QoS.AT_MOST_ONCE
     shared: str | None = None
 
@@ -22,7 +23,7 @@ class MQTTSubscriberSpecificationConfig(SubscriberSpecificationConfig):
 class MQTTSubscriberConfig(SubscriberUsecaseConfig):
     _outer_config: "MQTTBrokerConfig" = field(default_factory=MQTTBrokerConfig)
 
-    topic: str
+    address: Address
     qos: QoS = QoS.AT_MOST_ONCE
     shared: str | None = None
 

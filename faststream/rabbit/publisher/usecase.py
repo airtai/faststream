@@ -5,7 +5,6 @@ from typing_extensions import Unpack, override
 
 from faststream._internal.endpoint.publisher import PublisherUsecase
 from faststream._internal.utils.data import filter_by_dict
-from faststream.message import gen_cor_id
 from faststream.rabbit.response import RabbitPublishCommand
 from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 from faststream.response.publish_type import PublishType
@@ -28,6 +27,17 @@ if TYPE_CHECKING:
 class RabbitPublisher(PublisherUsecase):
     """A class to represent a RabbitMQ publisher."""
 
+    __slots__ = (
+        "_message_options",
+        "exchange",
+        "headers",
+        "publish_options",
+        "queue",
+        "reply_to",
+        "routing_key",
+        "timeout",
+    )
+
     _outer_config: "RabbitBrokerConfig"
 
     def __init__(
@@ -38,7 +48,7 @@ class RabbitPublisher(PublisherUsecase):
         super().__init__(config, specification)
 
         self.queue = config.queue
-        self.routing_key = config.routing_key
+        self.routing_key = config.routing_address.template
 
         self.exchange = config.exchange
 
@@ -99,7 +109,10 @@ class RabbitPublisher(PublisherUsecase):
         else:
             headers = self.headers
 
-        correlation_id = publish_kwargs.pop("correlation_id", gen_cor_id())
+        correlation_id = (
+            publish_kwargs.pop("correlation_id", None)
+            or self._outer_config.id_generator()
+        )
 
         cmd = RabbitPublishCommand(
             message,
@@ -160,7 +173,10 @@ class RabbitPublisher(PublisherUsecase):
         else:
             headers = self.headers
 
-        correlation_id = publish_kwargs.pop("correlation_id", gen_cor_id())
+        correlation_id = (
+            publish_kwargs.pop("correlation_id", None)
+            or self._outer_config.id_generator()
+        )
 
         cmd = RabbitPublishCommand(
             message,

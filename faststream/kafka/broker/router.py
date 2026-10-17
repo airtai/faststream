@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Callable, Iterable, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -20,16 +20,18 @@ from faststream.kafka.configs import KafkaBrokerConfig
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
-    from aiokafka import ConsumerRecord, TopicPartition
+    from aiokafka import ConsumerRecord
     from aiokafka.abc import ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.kafka.schemas import Topic, TopicPartition
 
 
 class KafkaPublisher(ArgsContainer):
@@ -40,11 +42,11 @@ class KafkaPublisher(ArgsContainer):
 
     def __init__(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI args
@@ -52,6 +54,8 @@ class KafkaPublisher(ArgsContainer):
         description: str | None = None,
         schema: Any | None = None,
         include_in_schema: bool = True,
+        persistent: bool = True,
+        autoflush: bool = False,
     ) -> None:
         """Initialize KafkaPublisher.
 
@@ -80,6 +84,8 @@ class KafkaPublisher(ArgsContainer):
                 AsyncAPI publishing message type.
                 Should be any python-native object annotation or `pydantic.BaseModel`.
             include_in_schema: Whetever to include operation in AsyncAPI schema or not.
+            persistent: Whether to make the publisher persistent or not.
+            autoflush: Whether to flush the producer or not on every publish call.
         """
         super().__init__(
             topic=topic,
@@ -93,6 +99,8 @@ class KafkaPublisher(ArgsContainer):
             description=description,
             schema=schema,
             include_in_schema=include_in_schema,
+            persistent=persistent,
+            autoflush=autoflush,
         )
 
 
@@ -103,11 +111,12 @@ class KafkaRoute(SubscriberRoute):
         self,
         call: Callable[..., "SendableMessage"]
         | Callable[..., Awaitable["SendableMessage"]],
-        *topics: str,
+        *topics: Union[str, "Topic"],
         publishers: Iterable[KafkaPublisher] = (),
         batch: bool = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -117,7 +126,7 @@ class KafkaRoute(SubscriberRoute):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -136,7 +145,7 @@ class KafkaRoute(SubscriberRoute):
         pattern: str | None = None,
         partitions: Iterable["TopicPartition"] | None = (),
         # broker args
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         ack_policy: AckPolicy = EMPTY,
@@ -146,6 +155,8 @@ class KafkaRoute(SubscriberRoute):
         description: str | None = None,
         include_in_schema: bool = True,
         max_workers: int | None = None,
+        persistent: bool = True,
+        codec: Optional["CodecProto"] = None,
     ) -> None:
         """Initialize KafkaRoute.
 
@@ -153,7 +164,8 @@ class KafkaRoute(SubscriberRoute):
             call:
                 Message handler function
                 to wrap the same with `@broker.subscriber(...)` way.
-            *topics: "Kafka topics to consume messages from.
+            *topics: Kafka topics to consume messages from. Pass a `Topic` object
+                instead of a plain name to configure how the topic is created.
             publishers: Kafka publishers to broadcast the handler result.
             batch: Whether to consume messages in batches or not.
             group_id:
@@ -166,6 +178,10 @@ class KafkaRoute(SubscriberRoute):
                 membership (KIP-345). If set, the consumer is treated as a
                 static member, which means it does not join/leave the group
                 on each restart, avoiding unnecessary rebalances.
+            client_rack:
+                A rack identifier for the consumer, used for rack-aware
+                fetching from the closest replica. Overrides the broker-level
+                ``client_rack`` when set. Requires aiokafka 0.14.0 or newer.
             key_deserializer:
                     Any callable that takes a raw message `bytes`
                     key and returns a deserialized one.
@@ -334,6 +350,8 @@ class KafkaRoute(SubscriberRoute):
                 Uses decorated docstring as default.
             include_in_schema: Whetever to include operation in AsyncAPI schema or not.
             max_workers: Number of workers to process messages concurrently.
+            persistent: Whether to make the subscriber persistent or not.
+            codec: Custom codec object.
         """
         super().__init__(
             call,
@@ -342,6 +360,7 @@ class KafkaRoute(SubscriberRoute):
             max_workers=max_workers,
             group_id=group_id,
             group_instance_id=group_instance_id,
+            client_rack=client_rack,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,
             fetch_max_wait_ms=fetch_max_wait_ms,
@@ -376,6 +395,8 @@ class KafkaRoute(SubscriberRoute):
             title=title,
             description=description,
             include_in_schema=include_in_schema,
+            persistent=persistent,
+            codec=codec,
         )
 
 
@@ -383,9 +404,10 @@ class KafkaRouter(
     KafkaRegistrator,
     BrokerRouter[
         Union[
-            "ConsumerRecord",
-            tuple["ConsumerRecord", ...],
-        ]
+            "ConsumerRecord[Any, Any]",
+            tuple["ConsumerRecord[Any, Any]", ...],
+        ],
+        KafkaBrokerConfig,
     ],
 ):
     """Includable to KafkaBroker router."""
@@ -395,7 +417,7 @@ class KafkaRouter(
         prefix: str = "",
         handlers: Iterable[KafkaRoute] = (),
         *,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         routers: Iterable[KafkaRegistrator] = (),
         parser: Optional["CustomCallable"] = None,

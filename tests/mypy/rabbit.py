@@ -2,16 +2,60 @@ from collections.abc import Awaitable, Callable
 
 import prometheus_client
 from aio_pika import IncomingMessage
+from aio_pika.abc import AbstractConnection, AbstractRobustConnection
 from aiormq.abc import ConfirmationFrameType
 from typing_extensions import assert_type
 
 from faststream._internal.basic_types import DecodedMessage
-from faststream.rabbit import RabbitBroker, RabbitMessage, RabbitRoute, RabbitRouter
+from faststream.rabbit import (
+    RabbitBroker,
+    RabbitMessage,
+    RabbitRoute,
+    RabbitRouter,
+    TestRabbitBroker,
+)
 from faststream.rabbit.fastapi import RabbitRouter as FastAPIRouter
 from faststream.rabbit.opentelemetry import RabbitTelemetryMiddleware
 from faststream.rabbit.prometheus import RabbitPrometheusMiddleware
 from faststream.rabbit.publisher.usecase import RabbitPublisher
 from faststream.rabbit.subscriber.usecase import RabbitSubscriber
+
+
+def sync_on_close(
+    connection: AbstractConnection | None, error: BaseException | None
+) -> None: ...
+
+
+async def async_on_close(
+    connection: AbstractConnection | None, error: BaseException | None
+) -> None: ...
+
+
+def sync_on_reconnected(connection: AbstractRobustConnection | None) -> None: ...
+
+
+async def async_on_reconnected(connection: AbstractRobustConnection | None) -> None: ...
+
+
+RabbitBroker(on_close=[sync_on_close], on_reconnected=[sync_on_reconnected])
+RabbitBroker(on_close=(async_on_close,), on_reconnected=(async_on_reconnected,))
+RabbitBroker(
+    on_close=[sync_on_close, async_on_close],
+    on_reconnected=[sync_on_reconnected, async_on_reconnected],
+)
+RabbitBroker(on_close=[], on_reconnected=())
+
+
+async def check_multiple_test_brokers() -> None:
+    async with TestRabbitBroker(RabbitBroker()) as br1:
+        await br1.publish(None, "test")
+
+    async with TestRabbitBroker(
+        RabbitBroker(),
+        RabbitBroker(),
+    ) as (br1, br2):
+        await br1.publish(None, "test")
+        await br2.publish(None, "test")
 
 
 def sync_decoder(msg: RabbitMessage) -> DecodedMessage:
@@ -336,3 +380,5 @@ RabbitBroker().include_routers(RabbitRouter())
 RabbitRouter(routers=[RabbitRouter()])
 RabbitRouter().include_router(RabbitRouter())
 RabbitRouter().include_routers(RabbitRouter())
+
+FastAPIRouter().include_router(RabbitRouter())

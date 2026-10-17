@@ -1,3 +1,6 @@
+import asyncio
+from unittest.mock import MagicMock
+
 import pytest
 
 from faststream.mqtt.broker.broker import MQTTBroker
@@ -15,20 +18,64 @@ class TestTestclient(MQTTMemoryTestcaseConfig, BrokerTestclientTestcase):
     def get_fake_producer_class(self) -> type:
         return FakeProducer
 
-    async def test_consume_with_filter(self, queue, mock):
+    async def test_consume_with_filter(
+        self, queue: str, mock: MagicMock, event: asyncio.Event, event2: asyncio.Event
+    ) -> None:
         if self.version == "3.1.1":
             pytest.skip(_SKIP_V311)
-        await super().test_consume_with_filter(queue, mock)
+        await super().test_consume_with_filter(queue, mock, event, event2)
 
-    async def test_response(self, queue, mock):
+    async def test_response(
+        self, queue: str, mock: MagicMock, event: asyncio.Event
+    ) -> None:
         if self.version == "3.1.1":
             pytest.skip(_SKIP_V311)
-        await super().test_response(queue, mock)
+        await super().test_response(queue, mock, event)
 
-    async def test_reply_to(self, queue, mock):
+    async def test_custom_id_generator(self, queue: str, mock: MagicMock) -> None:
         if self.version == "3.1.1":
             pytest.skip(_SKIP_V311)
-        await super().test_reply_to(queue, mock)
+        await super().test_custom_id_generator(queue, mock)
+
+    async def test_reply_to(
+        self, queue: str, mock: MagicMock, event: asyncio.Event
+    ) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_reply_to(queue, mock, event)
+
+    async def test_subscriber_assertion_checks_body_fields_and_context(
+        self, queue: str
+    ) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_subscriber_assertion_checks_body_fields_and_context(queue)
+
+    async def test_publisher_assert_called_once_with(self, queue: str) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_publisher_assert_called_once_with(queue)
+
+    async def test_subscriber_assert_called_with_reads_the_last_call(
+        self, queue: str
+    ) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_subscriber_assert_called_with_reads_the_last_call(queue)
+
+    async def test_subscriber_assert_any_call_searches_every_call(
+        self, queue: str
+    ) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_subscriber_assert_any_call_searches_every_call(queue)
+
+    async def test_publisher_assertions_share_the_recorded_calls(
+        self, queue: str
+    ) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_publisher_assertions_share_the_recorded_calls(queue)
 
     @pytest.mark.connected()
     async def test_broker_gets_patched_attrs_within_cm(self) -> None:
@@ -46,6 +93,7 @@ class TestTestclient(MQTTMemoryTestcaseConfig, BrokerTestclientTestcase):
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)
 
 
+@pytest.mark.mqtt()
 class TestTopicMatching:
     """Unit tests for the MQTT wildcard matching helper."""
 

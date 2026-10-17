@@ -82,6 +82,15 @@ def test_stream_with_group_and_min_idle_time() -> None:
 
 
 @pytest.mark.redis()
+def test_stream_declare_without_group_warning() -> None:
+    with pytest.warns(
+        RuntimeWarning,
+        match="`declare` has no effect without consumer group",
+    ):
+        StreamSub("test_stream", declare=False)
+
+
+@pytest.mark.redis()
 def test_broker_ack_policy() -> None:
     broker = RedisBroker(ack_policy=AckPolicy.ACK)
     sub = broker.subscriber(
@@ -99,6 +108,7 @@ def test_router_ack_policy() -> None:
     assert sub.ack_policy is AckPolicy.ACK
 
 
+@pytest.mark.redis()
 @pytest.mark.rabbit()
 def test_broker_ack_policy_without_router() -> None:
     broker = RedisBroker(ack_policy=AckPolicy.ACK)

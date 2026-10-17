@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,6 +21,7 @@ from faststream._internal.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.context.repository import ContextRepo
 from faststream._internal.di import FastDependsConfig
+from faststream._internal.types import IdGenerator
 from faststream.confluent.configs import KafkaBrokerConfig
 from faststream.confluent.helpers import (
     AsyncConfluentConsumer,
@@ -47,12 +48,14 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.confluent.helpers.config import ConfluentConfig
     from faststream.confluent.message import KafkaMessage
+    from faststream.confluent.types import KafkaSendableMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -64,6 +67,7 @@ class KafkaBroker(
     BrokerUsecase[
         Message | tuple[Message, ...],
         Callable[..., AsyncConfluentConsumer],
+        KafkaBrokerConfig,
     ],
 ):
     url: list[str]
@@ -96,9 +100,11 @@ class KafkaBroker(
         # broker base args
         graceful_timeout: float | None = 15.0,
         ack_policy: AckPolicy = EMPTY,
+        id_generator: IdGenerator = gen_cor_id,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         parser: Optional["CustomCallable"] = None,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         routers: Iterable[KafkaRegistrator] = (),
         # AsyncAPI args
@@ -202,7 +208,10 @@ class KafkaBroker(
             transaction_timeout_ms: Transaction timeout in milliseconds.
             graceful_timeout: Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.
             ack_policy: Default acknowledgement policy for all subscribers. Individual subscribers can override.
+            id_generator: Factory used to generate `correlation_id` when a publish/request call doesn't set one explicitly.
+                Defaults to `gen_cor_id` (uuid4-based).
             decoder: Custom decoder object.
+            codec: Custom codec object.
             parser: Custom parser object.
             dependencies: Dependencies to apply to all broker subscribers.
             middlewares: Middlewares to apply to all broker publishers/subscribers.
@@ -272,6 +281,7 @@ class KafkaBroker(
                 ),
                 # both args,
                 broker_decoder=decoder,
+                broker_codec=codec,
                 broker_parser=parser,
                 broker_middlewares=middlewares,
                 logger=make_kafka_logger_state(
@@ -287,6 +297,7 @@ class KafkaBroker(
                 # subscriber args
                 graceful_timeout=graceful_timeout,
                 ack_policy=ack_policy,
+                id_generator=id_generator,
                 broker_dependencies=dependencies,
                 extra_context={
                     "broker": self,
@@ -330,22 +341,7 @@ class KafkaBroker(
         key: bytes | str | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
-        correlation_id: str | None = None,
-        reply_to: str = "",
-        no_confirm: Literal[True] = ...,
-    ) -> asyncio.Future[Message | None]: ...
-
-    @overload
-    async def publish(
-        self,
-        message: "SendableMessage",
-        topic: str,
-        *,
-        key: bytes | str | None = None,
-        partition: int | None = None,
-        timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: Literal[False] = False,
@@ -360,7 +356,22 @@ class KafkaBroker(
         key: bytes | str | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
+        correlation_id: str | None = None,
+        reply_to: str = "",
+        no_confirm: Literal[True] = ...,
+    ) -> asyncio.Future[Message | None]: ...
+
+    @overload
+    async def publish(
+        self,
+        message: "SendableMessage",
+        topic: str,
+        *,
+        key: bytes | str | None = None,
+        partition: int | None = None,
+        timestamp_ms: int | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: bool = False,
@@ -375,7 +386,7 @@ class KafkaBroker(
         key: bytes | str | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: bool = False,
@@ -410,7 +421,7 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             _publish_type=PublishType.PUBLISH,
         )
         result: (
@@ -427,7 +438,7 @@ class KafkaBroker(
         key: bytes | str | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         timeout: float = 0.5,
     ) -> "KafkaMessage":
@@ -439,7 +450,7 @@ class KafkaBroker(
             timestamp_ms=timestamp_ms,
             headers=headers,
             timeout=timeout,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             _publish_type=PublishType.REQUEST,
         )
 
@@ -452,11 +463,11 @@ class KafkaBroker(
     @override
     async def publish_batch(  # type: ignore[override]
         self,
-        *messages: "SendableMessage",
+        *messages: "KafkaSendableMessage",
         topic: str,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         correlation_id: str | None = None,
         no_confirm: bool = False,
@@ -469,7 +480,7 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             _publish_type=PublishType.PUBLISH,
         )
 

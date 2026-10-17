@@ -1,4 +1,4 @@
-from collections.abc import Callable, Collection, Iterable, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,11 +22,11 @@ from faststream.kafka.subscriber.factory import create_subscriber
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
-    from aiokafka import TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fast_depends.dependencies import Dependant
 
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         BatchPublisher,
         DefaultPublisher,
     )
+    from faststream.kafka.schemas import Topic, TopicPartition
     from faststream.kafka.subscriber.usecase import (
         BatchSubscriber,
         ConcurrentBetweenPartitionsSubscriber,
@@ -45,7 +46,7 @@ if TYPE_CHECKING:
 
 class KafkaRegistrator(
     Registrator[
-        ConsumerRecord | tuple[ConsumerRecord, ...],
+        ConsumerRecord[Any, Any] | tuple[ConsumerRecord[Any, Any], ...],
         KafkaBrokerConfig,
     ],
 ):
@@ -54,10 +55,11 @@ class KafkaRegistrator(
     @overload  # type: ignore[override]
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[False] = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -67,7 +69,7 @@ class KafkaRegistrator(
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -87,9 +89,10 @@ class KafkaRegistrator(
         partitions: Collection["TopicPartition"] = (),
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -102,10 +105,11 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[True] = ...,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -115,7 +119,7 @@ class KafkaRegistrator(
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -135,9 +139,10 @@ class KafkaRegistrator(
         partitions: Collection["TopicPartition"] = (),
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -150,10 +155,11 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[False] = False,
         group_id: None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -163,7 +169,7 @@ class KafkaRegistrator(
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -183,9 +189,10 @@ class KafkaRegistrator(
         partitions: Collection["TopicPartition"] = (),
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int = ...,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -198,10 +205,11 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[False] = False,
         group_id: str = ...,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -211,7 +219,7 @@ class KafkaRegistrator(
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -231,9 +239,10 @@ class KafkaRegistrator(
         partitions: Collection["TopicPartition"] = (),
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int = ...,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -246,10 +255,11 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: bool = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -259,7 +269,7 @@ class KafkaRegistrator(
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -279,9 +289,10 @@ class KafkaRegistrator(
         partitions: Collection["TopicPartition"] = (),
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int | None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -299,10 +310,11 @@ class KafkaRegistrator(
     @override
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: bool = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -312,7 +324,7 @@ class KafkaRegistrator(
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -332,9 +344,10 @@ class KafkaRegistrator(
         partitions: Collection["TopicPartition"] = (),
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int | None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -351,7 +364,8 @@ class KafkaRegistrator(
         """Create a subscriber for Kafka topics.
 
         Args:
-            *topics: Kafka topics to consume messages from.
+            *topics: Kafka topics to consume messages from. Pass a `Topic` object
+                instead of a plain name to configure how the topic is created.
             batch: Whether to consume messages in batches or not.
             group_id:
                 Name of the consumer group to join for dynamic
@@ -363,6 +377,10 @@ class KafkaRegistrator(
                 membership (KIP-345). If set, the consumer is treated as a
                 static member, which means it does not join/leave the group
                 on each restart, avoiding unnecessary rebalances.
+            client_rack:
+                A rack identifier for the consumer, used for rack-aware
+                fetching from the closest replica. Overrides the broker-level
+                ``client_rack`` when set. Requires aiokafka 0.14.0 or newer.
             key_deserializer:
                 Any callable that takes a raw message `bytes`
                 key and returns a deserialized one.
@@ -529,6 +547,7 @@ class KafkaRegistrator(
             dependencies: Dependencies list (`[Dependant(),]`) to apply to the subscriber.
             parser: Parser to map original **ConsumerRecord** object to FastStream one.
             decoder: Function to decode FastStream msg bytes body to python objects.
+            codec: Custom codec object.
             middlewares: Subscriber middlewares to wrap incoming message processing.
             max_workers: Number of workers to process messages concurrently.
             no_ack: Whether to disable **FastStream** auto acknowledgement logic or not.
@@ -570,6 +589,9 @@ class KafkaRegistrator(
                 "max_poll_records": max_poll_records,
                 "exclude_internal_topics": exclude_internal_topics,
                 "isolation_level": isolation_level,
+                # Forwarded only when set, so an unset subscriber value leaves
+                # the broker-level client_rack default intact.
+                **({"client_rack": client_rack} if client_rack is not None else {}),
             },
             partitions=partitions,
             ack_policy=ack_policy,
@@ -586,6 +608,7 @@ class KafkaRegistrator(
         subscriber.add_call(
             parser_=parser,
             decoder_=decoder,
+            codec_=codec,
             dependencies_=dependencies,
         )
 
@@ -601,11 +624,11 @@ class KafkaRegistrator(
     @overload  # type: ignore[override]
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: Literal[False] = False,
         # basic args
@@ -621,11 +644,11 @@ class KafkaRegistrator(
     @overload
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: Literal[True] = ...,
         # basic args
@@ -640,11 +663,11 @@ class KafkaRegistrator(
     @overload
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # basic args
@@ -663,11 +686,11 @@ class KafkaRegistrator(
     @override
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # basic args
@@ -690,7 +713,9 @@ class KafkaRegistrator(
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
 
         Args:
-            topic: Topic where the message will be published."
+            topic: Topic where the message will be published. A `Topic` object is
+                accepted as well, but **FastStream** never creates publisher topics,
+                so its creation settings are ignored.
             key:
                 A key to associate with the message. Can be used to
                 determine which partition to send the message to. If partition
@@ -749,7 +774,7 @@ class KafkaRegistrator(
         router: "KafkaRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         include_in_schema: bool | None = None,
     ) -> None:

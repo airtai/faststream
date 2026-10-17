@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable, Collection, Iterable, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,7 +14,7 @@ from typing import (
 from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from aiokafka.partitioner import DefaultPartitioner
-from aiokafka.producer.producer import _missing
+from aiokafka.producer.producer import _missing  # noqa: PLC2701
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
@@ -26,14 +26,15 @@ from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo
 from faststream._internal.fastapi.router import StreamRouter
+from faststream._internal.types import IdGenerator
 from faststream.kafka.broker.broker import KafkaBroker as KB
+from faststream.message import gen_cor_id
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from enum import Enum
 
-    from aiokafka import TopicPartition
     from aiokafka.abc import AbstractTokenProvider, ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fastapi import params
@@ -49,6 +50,7 @@ if TYPE_CHECKING:
         BatchPublisher,
         DefaultPublisher,
     )
+    from faststream.kafka.schemas import Topic, TopicPartition
     from faststream.kafka.subscriber.usecase import (
         BatchSubscriber,
         ConcurrentBetweenPartitionsSubscriber,
@@ -62,7 +64,9 @@ if TYPE_CHECKING:
 Partition = TypeVar("Partition")
 
 
-class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
+class KafkaRouter(
+    StreamRouter[ConsumerRecord[Any, Any] | tuple[ConsumerRecord[Any, Any], ...]]
+):
     """A class to represent a Kafka router."""
 
     broker_class = KB
@@ -82,6 +86,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         sasl_oauth_token_provider: Optional["AbstractTokenProvider"] = None,
         loop: Optional["AbstractEventLoop"] = None,
         client_id: str | None = SERVICE_NAME,
+        allow_auto_create_topics: bool = True,
         # publisher args
         acks: Literal[0, 1, -1, "all"] | object = _missing,
         key_serializer: Callable[[Any], bytes] | None = None,
@@ -99,6 +104,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         transaction_timeout_ms: int = 60 * 1000,
         # broker base args
         graceful_timeout: float | None = 15.0,
+        id_generator: IdGenerator = gen_cor_id,
         decoder: Optional["CustomCallable"] = None,
         parser: Optional["CustomCallable"] = None,
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
@@ -219,8 +225,14 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
                 etc., may write duplicates of the retried message in the stream.
                 Note that enabling idempotence acks to set to ``all``. If it is not
                 explicitly set by the user it will be chosen.
+            allow_auto_create_topics: Allow FastStream to create topics through the admin client when a subscriber starts.
+                Unlike ``faststream.confluent``, this flag is FastStream-side only: aiokafka has no
+                ``allow.auto.create.topics`` consumer option, so the cluster's own
+                ``auto.create.topics.enable`` is a separate switch.
             # broker base args
             graceful_timeout: Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.
+            id_generator: Factory used to generate `correlation_id` when a publish/request call doesn't set one explicitly.
+                Defaults to `gen_cor_id` (uuid4-based).
             decoder: Custom decoder object.
             parser: Custom parser object.
             middlewares: Middlewares to apply to all broker publishers/subscribers.
@@ -335,8 +347,10 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
             enable_idempotence=enable_idempotence,
             transactional_id=transactional_id,
             transaction_timeout_ms=transaction_timeout_ms,
+            allow_auto_create_topics=allow_auto_create_topics,
             # broker args
             graceful_timeout=graceful_timeout,
+            id_generator=id_generator,
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
@@ -377,10 +391,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload  # type: ignore[override]
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[False] = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -390,7 +405,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -432,10 +447,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[True] = ...,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -445,7 +461,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -487,10 +503,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[False] = False,
         group_id: None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -500,7 +517,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -542,10 +559,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: Literal[False] = False,
         group_id: str = ...,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -555,7 +573,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -597,10 +615,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: bool = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -610,7 +629,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -657,10 +676,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @override
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         batch: bool = False,
         group_id: str | None = None,
         group_instance_id: str | None = None,
+        client_rack: str | None = None,
         key_deserializer: Callable[[bytes], Any] | None = None,
         value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_bytes: int = 50 * 1024 * 1024,
@@ -670,7 +690,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence["AbstractPartitionAssignor"] = (
+        partition_assignment_strategy: Sequence[type["AbstractPartitionAssignor"]] = (
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 5 * 60 * 1000,
@@ -716,7 +736,8 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         """Create a subscriber for Kafka topics.
 
         Args:
-            *topics: Kafka topics to consume messages from.
+            *topics: Kafka topics to consume messages from. Pass a `Topic` object
+                instead of a plain name to configure how the topic is created.
             batch: Whether to consume messages in batches or not.
             group_id:
                 Name of the consumer group to join for dynamic
@@ -728,6 +749,10 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
                 membership (KIP-345). If set, the consumer is treated as a
                 static member, which means it does not join/leave the group
                 on each restart, avoiding unnecessary rebalances.
+            client_rack:
+                A rack identifier for the consumer, used for rack-aware
+                fetching from the closest replica. Overrides the broker-level
+                ``client_rack`` when set. Requires aiokafka 0.14.0 or newer.
             key_deserializer:
                 Any callable that takes a raw message `bytes`
                 key and returns a deserialized one.
@@ -966,6 +991,8 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         subscriber = super().subscriber(
             *topics,
             group_id=group_id,
+            group_instance_id=group_instance_id,
+            client_rack=client_rack,
             max_workers=max_workers,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,
@@ -1025,11 +1052,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload  # type: ignore[override]
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: Literal[False] = False,
         # basic args
@@ -1044,11 +1071,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: Literal[True] = ...,
         # basic args
@@ -1062,11 +1089,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @overload
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # basic args
@@ -1084,11 +1111,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
     @override
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | Any | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # basic args
@@ -1109,7 +1136,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord | tuple[ConsumerRecord, ...]]):
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
 
         Args:
-            topic: Topic where the message will be published."
+            topic: Topic where the message will be published. A `Topic` object is
+                accepted as well, but **FastStream** never creates publisher topics,
+                so its creation settings are ignored.
             key:
                 A key to associate with the message. Can be used to
                 determine which partition to send the message to. If partition

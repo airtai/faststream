@@ -6,14 +6,18 @@ from typing_extensions import assert_type
 from faststream._internal.basic_types import DecodedMessage
 from faststream.redis import (
     ListSub,
+    PubSub,
     RedisBroker,
     RedisChannelMessage,
+    RedisClusterBroker,
     RedisListMessage,
     RedisMessage as Message,
+    RedisPublisher,
     RedisRoute as Route,
     RedisRouter,
     RedisStreamMessage,
     StreamSub,
+    TestRedisBroker,
 )
 from faststream.redis.fastapi import RedisRouter as FastAPIRouter
 from faststream.redis.message import RedisMessage as Msg
@@ -23,6 +27,7 @@ from faststream.redis.publisher.usecase import (
     ChannelPublisher,
     ListBatchPublisher,
     ListPublisher,
+    LogicPublisher,
     StreamPublisher,
 )
 from faststream.redis.subscriber.usecases import (
@@ -31,10 +36,27 @@ from faststream.redis.subscriber.usecases import (
     ListBatchSubscriber,
     ListConcurrentSubscriber,
     ListSubscriber,
+    LogicSubscriber,
     StreamBatchSubscriber,
     StreamConcurrentSubscriber,
     StreamSubscriber,
 )
+from faststream.redis.testing import PEL
+
+
+async def check_multiple_test_brokers() -> None:
+    async with TestRedisBroker(RedisBroker()) as br1:
+        await br1.publish(None, "test")
+
+    async with TestRedisBroker(
+        RedisBroker(),
+        RedisBroker(),
+    ) as (br1, br2):
+        await br1.publish(None, "test")
+        await br2.publish(None, "test")
+
+    async with TestRedisBroker(RedisBroker(), pel=PEL()) as br1:
+        await br1.publish(None, "test")
 
 
 def sync_decoder(msg: Message) -> DecodedMessage:
@@ -51,6 +73,13 @@ async def custom_decoder(
 ) -> DecodedMessage:
     return await original(msg)
 
+
+RedisClusterBroker(
+    ssl=True,
+    ssl_ca_certs="ca.pem",
+    ssl_certfile="client.pem",
+    ssl_keyfile="client.key",
+)
 
 RedisBroker(decoder=sync_decoder)
 RedisBroker(decoder=async_decoder)
@@ -324,6 +353,10 @@ async def check_broker_publish_result_type(optional_stream: str | None = "test")
     assert_type(publish_with_confirm, int)
 
 
+def fake_bool() -> bool:
+    return True
+
+
 async def check_publisher_publish_result_types(
     broker: RedisBroker | RedisRouter | FastAPIRouter,
 ) -> None:
@@ -336,8 +369,14 @@ async def check_publisher_publish_result_types(
     assert_type(await p1.publish(None), int)
 
     p2 = broker.publisher(list=ListSub("test", batch=True))
-    assert_type(p2, ListBatchPublisher | ListPublisher)
+    assert_type(p2, ListBatchPublisher)
     assert_type(await p2.publish(None), int)
+
+    p2_plain = broker.publisher(list=ListSub("test"))
+    assert_type(p2_plain, ListPublisher)
+
+    p2_unknown = broker.publisher(list=ListSub("test", batch=fake_bool()))
+    assert_type(p2_unknown, ListBatchPublisher | ListPublisher)
 
     p3 = broker.publisher(stream="stream")
     assert_type(p3, StreamPublisher)
@@ -388,6 +427,8 @@ async def check_stream_subscriber_message_type(
 
     message = await subscriber.get_one()
     assert_type(message, RedisStreamMessage | None)
+    if message is not None:
+        assert_type(await message.get_delivery_count(), int)
 
     async for msg in subscriber:
         assert_type(msg, RedisStreamMessage)
@@ -422,7 +463,13 @@ def check_stream_subscriber_instance_type(
     assert_type(sub1, StreamSubscriber)
 
     sub2 = broker.subscriber(stream=StreamSub("test"))
-    assert_type(sub2, StreamSubscriber | StreamBatchSubscriber)
+    assert_type(sub2, StreamSubscriber)
+
+    sub2_batch = broker.subscriber(stream=StreamSub("test", batch=True))
+    assert_type(sub2_batch, StreamBatchSubscriber)
+
+    sub2_unknown = broker.subscriber(stream=StreamSub("test", batch=fake_bool()))
+    assert_type(sub2_unknown, StreamSubscriber | StreamBatchSubscriber)
 
     sub3 = broker.subscriber(stream="test", max_workers=2)
     assert_type(sub3, StreamConcurrentSubscriber)
@@ -435,10 +482,34 @@ def check_list_subscriber_instance_type(
     assert_type(sub1, ListSubscriber)
 
     sub2 = broker.subscriber(list=ListSub("test"))
-    assert_type(sub2, ListSubscriber | ListBatchSubscriber)
+    assert_type(sub2, ListSubscriber)
+
+    assert_type(RedisBroker().subscriber(list="test", persistent=False), ListSubscriber)
+
+    sub2_batch = broker.subscriber(list=ListSub("test", batch=True))
+    assert_type(sub2_batch, ListBatchSubscriber)
+
+    sub2_unknown = broker.subscriber(list=ListSub("test", batch=fake_bool()))
+    assert_type(sub2_unknown, ListSubscriber | ListBatchSubscriber)
 
     sub3 = broker.subscriber(list="test", max_workers=2)
     assert_type(sub3, ListConcurrentSubscriber)
+
+
+def check_destination_is_required(broker: RedisBroker, router: FastAPIRouter) -> None:
+    # without a channel, list or stream both raise `SetupError`
+    broker.subscriber()  # type: ignore[call-overload]
+    broker.publisher()  # type: ignore[call-overload]
+    router.subscriber()  # type: ignore[call-overload]
+    router.publisher()  # type: ignore[call-overload]
+
+
+def check_runtime_destination_type(broker: RedisBroker, name: str | None) -> None:
+    assert_type(broker.subscriber(list=name), LogicSubscriber)
+    assert_type(broker.subscriber(stream=name), LogicSubscriber)
+
+    assert_type(broker.publisher(list=name), LogicPublisher)
+    assert_type(broker.publisher(stream=name), LogicPublisher)
 
 
 RedisBroker(routers=[RedisRouter()])
@@ -448,3 +519,45 @@ RedisBroker().include_routers(RedisRouter())
 RedisRouter(routers=[RedisRouter()])
 RedisRouter().include_router(RedisRouter())
 RedisRouter().include_routers(RedisRouter())
+
+FastAPIRouter().include_router(RedisRouter())
+
+
+# `RedisPublisher` is documented as a copy of `RedisRegistrator.publisher(...)`
+# arguments, so it must accept the same schema objects that method does.
+RedisRouter(
+    handlers=(
+        Route(
+            async_handler,
+            channel=PubSub("test"),
+            publishers=(
+                RedisPublisher(channel=PubSub("test")),
+                RedisPublisher(list=ListSub("test")),
+                RedisPublisher(stream=StreamSub("test")),
+            ),
+        ),
+    ),
+)
+
+
+@RedisBroker().subscriber(stream=StreamSub("test", batch=True))
+async def handle_stream_batch() -> None: ...
+
+
+@RedisBroker().subscriber(list=ListSub("test", batch=True))
+async def handle_list_batch() -> None: ...
+
+
+def accepts_any_list_sub(list_sub: ListSub) -> None: ...
+
+
+accepts_any_list_sub(ListSub("test", batch=True))
+
+
+def accepts_list_publisher(publisher: ListPublisher) -> None: ...
+
+
+# `publish(*messages)` of a batch publisher would take the `list` passed
+# positionally to `ListPublisher.publish` as a second message
+batch_publisher = RedisBroker().publisher(list=ListSub("test", batch=True))
+accepts_list_publisher(batch_publisher)  # type: ignore[arg-type]

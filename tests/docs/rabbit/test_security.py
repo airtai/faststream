@@ -26,7 +26,7 @@ async def test_base_security() -> None:
                 "protocol": "amqps",
                 "protocolVersion": "0.9.1",
                 "security": [],
-                "url": "amqps://guest:guest@localhost:5672/",
+                "url": "amqps://localhost:5672/",
             },
         },
     }
@@ -58,7 +58,33 @@ async def test_plaintext_security() -> None:
                 "protocol": "amqps",
                 "protocolVersion": "0.9.1",
                 "security": [{"user-password": []}],
-                "url": "amqps://admin:password@localhost:5672/",
+                "url": "amqps://localhost:5672/",
+            },
+        },
+    }
+
+
+@pytest.mark.rabbit()
+def test_external_auth_security() -> None:
+    from docs.docs_src.rabbit.security.external import broker
+
+    schema = get_2_6_0_schema(broker)
+    assert schema == {
+        "asyncapi": "2.6.0",
+        "channels": {},
+        "components": {
+            "messages": {},
+            "schemas": {},
+            "securitySchemes": {"rabbitmq-external": {"type": "X509"}},
+        },
+        "defaultContentType": "application/json",
+        "info": {"title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "development": {
+                "protocol": "amqps",
+                "protocolVersion": "0.9.1",
+                "security": [{"rabbitmq-external": []}],
+                "url": "amqps://localhost:5671/?auth=EXTERNAL",
             },
         },
     }

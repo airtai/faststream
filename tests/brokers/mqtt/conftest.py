@@ -1,14 +1,6 @@
-from dataclasses import dataclass
-
 import pytest
 
-from faststream.mqtt.broker.router import MQTTRouter
-
-
-@dataclass
-class Settings:
-    host: str = "localhost"
-    port: int = 1883
+from .settings import Settings
 
 
 @pytest.fixture(scope="session")
@@ -18,9 +10,5 @@ def settings() -> Settings:
 
 @pytest.fixture(params=["3.1.1", "5.0"])
 def mqtt_version(request: pytest.FixtureRequest) -> str:
-    return request.param
-
-
-@pytest.fixture()
-def router() -> MQTTRouter:
-    return MQTTRouter()
+    version: str = request.param
+    return version

@@ -1,8 +1,8 @@
 import re
-from collections.abc import Callable, Generator, Iterable, Iterator
+from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
 from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast, overload
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
@@ -10,21 +10,28 @@ from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream._internal.endpoint.utils import ParserComposition
-from faststream._internal.testing.broker import TestBroker, change_producer
+from faststream._internal.parser import BatchCodecProto, DefaultCodec
+from faststream._internal.testing.broker import (
+    EnterType,
+    TestBroker,
+    change_producer,
+)
+from faststream._internal.types import IdGenerator
 from faststream.exceptions import SubscriberNotFound
 from faststream.kafka import TopicPartition
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
-from faststream.kafka.publisher.producer import AioKafkaFastProducer
+from faststream.kafka.publisher.producer import AioKafkaFastProducer, _encode_headers
 from faststream.kafka.publisher.usecase import BatchPublisher
 from faststream.kafka.subscriber.usecase import BatchSubscriber
-from faststream.message import encode_message, gen_cor_id
+from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
     from fast_depends.library.serializer import SerializerProto
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.parser import CodecProto
     from faststream.kafka.publisher.usecase import LogicPublisher
     from faststream.kafka.response import KafkaPublishCommand
     from faststream.kafka.subscriber.usecase import LogicSubscriber
@@ -32,12 +39,45 @@ if TYPE_CHECKING:
 __all__ = ("TestKafkaBroker",)
 
 
-class TestKafkaBroker(TestBroker[KafkaBroker]):
+class TestKafkaBroker(
+    TestBroker[KafkaBroker, EnterType],
+    broker=KafkaBroker,
+):
     """A class to test Kafka brokers."""
 
+    @overload
+    def __init__(
+        self: "TestKafkaBroker[KafkaBroker]",
+        broker: KafkaBroker,
+        /,
+        *,
+        with_real: bool = False,
+        connect_only: bool | None = None,
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self: "TestKafkaBroker[tuple[KafkaBroker, ...]]",
+        *brokers: KafkaBroker,
+        with_real: bool = False,
+        connect_only: bool | None = None,
+    ) -> None: ...
+
+    def __init__(
+        self,
+        *brokers: KafkaBroker,
+        with_real: bool = False,
+        connect_only: bool | None = None,
+    ) -> None:
+        super().__init__(
+            *brokers,
+            with_real=with_real,
+            connect_only=connect_only,
+        )
+
     @contextmanager
-    def _patch_producer(self, broker: KafkaBroker) -> Iterator[None]:
-        fake_producer = FakeProducer(broker)
+    def _patch_producer(self, broker: KafkaBroker) -> Generator[None, None, None]:
+        fake_producer = FakeProducer(broker, self.brokers)
 
         with ExitStack() as es:
             es.enter_context(
@@ -51,20 +91,18 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         *args: Any,
         **kwargs: Any,
     ) -> Callable[..., AsyncMock]:
-        broker.config.broker_config._admin_client = AsyncMock()
-
         builder = MagicMock(return_value=FakeConsumer())
         broker.config.broker_config.builder = builder
 
         return _fake_connection
 
-    @staticmethod
     def create_publisher_fake_subscriber(
+        self,
         broker: KafkaBroker,
         publisher: "LogicPublisher",
     ) -> tuple["LogicSubscriber[Any]", bool]:
         sub: LogicSubscriber[Any] | None = None
-        for handler in broker.subscribers:
+        for handler in (s for b in self.brokers for s in b.subscribers):
             handler = cast("LogicSubscriber[Any]", handler)
             if _is_handler_matches(handler, publisher.topic, publisher.partition):
                 sub = handler
@@ -114,8 +152,13 @@ class FakeProducer(AioKafkaFastProducer):
     This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
     """
 
-    def __init__(self, broker: KafkaBroker) -> None:
+    def __init__(
+        self,
+        broker: KafkaBroker,
+        brokers: Sequence[KafkaBroker],
+    ) -> None:
         self.broker = broker
+        self.brokers = brokers
 
         default = AioKafkaParser(
             msg_class=KafkaMessage,
@@ -124,6 +167,13 @@ class FakeProducer(AioKafkaFastProducer):
 
         self._parser = ParserComposition(broker._parser, default.parse_message)
         self._decoder = ParserComposition(broker._decoder, default.decode_message)
+        self.codec = broker.config.broker_codec or DefaultCodec()
+
+    @property
+    def subscribers(self) -> Iterable["LogicSubscriber[Any]"]:
+        return (
+            cast("LogicSubscriber[Any]", s) for b in self.brokers for s in b.subscribers
+        )
 
     def __bool__(self) -> bool:
         return True
@@ -135,7 +185,7 @@ class FakeProducer(AioKafkaFastProducer):
     @override
     async def publish(self, cmd: "KafkaPublishCommand") -> None:
         """Publish a message to the Kafka broker."""
-        incoming = build_message(
+        incoming = await build_message(
             message=cmd.body,
             topic=cmd.destination,
             key=cmd.key,
@@ -145,20 +195,24 @@ class FakeProducer(AioKafkaFastProducer):
             correlation_id=cmd.correlation_id,
             reply_to=cmd.reply_to,
             serializer=self.broker.config.fd_config._serializer,
+            codec=self.codec,
+            id_generator=self.broker.config.id_generator,
         )
 
         for handler in _find_handler(
-            cast("list[LogicSubscriber[Any]]", self.broker.subscribers),
+            self.subscribers,
             cmd.destination,
             cmd.partition,
         ):
-            msg_to_send = [incoming] if isinstance(handler, BatchSubscriber) else incoming
+            msg_to_send = (
+                (incoming,) if isinstance(handler, BatchSubscriber) else incoming
+            )
 
             await self._execute_handler(msg_to_send, cmd.destination, handler)
 
     @override
     async def request(self, cmd: "KafkaPublishCommand") -> "ConsumerRecord":
-        incoming = build_message(
+        incoming = await build_message(
             message=cmd.body,
             topic=cmd.destination,
             key=cmd.key,
@@ -167,14 +221,18 @@ class FakeProducer(AioKafkaFastProducer):
             headers=cmd.headers,
             correlation_id=cmd.correlation_id,
             serializer=self.broker.config.fd_config._serializer,
+            codec=self.codec,
+            id_generator=self.broker.config.id_generator,
         )
 
         for handler in _find_handler(
-            cast("list[LogicSubscriber[Any]]", self.broker.subscribers),
+            self.subscribers,
             cmd.destination,
             cmd.partition,
         ):
-            msg_to_send = [incoming] if isinstance(handler, BatchSubscriber) else incoming
+            msg_to_send = (
+                (incoming,) if isinstance(handler, BatchSubscriber) else incoming
+            )
 
             with anyio.fail_after(cmd.timeout):
                 return await self._execute_handler(
@@ -191,14 +249,24 @@ class FakeProducer(AioKafkaFastProducer):
         cmd: "KafkaPublishCommand",
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
+        serializer = self.broker.config.fd_config._serializer
+
+        if isinstance(self.codec, BatchCodecProto):
+            encoded = await self.codec.encode_batch(cmd.batch_bodies, serializer)
+        else:
+            encoded = [
+                await self.codec.encode(body, serializer) for body in cmd.batch_bodies
+            ]
+
         for handler in _find_handler(
-            cast("list[LogicSubscriber[Any]]", self.broker.subscribers),
+            self.subscribers,
             cmd.destination,
             cmd.partition,
         ):
-            messages = (
-                build_message(
-                    message=message,
+            messages = [
+                _build_record(
+                    body=body,
+                    content_type=content_type,
                     topic=cmd.destination,
                     partition=cmd.partition,
                     timestamp_ms=cmd.timestamp_ms,
@@ -206,13 +274,13 @@ class FakeProducer(AioKafkaFastProducer):
                     headers=cmd.headers,
                     correlation_id=cmd.correlation_id,
                     reply_to=cmd.reply_to,
-                    serializer=self.broker.config.fd_config._serializer,
+                    id_generator=self.broker.config.id_generator,
                 )
-                for message_position, message in enumerate(cmd.batch_bodies)
-            )
+                for message_position, (body, content_type) in enumerate(encoded)
+            ]
 
             if isinstance(handler, BatchSubscriber):
-                await self._execute_handler(list(messages), cmd.destination, handler)
+                await self._execute_handler(tuple(messages), cmd.destination, handler)
 
             else:
                 for m in messages:
@@ -226,35 +294,44 @@ class FakeProducer(AioKafkaFastProducer):
     ) -> "ConsumerRecord":
         result = await handler.process_message(msg)
 
-        return build_message(
+        return await build_message(
             topic=topic,
             message=result.body,
             headers=result.headers,
             correlation_id=result.correlation_id,
             serializer=self.broker.config.fd_config._serializer,
+            codec=self.codec,
+            id_generator=self.broker.config.id_generator,
         )
 
 
-def build_message(
+async def build_message(
     message: "SendableMessage",
     topic: str,
     partition: int | None = None,
     timestamp_ms: int | None = None,
     key: bytes | None = None,
-    headers: dict[str, str] | None = None,
+    headers: Mapping[str, str | bytes | None] | None = None,
     correlation_id: str | None = None,
     *,
     reply_to: str = "",
     serializer: Optional["SerializerProto"],
+    codec: Optional["CodecProto"] = None,
+    id_generator: IdGenerator = gen_cor_id,
 ) -> "ConsumerRecord":
     """Build a Kafka ConsumerRecord for a sendable message."""
-    msg, content_type = encode_message(message, serializer=serializer)
+    if message is None and key is not None:
+        # keyed None is a real tombstone, matching publish()'s own rule
+        # (aiokafka needs a key or value, a keyless None still goes b"")
+        msg, content_type = None, None
+    else:
+        msg, content_type = await (codec or DefaultCodec()).encode(message, serializer)
 
     k = key or b""
 
     headers = {
         "content-type": content_type or "",
-        "correlation_id": correlation_id or gen_cor_id(),
+        "correlation_id": correlation_id or id_generator(),
         **(headers or {}),
     }
 
@@ -267,10 +344,45 @@ def build_message(
         partition=partition or 0,
         key=k,
         serialized_key_size=len(k),
-        serialized_value_size=len(msg),
-        checksum=sum(msg),
+        serialized_value_size=0 if msg is None else len(msg),
+        checksum=0 if msg is None else sum(msg),
         offset=0,
-        headers=[(i, j.encode()) for i, j in headers.items()],
+        headers=_encode_headers(headers),
+        timestamp_type=1,
+        timestamp=timestamp_ms or int(datetime.now(timezone.utc).timestamp() * 1000),
+    )
+
+
+def _build_record(
+    body: bytes,
+    content_type: str | None,
+    topic: str,
+    partition: int | None = None,
+    timestamp_ms: int | None = None,
+    key: bytes | None = None,
+    headers: Mapping[str, str | bytes | None] | None = None,
+    correlation_id: str | None = None,
+    reply_to: str = "",
+    id_generator: IdGenerator = gen_cor_id,
+) -> "ConsumerRecord":
+    k = key or b""
+    h = {
+        "content-type": content_type or "",
+        "correlation_id": correlation_id or id_generator(),
+        **(headers or {}),
+    }
+    if reply_to:
+        h["reply_to"] = h.get("reply_to", reply_to)
+    return ConsumerRecord(
+        value=body,
+        topic=topic,
+        partition=partition or 0,
+        key=k,
+        serialized_key_size=len(k),
+        serialized_value_size=len(body),
+        checksum=sum(body),
+        offset=0,
+        headers=_encode_headers(h),
         timestamp_type=1,
         timestamp=timestamp_ms or int(datetime.now(timezone.utc).timestamp() * 1000),
     )
@@ -304,11 +416,14 @@ def _is_handler_matches(
     topic: str,
     partition: int | None,
 ) -> bool:
-    return bool(
-        any(
-            p.topic == topic and (partition is None or p.partition == partition)
-            for p in handler.partitions
-        )
-        or topic in handler.topics
-        or (handler.pattern and re.match(handler.pattern, topic)),
-    )
+    if any(
+        p.topic == topic and (partition is None or p.partition == partition)
+        for p in handler.partitions
+    ):
+        return True
+
+    if any(t.name == topic for t in handler.topics):
+        return True
+
+    pattern = handler.pattern
+    return bool(pattern and re.match(pattern.broker_address, topic))

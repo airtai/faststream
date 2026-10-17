@@ -28,10 +28,40 @@ Key arguments:
 
 MQTT 3.1.1 rejects `headers`, `correlation_id`, and `reply_to`; use MQTT 5.0 for metadata on the wire.
 
+```python linenums="1" hl_lines="15-22"
+{! docs_src/mqtt/publishing/publish.py !}
+```
+
 ## Publisher objects
 
 `broker.publisher("topic", qos=..., retain=..., headers=...)` returns an `MQTTPublisher` with the same semantics. Per-call `publish()` can override `qos` / `retain` / `headers` where applicable.
 
+```python linenums="1" hl_lines="7-11 16"
+{! docs_src/mqtt/publishing/publisher_object.py !}
+```
+
+## Publisher decorator
+
+Decorated subscriber return values are published to the configured topic, the same as other FastStream brokers.
+
+```python linenums="1" hl_lines="8-11"
+{! docs_src/mqtt/publishing/publisher_decorator.py !}
+```
+
 ## Batching
 
 MQTT has no batch publish in FastStream — calling batch APIs raises `FeatureNotSupportedException`.
+
+## Publish failures
+
+FastStream propagates zmqtt's publish exceptions to callers of `broker.publish()`
+and publisher objects:
+
+- `zmqtt.MQTTPublishError` reports a rejected QoS 1/2 PUBACK or PUBREC. Its
+  `reason_code`, `reason_name`, and optional `reason_string` describe the rejection.
+- `zmqtt.MQTTQoSExceededError` means the requested publish QoS exceeds the server's
+  MQTT 5.0 Maximum QoS. The driver rejects the publish before sending it; it does
+  not silently lower QoS. The exception exposes `requested_qos` and `maximum_qos`.
+
+The raw server limit is available as `broker.connection_info.properties.maximum_qos`
+when CONNACK properties are present. An omitted Maximum QoS means QoS 2 is allowed.

@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
 
 class CoreSubscriber(DefaultSubscriber["Msg"]):
+    __slots__ = ()
+
     subscription: Optional["Subscription"]
     _fetch_sub: Optional["Subscription"]
 
@@ -55,7 +57,7 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
 
         if self._fetch_sub is None:
             fetch_sub = self._fetch_sub = await self.connection.subscribe(
-                subject=self.clear_subject,
+                subject=self.subject.broker_address,
                 queue=self.queue,
                 **self.extra_options,
             )
@@ -67,7 +69,7 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         except TimeoutError:
             return None
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
 
         async_parser, async_decoder = self._get_parser_and_decoder()
 
@@ -82,21 +84,21 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator["NatsMessage"]:  # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["NatsMessage"]:
         assert not self.calls, (
             "You can't use iterator if subscriber has registered handlers."
         )
 
         if self._fetch_sub is None:
             fetch_sub = self._fetch_sub = await self.connection.subscribe(
-                subject=self.clear_subject,
+                subject=self.subject.broker_address,
                 queue=self.queue,
                 **self.extra_options,
             )
         else:
             fetch_sub = self._fetch_sub
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
         async_parser, async_decoder = self._get_parser_and_decoder()
 
         async for raw_message in fetch_sub.messages:
@@ -116,7 +118,7 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
             return
 
         self.subscription = await self.connection.subscribe(
-            subject=self.clear_subject,
+            subject=self.subject.broker_address,
             queue=self.queue,
             cb=self.consume,
             **self.extra_options,
@@ -133,12 +135,14 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         """
         return self.build_log_context(
             message=message,
-            subject=self.subject,
+            subject=self.subject.template,
             queue=self.queue,
         )
 
 
 class ConcurrentCoreSubscriber(ConcurrentMixin["Msg"], CoreSubscriber):
+    __slots__ = ()
+
     @override
     async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
@@ -148,7 +152,7 @@ class ConcurrentCoreSubscriber(ConcurrentMixin["Msg"], CoreSubscriber):
         self.start_consume_task()
 
         self.subscription = await self.connection.subscribe(
-            subject=self.clear_subject,
+            subject=self.subject.broker_address,
             queue=self.queue,
             cb=self._put_msg,
             **self.extra_options,

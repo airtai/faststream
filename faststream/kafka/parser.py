@@ -21,6 +21,12 @@ if TYPE_CHECKING:
 class AioKafkaParser:
     """A class to parse Kafka messages."""
 
+    __slots__ = (
+        "_consumer",
+        "msg_class",
+        "regex",
+    )
+
     def __init__(
         self,
         msg_class: type[KafkaMessage],
@@ -39,7 +45,9 @@ class AioKafkaParser:
         message: Union["ConsumerRecord", "KafkaRawMessage"],
     ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
-        headers = {i: j.decode(errors="replace") for i, j in message.headers}
+        headers = {
+            i: j.decode(errors="replace") for i, j in message.headers if j is not None
+        }
 
         return self.msg_class(
             body=message.value or b"",
@@ -53,7 +61,7 @@ class AioKafkaParser:
             consumer=getattr(message, "consumer", self._consumer),
         )
 
-    async def decode_message(
+    async def decode_message(  # noqa: PLR6301
         self,
         msg: "StreamMessage[ConsumerRecord]",
     ) -> "DecodedMessage":
@@ -62,6 +70,8 @@ class AioKafkaParser:
 
 
 class AioKafkaBatchParser(AioKafkaParser):
+    __slots__ = ()
+
     async def parse_batch(
         self,
         message: tuple["ConsumerRecord", ...],
@@ -75,7 +85,9 @@ class AioKafkaBatchParser(AioKafkaParser):
 
         for m in message:
             body.append(m.value or b"")
-            batch_headers.append({i: j.decode(errors="replace") for i, j in m.headers})
+            batch_headers.append({
+                i: j.decode(errors="replace") for i, j in m.headers if j is not None
+            })
 
         headers = next(iter(batch_headers), {})
 

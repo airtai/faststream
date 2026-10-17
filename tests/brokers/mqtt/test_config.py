@@ -1,7 +1,27 @@
+from typing import Any
+
 import pytest
 
 from faststream import AckPolicy
-from faststream.mqtt import MQTTBroker, MQTTRouter
+from faststream.mqtt import MQTTBroker, MQTTRouter, QoS, Will
+
+
+@pytest.mark.mqtt()
+@pytest.mark.asyncio()
+@pytest.mark.parametrize(
+    "options",
+    (
+        {"receive_maximum": 10},
+        {"maximum_packet_size": 4096},
+        {"user_properties": (("role", "worker"),)},
+        {"request_response_information": False},
+        {"request_problem_information": False},
+    ),
+)
+async def test_broker_connect_properties_reject_v311(options: dict[str, Any]) -> None:
+    broker = MQTTBroker(version="3.1.1", **options)
+    with pytest.raises(RuntimeError, match=r"MQTT 5\.0 is required"):
+        await broker.connect()
 
 
 @pytest.mark.mqtt()
@@ -66,3 +86,49 @@ def test_sub_overrides_broker_and_router() -> None:
 
     sub = router.subscriber("test", ack_policy=AckPolicy.ACK_FIRST)
     assert sub.ack_policy is AckPolicy.ACK_FIRST
+
+
+@pytest.mark.mqtt()
+def test_mqtt_connect_timeout_threaded_to_client() -> None:
+    broker = MQTTBroker(mqtt_connect_timeout=7.0)
+    assert broker._connection_kwargs["mqtt_connect_timeout"] == 7.0
+
+
+@pytest.mark.mqtt()
+def test_recovery_callback_threaded_to_client() -> None:
+    async def on_connection_recovery_failed() -> None:
+        pass
+
+    broker = MQTTBroker(
+        on_connection_recovery_failed=on_connection_recovery_failed,
+    )
+
+    assert (
+        broker._connection_kwargs["on_connection_recovery_failed"]
+        is on_connection_recovery_failed
+    )
+
+
+@pytest.mark.mqtt()
+def test_session_replay_config_threaded_to_client() -> None:
+    broker = MQTTBroker(
+        session_replay_buffer_size=10,
+        session_replay_timeout=20.0,
+    )
+
+    assert broker._connection_kwargs["session_replay_buffer_size"] == 10
+    assert broker._connection_kwargs["session_replay_timeout"] == 20.0
+
+
+@pytest.mark.mqtt()
+def test_will_threaded_to_client() -> None:
+    will = Will(
+        topic="status/service",
+        payload=b"offline",
+        qos=QoS.AT_LEAST_ONCE,
+        retain=True,
+    )
+
+    broker = MQTTBroker(will=will)
+
+    assert broker._connection_kwargs["will"] is will

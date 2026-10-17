@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -15,7 +15,7 @@ from typing import (
 import aiokafka
 import anyio
 from aiokafka.partitioner import DefaultPartitioner
-from aiokafka.producer.producer import _missing
+from aiokafka.producer.producer import _missing  # noqa: PLC2701
 from aiokafka.structs import RecordMetadata
 from fast_depends import Provider, dependency_provider
 from typing_extensions import override
@@ -25,8 +25,10 @@ from faststream._internal.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.context.repository import ContextRepo
 from faststream._internal.di import FastDependsConfig
+from faststream._internal.types import IdGenerator
 from faststream._internal.utils.data import filter_by_dict
 from faststream.exceptions import IncorrectState
+from faststream.kafka._compat import AIOKAFKA_V013, validate_client_rack
 from faststream.kafka.configs import KafkaBrokerConfig
 from faststream.kafka.publisher.producer import AioKafkaFastProducerImpl
 from faststream.kafka.response import KafkaPublishCommand
@@ -54,11 +56,13 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.kafka.message import KafkaMessage
+    from faststream.kafka.types import KafkaSendableMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -84,6 +88,12 @@ if TYPE_CHECKING:
                 server-side log entries that correspond to this client. Also
                 submitted to :class:`~.consumer.group_coordinator.GroupCoordinator`
                 for logging with respect to consumer group administration.
+            client_rack: A rack identifier for this client. Used by the
+                broker for rack-aware fetching, letting a consumer read from
+                the closest replica. Requires aiokafka 0.14.0 or newer.
+            consumer_only: When True the broker skips creating the
+                producer and admin clients, letting deployments use Kafka
+                credentials scoped to read-only ACLs. Defaults to False.
             acks: One of ``0``, ``1``, ``all``. The number of acknowledgments
                 the producer requires the leader to have received before considering a
                 request complete. This controls the durability of records that are
@@ -156,6 +166,10 @@ if TYPE_CHECKING:
         sasl_oauth_token_provider: AbstractTokenProvider | None
         loop: asyncio.AbstractEventLoop | None
         client_id: str | None
+        # consumer args
+        client_rack: str | None
+        consumer_only: bool
+        allow_auto_create_topics: bool
         # publisher args
         acks: Literal[0, 1, -1, "all"] | object
         key_serializer: Callable[[Any], bytes] | None
@@ -163,8 +177,8 @@ if TYPE_CHECKING:
         compression_type: Literal["gzip", "snappy", "lz4", "zstd"] | None
         max_batch_size: int
         partitioner: Callable[
-            [bytes, list[Partition], list[Partition]],
-            Partition,
+            [bytes, list[Any], list[Any]],
+            Any,
         ]
         max_request_size: int
         linger_ms: int
@@ -176,8 +190,9 @@ if TYPE_CHECKING:
 class KafkaBroker(
     KafkaRegistrator,
     BrokerUsecase[
-        aiokafka.ConsumerRecord | tuple[aiokafka.ConsumerRecord, ...],
+        aiokafka.ConsumerRecord[Any, Any] | tuple[aiokafka.ConsumerRecord[Any, Any], ...],
         Callable[..., aiokafka.AIOKafkaConsumer],
+        KafkaBrokerConfig,
     ],
 ):
     url: list[str]
@@ -196,6 +211,10 @@ class KafkaBroker(
         sasl_oauth_token_provider: Optional["AbstractTokenProvider"] = None,
         loop: Optional["asyncio.AbstractEventLoop"] = None,
         client_id: str | None = SERVICE_NAME,
+        # consumer args
+        client_rack: str | None = None,
+        consumer_only: bool = False,
+        allow_auto_create_topics: bool = True,
         # publisher args
         acks: Literal[0, 1, -1, "all"] | object = _missing,
         key_serializer: Callable[[Any], bytes] | None = None,
@@ -214,9 +233,11 @@ class KafkaBroker(
         # broker base args
         graceful_timeout: float | None = 15.0,
         ack_policy: AckPolicy = EMPTY,
+        id_generator: IdGenerator = gen_cor_id,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         parser: Optional["CustomCallable"] = None,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         routers: Iterable[KafkaRegistrator] = (),
         # AsyncAPI args
@@ -265,6 +286,18 @@ class KafkaBroker(
                 A name for this client. This string is passed in each request to servers and can be used to identify specific
                 server-side log entries that correspond to this client. Also submitted to :class:`~.consumer.group_coordinator.GroupCoordinator`
                 for logging with respect to consumer group administration.
+            client_rack (Optional[str]):
+                A rack identifier for this client. Used by the broker for rack-aware fetching, letting a consumer read from the
+                closest replica. Requires aiokafka 0.14.0 or newer.
+            consumer_only (bool):
+                When True the broker skips creating the producer and admin clients during ``start()``, letting deployments use
+                Kafka credentials scoped to read-only ACLs. Defaults to False.
+            allow_auto_create_topics (bool):
+                Allow FastStream to create topics through the admin client when a subscriber starts.
+                Unlike ``faststream.confluent``, this flag is FastStream-side only: aiokafka has no
+                ``allow.auto.create.topics`` consumer option, so the cluster's own
+                ``auto.create.topics.enable`` is a separate switch. Defaults to True.
+                Set to False when topics are provisioned elsewhere.
             acks (Union[Literal[0, 1, -1, "all"], object]):
                 One of ``0``, ``1``, ``all``. The number of acknowledgments the producer requires the leader to have received before considering a
                 request complete. This controls the durability of records that are sent. The following settings are common:
@@ -315,11 +348,16 @@ class KafkaBroker(
             ack_policy (AckPolicy):
                 Default acknowledgement policy for all subscribers. Individual subscribers can override.
                 If not set, each broker type uses its built-in default.
+            id_generator (IdGenerator):
+                Factory used to generate `correlation_id` when a publish/request call doesn't set one explicitly.
+                Defaults to `gen_cor_id` (uuid4-based).
             decoder (Optional[CustomCallable]):
                 Custom decoder object.
+            codec (Optional[CodecProto]):
+                Custom codec object.
             parser (Optional[CustomCallable]):
                 Custom parser object.
-            dependencies (Iterable[Dependant]):
+            dependencies (Sequence[Dependant]):
                 Dependencies to apply to all broker subscribers.
             middlewares (Sequence[BrokerMiddlewarep[Any, Any]]):
                 Middlewares to apply to all broker publishers/subscribers.
@@ -397,13 +435,20 @@ class KafkaBroker(
             **parse_security(security),
         )
 
-        if protocol_version:
+        # aiokafka 0.13.0 raises `TypeError` on `api_version`, 0.14.0 ignores it
+        if protocol_version and not AIOKAFKA_V013:
             connection_params["api_version"] = protocol_version
+
+        validate_client_rack(client_rack)
 
         consumer_options, _ = filter_by_dict(
             ConsumerConnectionParams,
             connection_params,
         )
+        # client_rack is consumer-only, so it is not part of connection_params
+        # (which is also used to build the producer); inject it here when set.
+        if client_rack is not None:
+            consumer_options["client_rack"] = client_rack
         builder = partial(aiokafka.AIOKafkaConsumer, **consumer_options)
 
         super().__init__(
@@ -411,6 +456,9 @@ class KafkaBroker(
             routers=routers,
             config=KafkaBrokerConfig(
                 client_id=client_id,
+                client_rack=client_rack,
+                consumer_only=consumer_only,
+                allow_auto_create_topics=allow_auto_create_topics,
                 builder=builder,
                 producer=AioKafkaFastProducerImpl(
                     parser=parser,
@@ -418,6 +466,7 @@ class KafkaBroker(
                 ),
                 # both args,
                 broker_decoder=decoder,
+                broker_codec=codec,
                 broker_parser=parser,
                 broker_middlewares=middlewares,
                 logger=make_kafka_logger_state(
@@ -433,6 +482,7 @@ class KafkaBroker(
                 # subscriber args
                 graceful_timeout=graceful_timeout,
                 ack_policy=ack_policy,
+                id_generator=id_generator,
                 broker_dependencies=dependencies,
                 extra_context={
                     "broker": self,
@@ -477,7 +527,7 @@ class KafkaBroker(
         key: bytes | Any | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: Literal[False] = False,
@@ -492,7 +542,7 @@ class KafkaBroker(
         key: bytes | Any | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: Literal[True] = ...,
@@ -507,7 +557,7 @@ class KafkaBroker(
         key: bytes | Any | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: bool = False,
@@ -522,7 +572,7 @@ class KafkaBroker(
         key: bytes | Any | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: bool = False,
@@ -576,7 +626,7 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             _publish_type=PublishType.PUBLISH,
         )
         return await super()._basic_publish(cmd, producer=self.config.producer)
@@ -590,7 +640,7 @@ class KafkaBroker(
         key: bytes | Any | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         timeout: float = 0.5,
     ) -> "KafkaMessage":
@@ -626,7 +676,7 @@ class KafkaBroker(
             timestamp_ms=timestamp_ms,
             headers=headers,
             timeout=timeout,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             _publish_type=PublishType.REQUEST,
         )
 
@@ -639,11 +689,11 @@ class KafkaBroker(
     @overload  # type: ignore[override]
     async def publish_batch(
         self,
-        *messages: "SendableMessage",
+        *messages: "KafkaSendableMessage",
         topic: str = "",
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         correlation_id: str | None = None,
         no_confirm: Literal[False] = False,
@@ -652,11 +702,11 @@ class KafkaBroker(
     @overload
     async def publish_batch(
         self,
-        *messages: "SendableMessage",
+        *messages: "KafkaSendableMessage",
         topic: str = "",
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         correlation_id: str | None = None,
         no_confirm: Literal[True] = ...,
@@ -665,11 +715,11 @@ class KafkaBroker(
     @overload
     async def publish_batch(
         self,
-        *messages: "SendableMessage",
+        *messages: "KafkaSendableMessage",
         topic: str = "",
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         correlation_id: str | None = None,
         no_confirm: bool = False,
@@ -677,11 +727,11 @@ class KafkaBroker(
 
     async def publish_batch(
         self,
-        *messages: "SendableMessage",
+        *messages: "KafkaSendableMessage",
         topic: str = "",
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         correlation_id: str | None = None,
         no_confirm: bool = False,
@@ -721,7 +771,7 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             _publish_type=PublishType.PUBLISH,
         )
 

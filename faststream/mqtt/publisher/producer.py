@@ -6,19 +6,31 @@ from typing_extensions import override
 from zmqtt import PublishProperties
 
 from faststream._internal.endpoint.utils import ParserComposition
+from faststream._internal.parser import DefaultCodec
 from faststream._internal.producer import ProducerProto
+from faststream._internal.types import IdGenerator
 from faststream.exceptions import FeatureNotSupportedException, IncorrectState
-from faststream.message import encode_message, gen_cor_id
+from faststream.message import gen_cor_id
 from faststream.mqtt.parser import MQTTParserV5, MQTTParserV311
 from faststream.mqtt.response import MQTTPublishCommand
 
 if TYPE_CHECKING:
     from fast_depends.library.serializer import SerializerProto
 
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import AsyncCallable, CustomCallable
 
 
 class ZmqttBaseProducer(ProducerProto[MQTTPublishCommand]):
+    __slots__ = (
+        "_client",
+        "_decoder",
+        "_parser",
+        "codec",
+        "id_generator",
+        "serializer",
+    )
+
     _parser: "AsyncCallable"
     _decoder: "AsyncCallable"
 
@@ -27,9 +39,12 @@ class ZmqttBaseProducer(ProducerProto[MQTTPublishCommand]):
         default_parser: Any,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
+        id_generator: IdGenerator = gen_cor_id,
     ) -> None:
         self.serializer: SerializerProto | None = None
         self._client: zmqtt.MQTTClient | None = None
+        self.codec: CodecProto = DefaultCodec()
+        self.id_generator = id_generator
 
         self._parser = ParserComposition(parser, default_parser.parse_message)
         self._decoder = ParserComposition(decoder, default_parser.decode_message)
@@ -38,9 +53,11 @@ class ZmqttBaseProducer(ProducerProto[MQTTPublishCommand]):
         self,
         client: "zmqtt.MQTTClient",
         serializer: Optional["SerializerProto"],
+        codec: Optional["CodecProto"] = None,
     ) -> None:
         self._client = client
         self.serializer = serializer
+        self.codec = codec or DefaultCodec()
 
     def disconnect(self) -> None:
         self._client = None
@@ -75,19 +92,22 @@ class ZmqttProducerV311(ZmqttBaseProducer):
     an explicit reply_to topic provided by the caller.
     """
 
+    __slots__ = ()
+
     def __init__(
         self,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
+        id_generator: IdGenerator = gen_cor_id,
     ) -> None:
-        super().__init__(MQTTParserV311(), parser, decoder)
+        super().__init__(MQTTParserV311(), parser, decoder, id_generator)
 
     @override
     async def publish(self, cmd: "MQTTPublishCommand") -> None:
         if cmd.headers:
             msg = "MQTT 3.1.1 does not support message headers. Use MQTT 5.0."
             raise FeatureNotSupportedException(msg)
-        payload, _ = encode_message(cmd.body, self.serializer)
+        payload, _ = await self.codec.encode(cmd.body, self.serializer)
         await self._connected_client.publish(
             cmd.destination,
             payload,
@@ -112,7 +132,7 @@ class ZmqttProducerV311(ZmqttBaseProducer):
         await sub.start()
 
         try:
-            payload, _ = encode_message(cmd.body, self.serializer)
+            payload, _ = await self.codec.encode(cmd.body, self.serializer)
             await self._connected_client.publish(
                 cmd.destination,
                 payload,
@@ -130,16 +150,19 @@ class ZmqttProducerV311(ZmqttBaseProducer):
 class ZmqttProducerV5(ZmqttBaseProducer):
     """Producer for MQTT 5.0 — publishes with PublishProperties."""
 
+    __slots__ = ()
+
     def __init__(
         self,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
+        id_generator: IdGenerator = gen_cor_id,
     ) -> None:
-        super().__init__(MQTTParserV5(), parser, decoder)
+        super().__init__(MQTTParserV5(), parser, decoder, id_generator)
 
     @override
     async def publish(self, cmd: "MQTTPublishCommand") -> None:
-        payload, content_type = encode_message(cmd.body, self.serializer)
+        payload, content_type = await self.codec.encode(cmd.body, self.serializer)
 
         user_props: list[tuple[str, str]] = [
             (k, str(v)) for k, v in (cmd.headers or {}).items()
@@ -169,8 +192,8 @@ class ZmqttProducerV5(ZmqttBaseProducer):
         ID explicitly so the responder echoes it back and the caller can
         verify it on the response StreamMessage.
         """
-        payload, content_type = encode_message(cmd.body, self.serializer)
-        correlation_id = cmd.correlation_id or gen_cor_id()
+        payload, content_type = await self.codec.encode(cmd.body, self.serializer)
+        correlation_id = cmd.correlation_id or self.id_generator()
 
         user_props: list[tuple[str, str]] = [
             (k, str(v)) for k, v in (cmd.headers or {}).items()
@@ -195,6 +218,8 @@ class ZmqttProducerV5(ZmqttBaseProducer):
 
 
 class ZmqttFakeProducer(ZmqttBaseProducer):
+    __slots__ = ()
+
     def __init__(self) -> None: ...
     def __bool__(self) -> bool:
         return False
@@ -203,6 +228,7 @@ class ZmqttFakeProducer(ZmqttBaseProducer):
         self,
         client: "zmqtt.MQTTClient",
         serializer: Optional["SerializerProto"],
+        codec: Optional["CodecProto"] = None,
     ) -> None:
         raise NotImplementedError
 

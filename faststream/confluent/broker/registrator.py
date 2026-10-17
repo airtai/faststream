@@ -1,4 +1,4 @@
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -23,6 +23,7 @@ from faststream.middlewares import AckPolicy
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
         BatchPublisher,
         DefaultPublisher,
     )
-    from faststream.confluent.schemas import TopicPartition
+    from faststream.confluent.schemas import Topic, TopicPartition
     from faststream.confluent.subscriber.usecase import (
         BatchSubscriber,
         ConcurrentDefaultSubscriber,
@@ -47,7 +48,7 @@ class KafkaRegistrator(
     @overload  # type: ignore[override]
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         partitions: Sequence["TopicPartition"] = (),
         polling_interval: float = 0.1,
         group_id: str | None = None,
@@ -75,9 +76,10 @@ class KafkaRegistrator(
         max_records: int | None = None,
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -90,7 +92,7 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         partitions: Sequence["TopicPartition"] = (),
         polling_interval: float = 0.1,
         group_id: str | None = None,
@@ -118,9 +120,10 @@ class KafkaRegistrator(
         max_records: int | None = None,
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -133,7 +136,7 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         partitions: Sequence["TopicPartition"] = (),
         polling_interval: float = 0.1,
         group_id: str | None = None,
@@ -161,9 +164,10 @@ class KafkaRegistrator(
         max_records: int | None = None,
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int = ...,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -176,7 +180,7 @@ class KafkaRegistrator(
     @overload
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         partitions: Sequence["TopicPartition"] = (),
         polling_interval: float = 0.1,
         group_id: str | None = None,
@@ -204,9 +208,10 @@ class KafkaRegistrator(
         max_records: int | None = None,
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int | None = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
@@ -223,7 +228,7 @@ class KafkaRegistrator(
     @override
     def subscriber(
         self,
-        *topics: str,
+        *topics: Union[str, "Topic"],
         partitions: Sequence["TopicPartition"] = (),
         polling_interval: float = 0.1,
         group_id: str | None = None,
@@ -251,9 +256,10 @@ class KafkaRegistrator(
         max_records: int | None = None,
         # broker args
         persistent: bool = True,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
         # Specification args
@@ -269,7 +275,8 @@ class KafkaRegistrator(
         """Create a subscriber for Kafka topics.
 
         Args:
-            *topics: Kafka topics to consume messages from.
+            *topics: Kafka topics to consume messages from. Pass a `Topic` object
+                instead of a plain name to configure how the topic is created.
             partitions: Sequence of topic partitions.
             polling_interval: Polling interval in seconds.
             group_id: Name of the consumer group to join for dynamic
@@ -353,10 +360,10 @@ class KafkaRegistrator(
             isolation_level: Controls how to read messages written
                 transactionally.
 
-                * `read_committed`, batch consumer will only return
+                 * `read_committed`, batch consumer will only return
                 transactional messages which have been committed.
 
-                * `read_uncommitted` (the default), batch consumer will
+                 * `read_uncommitted` (the default), batch consumer will
                 return all messages, even transactional messages which have been
                 aborted.
 
@@ -364,7 +371,7 @@ class KafkaRegistrator(
                 either mode.
 
                 Messages will always be returned in offset order. Hence, in
-                `read_committed` mode, batch consumer will only return
+                 `read_committed` mode, batch consumer will only return
                 messages up to the last stable offset (ALSO), which is the one less
                 than the offset of the first open transaction. In particular any
                 messages appearing after messages belonging to ongoing transactions
@@ -384,6 +391,7 @@ class KafkaRegistrator(
             dependencies: Dependencies list (`[Dependant(),]`) to apply to the subscriber.
             parser: Parser to map original **Message** object to FastStream one.
             decoder: Function to decode FastStream msg bytes body to python objects.
+            codec: Custom codec object.
             middlewares: Subscriber middlewares to wrap incoming message processing.
             no_ack: Whether to disable **FastStream** auto acknowledgement logic or not.
             ack_policy: Acknowledgement policy for the subscriber.
@@ -448,17 +456,18 @@ class KafkaRegistrator(
         return subscriber.add_call(
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
+            codec_=codec,
             dependencies_=dependencies,
         )
 
     @overload  # type: ignore[override]
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | str | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: Literal[False] = False,
         # basic args
@@ -474,11 +483,11 @@ class KafkaRegistrator(
     @overload
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | str | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: Literal[True] = ...,
         # basic args
@@ -494,11 +503,11 @@ class KafkaRegistrator(
     @overload
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | str | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # basic args
@@ -517,11 +526,11 @@ class KafkaRegistrator(
     @override
     def publisher(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | str | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # basic args
@@ -544,7 +553,9 @@ class KafkaRegistrator(
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
 
         Args:
-            topic: Topic where the message will be published.
+            topic: Topic where the message will be published. A `Topic` object is
+                accepted as well, but **FastStream** never creates publisher topics,
+                so its creation settings are ignored.
             key: A key to associate with the message. Can be used to
                 determine which partition to send the message to. If partition
                 is `None` (and producer's partitioner config is left as default),
@@ -599,7 +610,7 @@ class KafkaRegistrator(
         router: "KafkaRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         include_in_schema: bool | None = None,
     ) -> None:

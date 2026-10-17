@@ -1,5 +1,6 @@
 import ssl
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -14,7 +15,7 @@ from faststream.security import (
 )
 from tests.asyncapi.base.v3_0_0 import get_3_0_0_schema
 
-basic_schema = {
+basic_schema: dict[str, Any] = {
     "info": {"title": "FastStream", "version": "0.1.0"},
     "asyncapi": "3.0.0",
     "defaultContentType": "application/json",
@@ -29,7 +30,7 @@ basic_schema = {
     },
     "channels": {
         "test_1:TestTopic": {
-            "address": "test_1:TestTopic",
+            "address": "test_1",
             "servers": [{"$ref": "#/servers/development"}],
             "messages": {
                 "SubscribeMessage": {
@@ -39,7 +40,7 @@ basic_schema = {
             "bindings": {"kafka": {"topic": "test_1", "bindingVersion": "0.4.0"}},
         },
         "test_2:Publisher": {
-            "address": "test_2:Publisher",
+            "address": "test_2",
             "servers": [{"$ref": "#/servers/development"}],
             "messages": {
                 "Message": {"$ref": "#/components/messages/test_2:Publisher:Message"},

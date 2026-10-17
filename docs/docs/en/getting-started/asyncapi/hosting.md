@@ -46,10 +46,10 @@ INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 And you should be able to see the following page in your browser:
 
 === "Short"
-    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png){ .on-glb loading=lazy }
+    ![HTML-page](../../assets/img/AsyncAPI-basic-html-short.png){ .on-glb loading=lazy }
 
 === "Expand"
-    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-full.png){ .on-glb loading=lazy }
+    ![HTML-page](../../assets/img/AsyncAPI-basic-html-full.png){ .on-glb loading=lazy }
 
 !!! tip
     The command also offers options to serve the documentation on a different host and port.
@@ -114,7 +114,7 @@ broker = NatsBroker()
 app = AsgiFastStream(broker, asyncapi_path="/docs/asyncapi")
 ```
 
-To disable the feature, use `AsyncAPIRoute` with `try_it_out=False`:
+To disable the feature, use `AsyncAPIRoute` with `try_it_out_path=None`:
 
 ```python linenums="1" hl_lines="2 8"
 from faststream.nats import NatsBroker
@@ -124,11 +124,11 @@ broker = NatsBroker()
 
 app = AsgiFastStream(
     broker,
-    asyncapi_path=AsyncAPIRoute("/docs/asyncapi", try_it_out=False),
+    asyncapi_path=AsyncAPIRoute("/docs/asyncapi", try_it_out_path=None),
 )
 ```
 
-If you want to point the Try It Out UI to an **external backend** (e.g. a separate service or a production broker URL), pass a custom `try_it_out_url` via `AsyncAPIRoute`:
+If you want to point the Try It Out UI to an **external backend** (e.g. a separate service or a production broker URL), pass a custom `try_it_out_path` via `AsyncAPIRoute`:
 
 ```python linenums="1" hl_lines="2 10"
 from faststream.nats import NatsBroker
@@ -140,22 +140,22 @@ app = AsgiFastStream(
     broker,
     asyncapi_path=AsyncAPIRoute(
         "/docs/asyncapi",
-        try_it_out_url="https://api.example.com/asyncapi/try",
+        try_it_out_path="https://api.example.com/asyncapi/try",
     ),
 )
 ```
 
 !!! note
-    When `try_it_out_url` is set on `AsyncAPIRoute`, it overrides the URL the browser sends requests to. The local `POST {asyncapi_path}/try` endpoint is still registered and reachable regardless of `try_it_out_url`, unless you also pass `try_it_out=False`.
+    `try_it_out_path` controls the URL the browser sends requests to and, when it points at the local app, the path the `POST` endpoint is registered under. Setting `try_it_out_path=None` disables the Try It Out UI and skips registering the local endpoint entirely.
 
 ## Integration with Different HTTP Frameworks (**FastAPI** Example)
 
 **FastStream** provides two robust approaches to combine your message broker documentation with any **ASGI** web frameworks.
-You can choose the method that best fits with your application architecture.
+You can choose the method that best fits your application architecture.
 
 === "ASGI Application"
     ```python linenums="1" hl_lines="5 22"
-    from typing import AsyncIterator
+    from typing import AsyncGenerator
     from contextlib import asynccontextmanager
 
     from fastapi import FastAPI
@@ -170,7 +170,7 @@ You can choose the method that best fits with your application architecture.
         print(msg)
 
     @asynccontextmanager
-    async def broker_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    async def broker_lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         async with broker:
             await broker.start()
             yield
@@ -181,7 +181,7 @@ You can choose the method that best fits with your application architecture.
 
 === "Any HTTP Application"
     ```python linenums="1" hl_lines="23-26"
-    from typing import AsyncIterator
+    from typing import AsyncGenerator
     from contextlib import asynccontextmanager
 
     from fastapi import FastAPI, responses
@@ -195,7 +195,7 @@ You can choose the method that best fits with your application architecture.
         print(msg)
 
     @asynccontextmanager
-    async def broker_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    async def broker_lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         async with broker:
             await broker.start()
             yield
@@ -217,7 +217,7 @@ After running the app, the documentation will be available at:
 
 FastStream also provides query parameters to show and hide specific sections of AsyncAPI documentation.
 
-You can use the following parameters control the visibility of relevant sections:
+You can use the following parameters to control the visibility of relevant sections:
 
 1. `sidebar`: Whether to include the sidebar. Default is true.
 1. `info`: Whether to include the info section. Default is true.
@@ -230,6 +230,6 @@ You can use the following parameters control the visibility of relevant sections
 
 For example, to hide the entire `Servers` section of the documentation, simply add `servers=false` as a query parameter, i.e., <http://localhost:8000?servers=false>. The resulting page would look like the image below:
 
-![HTML-page](../../../assets/img/AsyncAPI-hidden-servers.png){ .on-glb loading=lazy }
+![HTML-page](../../assets/img/AsyncAPI-hidden-servers.png){ .on-glb loading=lazy }
 
 Please use the above-listed query parameters to show and hide sections of the AsyncAPI documentation.

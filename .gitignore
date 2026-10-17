@@ -11,6 +11,7 @@ venv*
 .pytest_cache
 .ruff_cache
 .mypy_cache
+.import_linter_cache
 .coverage*
 pyrightconfig.json
 .cache
@@ -22,5 +23,35 @@ token
 
 docs/site/
 docs/site_build/
-docs/docs/SUMMARY.md
+docs/docs/en/SUMMARY.md
 docs/docs/en/api/faststream/
+
+# local AI agent tooling
+.claude
+.cursor
+.scratch/
+docs/agents/
+docs/adr/
+CONTEXT.md
+AGENTS.md
+CLAUDE.md
+
+# locally installed agent skills (project-owned ones are un-ignored below)
+.agents/skills/*
+!.agents/skills/code-architecture/
+!.agents/skills/dev-workflow/
+!.agents/skills/documentation-writing/
+!.agents/skills/testing-patterns/
+skills-lock.json
+
+# local agent config
+.mcp.json
+mcp.json
+# Added by codegraph
+.codegraph
+codegraph.mdc
+# Added by code-review-graph
+.code-review-graph/
+# Added by graphify
+graphify-out/
+.graphifyignore

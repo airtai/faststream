@@ -29,7 +29,7 @@ jobs:
           KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
           CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
       rabbitmq:
-        image: rabbitmq:alpine
+        image: rabbitmq:3.13-alpine
         ports:
           - 5672:5672
       nats:
@@ -41,15 +41,15 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Install uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "latest"
       - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
       - name: Install Dependencies
@@ -58,7 +58,7 @@ jobs:
       - name: Install Pydantic v2
         run: uv pip install --system --prerelease=disallow "pydantic>=2.0.0,<3.0.0"
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@db35df748deb45fdef0960669f57d627c1956c30 # v4.13.1
+        uses: CodSpeedHQ/action@c4fd08a3a159bd0cc208da1e0edf32b8c47d75e5 # v5.4.0
         with:
           mode: walltime
           run: uv run pytest benchmarks/ --codspeed

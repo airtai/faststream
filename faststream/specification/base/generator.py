@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class SpecificationFactory(Protocol):
+    # No `__slots__ = ()`: the five names below are part of the interface and callers
+    # assign them, which a slotted Protocol would forbid.
     title: str
     description: str | None
     version: str | None
@@ -19,7 +21,7 @@ class SpecificationFactory(Protocol):
     @abstractmethod
     def add_broker(
         self,
-        broker: "BrokerUsecase[Any, Any]",
+        broker: "BrokerUsecase[Any, Any, Any]",
         /,
     ) -> "SpecificationFactory":
         raise NotImplementedError

@@ -22,7 +22,7 @@ class TestCustomParser(RedisTestcaseConfig, CustomParserTestcase):
         queue: str,
         mock: MagicMock,
     ) -> None:
-        async def custom_decoder(msg, original):
+        async def custom_decoder(msg: Any, original: Any) -> Any:
             mock()
             return await original(msg)
 
@@ -30,8 +30,8 @@ class TestCustomParser(RedisTestcaseConfig, CustomParserTestcase):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @broker.subscriber(*args, **kwargs)
-        async def handler(msg):
+        @broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any) -> Any:
             return msg
 
         async with self.patch_broker(broker) as br:
@@ -63,8 +63,9 @@ class TestCustomParser(RedisTestcaseConfig, CustomParserTestcase):
     ),
 )
 @pytest.mark.redis()
-def test_binary_message_encode_parse(input: Any, should_be: bytes) -> None:
-    raw_message = BinaryMessageFormatV1.encode(
+@pytest.mark.asyncio()
+async def test_binary_message_encode_parse(input: Any, should_be: bytes) -> None:
+    raw_message = await BinaryMessageFormatV1.encode(
         message=input, reply_to=None, headers=None, correlation_id="id"
     )
     parsed, _ = BinaryMessageFormatV1.parse(raw_message)
@@ -115,16 +116,17 @@ class TestFormats:
         broker = RedisBroker(apply_types=False)
 
         @broker.subscriber(queue, message_format=message_format)
-        async def handler(msg):
+        async def handler(msg: Any) -> None:
             event.set()
             mock(msg)
 
         async with broker:
             await broker.start()
 
+            client = await broker.connect()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker._connection.publish(queue, message)),
+                    asyncio.create_task(client.publish(queue, message)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -158,20 +160,21 @@ class TestFormats:
 
         @broker.subscriber(queue, message_format=message_format)
         @broker.publisher(queue + "resp", message_format=message_format)
-        async def resp(msg):
+        async def resp(msg: Any) -> Any:
             return msg
 
         @broker.subscriber(queue + "resp", message_format=message_format)
-        async def handler(msg):
+        async def handler(msg: Any) -> None:
             mock(msg)
             event.set()
 
         async with broker:
             await broker.start()
 
+            client = await broker.connect()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker._connection.publish(queue, message)),
+                    asyncio.create_task(client.publish(queue, message)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -190,7 +193,7 @@ class TestFormats:
         )
 
         @broker.subscriber(queue, message_format=BinaryMessageFormatV1)
-        async def resp(msg) -> None:
+        async def resp(msg: Any) -> None:
             mock(msg)
             event.set()
 
@@ -214,16 +217,17 @@ class TestFormats:
         broker = RedisBroker(apply_types=False, message_format=BinaryMessageFormatV1)
 
         @broker.subscriber(queue, message_format=BinaryMessageFormatV1)
-        async def resp(msg):
+        async def resp(msg: Any) -> None:
             mock(msg)
             event.set()
 
         async with broker:
             await broker.start()
 
+            client = await broker.connect()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker._connection.publish(queue, "hello world")),
+                    asyncio.create_task(client.publish(queue, "hello world")),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -237,7 +241,7 @@ class TestFormats:
         )
 
         @broker.subscriber(queue, message_format=BinaryMessageFormatV1)
-        async def resp(msg):
+        async def resp(msg: Any) -> Any:
             return "Response"
 
         publisher = broker.publisher(queue, message_format=BinaryMessageFormatV1)
@@ -260,7 +264,7 @@ class TestTestBrokerFormats:
         broker = RedisBroker(apply_types=False, message_format=msg_format)
 
         @broker.subscriber(queue, message_format=msg_format)
-        async def handler(msg): ...
+        async def handler(msg: Any) -> None: ...
 
         async with TestRedisBroker(broker) as br:
             await br.publish("hello", queue)
@@ -270,7 +274,7 @@ class TestTestBrokerFormats:
         broker = RedisBroker(apply_types=False, message_format=BinaryMessageFormatV1)
 
         @broker.subscriber(queue, message_format=BinaryMessageFormatV1)
-        async def handler(msg) -> None: ...
+        async def handler(msg: Any) -> None: ...
 
         async with TestRedisBroker(broker) as br:
             await br.publish("hello", queue)
@@ -284,7 +288,7 @@ class TestTestBrokerFormats:
         broker = RedisBroker()
 
         @broker.subscriber(stream=queue, message_format=BinaryMessageFormatV1)
-        async def handler(msg) -> None:
+        async def handler(msg: Any) -> None:
             mock(msg)
             if mock.call_count == 2:
                 event.set()
@@ -297,12 +301,11 @@ class TestTestBrokerFormats:
         async with broker:
             await broker.start()
 
+            client = await broker.connect()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker._connection.xadd(queue, data)),
-                    asyncio.create_task(
-                        broker._connection.xadd(queue, {"data": json.dumps(data)})
-                    ),
+                    asyncio.create_task(client.xadd(queue, data)),
+                    asyncio.create_task(client.xadd(queue, {"data": json.dumps(data)})),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,

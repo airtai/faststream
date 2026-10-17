@@ -1,5 +1,8 @@
+from collections.abc import Mapping
 from functools import wraps
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
+
+from faststream.confluent.schemas import Topic
 
 from .config import KafkaPublisherConfig, KafkaPublisherSpecificationConfig
 from .specification import KafkaPublisherSpecification
@@ -16,9 +19,9 @@ def create_publisher(
     autoflush: bool,
     batch: bool,
     key: bytes | str | None,
-    topic: str,
+    topic: Union[str, "Topic"],
     partition: int | None,
-    headers: dict[str, str] | None,
+    headers: Mapping[str, str | bytes | None] | None,
     reply_to: str,
     # Publisher args
     config: "KafkaBrokerConfig",
@@ -28,9 +31,12 @@ def create_publisher(
     description_: str | None,
     include_in_schema: bool,
 ) -> BatchPublisher | DefaultPublisher:
+    # Publishers never declare topics, so only the name is meaningful here.
+    topic_name = Topic.validate(topic).name
+
     publisher_config = KafkaPublisherConfig(
         key=key,
-        topic=topic,
+        topic=topic_name,
         partition=partition,
         headers=headers,
         reply_to=reply_to,
@@ -40,7 +46,7 @@ def create_publisher(
     specification = KafkaPublisherSpecification(
         _outer_config=config,
         specification_config=KafkaPublisherSpecificationConfig(
-            topic=topic,
+            topic=topic_name,
             schema_=schema_,
             title_=title_,
             description_=description_,

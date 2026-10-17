@@ -2,37 +2,61 @@ import logging
 from abc import abstractmethod
 from collections.abc import AsyncIterator, Callable, Sequence
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 import anyio
-from aiokafka import ConsumerRecord, TopicPartition
+from aiokafka import (
+    ConsumerRecord,
+    TopicPartition as AIOKafkaTopicPartition,
+)
 from aiokafka.errors import ConsumerStoppedError, KafkaError, UnsupportedCodecError
-from typing_extensions import override
+from typing_extensions import overload, override
 
 from faststream._internal.endpoint.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.endpoint.subscriber.usecase import SubscriberUsecase
+from faststream._internal.endpoint.subscriber.utils import default_filter
 from faststream._internal.endpoint.utils import process_msg
-from faststream._internal.types import MsgType
-from faststream._internal.utils.path import compile_path
+from faststream._internal.types import MsgType, P_HandlerParams, T_HandlerReturn
+from faststream._internal.utils.path import Address, AddressSyntax
+from faststream.kafka.call_wrapper import KafkaHandlerCallWrapper
 from faststream.kafka.helpers import make_logging_listener
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage, KafkaRawMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.kafka.publisher.fake import KafkaFakePublisher
+from faststream.kafka.schemas import Topic
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.endpoint.publisher import PublisherProto
     from faststream._internal.endpoint.subscriber import SubscriberSpecification
     from faststream._internal.endpoint.subscriber.call_item import CallsCollection
+    from faststream._internal.types import CustomCallable, Filter
     from faststream.kafka.configs import KafkaBrokerConfig
     from faststream.message import StreamMessage
 
     from .config import KafkaSubscriberConfig
 
 
+KAFKA_ADDRESS_SYNTAX = AddressSyntax(
+    replace_symbol=".*",
+    patch_regex=lambda x: x.replace(r"\*", ".*"),
+)
+
+
 class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
+
+    __slots__ = (
+        "_connection_args",
+        "_listener",
+        "_partitions",
+        "_pattern",
+        "_topics",
+        "consumer",
+        "group_id",
+    )
 
     consumer: Optional["AIOKafkaConsumer"]
 
@@ -40,6 +64,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     parser: AioKafkaParser
 
     _outer_config: "KafkaBrokerConfig"
+    _call_wrapper_class = KafkaHandlerCallWrapper
 
     def __init__(
         self,
@@ -59,20 +84,87 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
         self.consumer = None
 
+    @overload
+    def __call__(
+        self,
+        func: Callable[P_HandlerParams, T_HandlerReturn],
+        *,
+        filter: "Filter[Any]" = default_filter,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        dependencies: Sequence["Dependant"] = (),
+    ) -> "KafkaHandlerCallWrapper[P_HandlerParams, T_HandlerReturn]": ...
+
+    @overload
+    def __call__(
+        self,
+        func: None = None,
+        *,
+        filter: "Filter[Any]" = default_filter,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        dependencies: Sequence["Dependant"] = (),
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        "KafkaHandlerCallWrapper[P_HandlerParams, T_HandlerReturn]",
+    ]: ...
+
+    @override
+    def __call__(
+        self,
+        func: Callable[P_HandlerParams, T_HandlerReturn] | None = None,
+        *,
+        filter: "Filter[Any]" = default_filter,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        dependencies: Sequence["Dependant"] = (),
+    ) -> Union[
+        "KafkaHandlerCallWrapper[P_HandlerParams, T_HandlerReturn]",
+        Callable[
+            [Callable[P_HandlerParams, T_HandlerReturn]],
+            "KafkaHandlerCallWrapper[P_HandlerParams, T_HandlerReturn]",
+        ],
+    ]:
+        # The base builds the wrapper from `_call_wrapper_class`; this only narrows the name
+        return cast(
+            "KafkaHandlerCallWrapper[P_HandlerParams, T_HandlerReturn] | Callable["
+            "[Callable[P_HandlerParams, T_HandlerReturn]], "
+            "KafkaHandlerCallWrapper[P_HandlerParams, T_HandlerReturn]]",
+            super().__call__(
+                func,
+                filter=filter,
+                parser=parser,
+                decoder=decoder,
+                dependencies=dependencies,
+            ),
+        )
+
     @property
-    def pattern(self) -> str | None:
+    def pattern(self) -> Address | None:
+        """The pattern this Subscriber was declared with, and its Broker address."""
         if not self._pattern:
-            return self._pattern
-        return f"{self._outer_config.prefix}{self._pattern}"
+            return None
+
+        return Address(self._pattern, KAFKA_ADDRESS_SYNTAX).add_prefix(
+            self._outer_config.prefix,
+        )
 
     @property
-    def topics(self) -> list[str]:
-        return [f"{self._outer_config.prefix}{t}" for t in self._topics]
+    def topics(self) -> list[Topic]:
+        return [t.add_prefix(self._outer_config.prefix) for t in self._topics]
 
     @property
-    def partitions(self) -> list[TopicPartition]:
+    def topic_names_for_subscribe(self) -> list[str]:
+        return [t.name for t in self.topics]
+
+    @property
+    def partitions(self) -> list[AIOKafkaTopicPartition]:
+        """The assignment as the consumer receives it: the client library's tuples, prefixed.
+
+        Declared with `faststream.kafka.TopicPartition`; handed to aiokafka as its own.
+        """
         return [
-            TopicPartition(
+            AIOKafkaTopicPartition(
                 topic=f"{self._outer_config.prefix}{p.topic}",
                 partition=p.partition,
             )
@@ -87,9 +179,55 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     def client_id(self) -> str | None:
         return self._outer_config.client_id
 
+    @property
+    def topics_to_create(self) -> list[Topic]:
+        # Conflicting duplicates are reported by `create_subscriber`, the only
+        # public way to get here, so collapsing to the last one is enough.
+        topics: dict[str, Topic] = {t.name: t for t in self.topics}
+
+        prefix = self._outer_config.prefix
+        for p in self._partitions:
+            # Conflicting declare flags are reported by `create_subscriber`.
+            partition = p.add_prefix(prefix)
+            topics[partition.topic] = Topic(
+                partition.topic,
+                declare=partition.declare,
+            )
+
+        return [t for t in topics.values() if t.declare]
+
+    async def _ensure_topics(self) -> None:
+        if not self._outer_config.allow_auto_create_topics:
+            self._log(
+                logging.WARNING,
+                "Auto create topics is disabled. Make sure the topics exist.",
+            )
+            return
+
+        if self._outer_config.consumer_only:
+            self._log(
+                logging.WARNING,
+                "Topic creation is skipped in consumer-only mode. Make sure the topics exist.",
+            )
+            return
+
+        topics = self.topics_to_create
+        if not topics:
+            return
+
+        results = await self._outer_config.admin.create_topics(topics)
+
+        for create_result in results:
+            if create_result.error:
+                self._log(
+                    logging.WARNING,
+                    f"Failed to create topic {create_result.topic}: {create_result.error}",
+                )
+
     async def start(self) -> None:
         """Start the consumer."""
         await super().start()
+        await self._ensure_topics()
 
         self.consumer = consumer = self.builder(
             group_id=self.group_id,
@@ -99,10 +237,11 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
         self.parser._setup(consumer)
 
-        if self.topics or self.pattern:
+        pattern = self.pattern
+        if self.topics or pattern:
             consumer.subscribe(
-                topics=self.topics,
-                pattern=self.pattern,
+                topics=self.topic_names_for_subscribe,
+                pattern=pattern.broker_address if pattern else None,
                 listener=make_logging_listener(
                     consumer=consumer,
                     logger=self._outer_config.logger.logger.logger,
@@ -150,7 +289,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
         ((raw_message,),) = raw_messages.values()
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
 
         async_parser, async_decoder = self._get_parser_and_decoder()
 
@@ -165,13 +304,13 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator["KafkaMessage"]:  # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["KafkaMessage"]:
         assert self.consumer, "You should start subscriber at first."
         assert not self.calls, (
             "You can't use `get_one` method if subscriber has registered handlers."
         )
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
         async_parser, async_decoder = self._get_parser_and_decoder()
 
         async for raw_message in self.consumer:
@@ -241,11 +380,11 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
     @property
     def topic_names(self) -> list[str]:
-        if self.pattern:
-            topics = [self.pattern]
+        if pattern := self.pattern:
+            topics = [pattern.broker_address]
 
         elif self.topics:
-            topics = self.topics
+            topics = self.topic_names_for_subscribe
 
         else:
             topics = [f"{p.topic}-{p.partition}" for p in self.partitions]
@@ -266,22 +405,19 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
 
 class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
+    __slots__ = ("parser",)
+
     def __init__(
         self,
         config: "KafkaSubscriberConfig",
         specification: "SubscriberSpecification[Any, Any]",
         calls: "CallsCollection[ConsumerRecord]",
     ) -> None:
-        if config.pattern:
-            reg, pattern = compile_path(
-                config.pattern,
-                replace_symbol=".*",
-                patch_regex=lambda x: x.replace(r"\*", ".*"),
-            )
-            config.pattern = pattern
-
-        else:
-            reg = None
+        reg = (
+            Address(config.pattern, KAFKA_ADDRESS_SYNTAX).regex
+            if config.pattern
+            else None
+        )
 
         self.parser = AioKafkaParser(
             msg_class=KafkaMessage if config.ack_first else KafkaAckableMessage,
@@ -291,6 +427,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         config.decoder = self.parser.decode_message
         super().__init__(config, specification, calls)
 
+    @override
     async def get_msg(self, consumer: "AIOKafkaConsumer") -> "ConsumerRecord":
         assert consumer, "You should setup subscriber at first."
         return await consumer.getone()
@@ -312,6 +449,12 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
 
 
 class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
+    __slots__ = (
+        "batch_timeout_ms",
+        "max_records",
+        "parser",
+    )
+
     def __init__(
         self,
         config: "KafkaSubscriberConfig",
@@ -320,16 +463,11 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         batch_timeout_ms: int,
         max_records: int | None,
     ) -> None:
-        if config.pattern:
-            reg, pattern = compile_path(
-                config.pattern,
-                replace_symbol=".*",
-                patch_regex=lambda x: x.replace(r"\*", ".*"),
-            )
-            config.pattern = pattern
-
-        else:
-            reg = None
+        reg = (
+            Address(config.pattern, KAFKA_ADDRESS_SYNTAX).regex
+            if config.pattern
+            else None
+        )
 
         self.parser = AioKafkaBatchParser(
             msg_class=KafkaMessage if config.ack_first else KafkaAckableMessage,
@@ -376,6 +514,8 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
 
 
 class ConcurrentDefaultSubscriber(ConcurrentMixin["ConsumerRecord"], DefaultSubscriber):
+    __slots__ = ()
+
     async def start(self) -> None:
         await super().start()
         self.start_consume_task()
@@ -385,6 +525,11 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin["ConsumerRecord"], DefaultSubs
 
 
 class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
+    __slots__ = (
+        "consumer_subgroup",
+        "max_workers",
+    )
+
     consumer_subgroup: list["AIOKafkaConsumer"]
 
     def __init__(
@@ -402,6 +547,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
     async def start(self) -> None:
         """Start the consumer subgroup."""
         await super(LogicSubscriber, self).start()
+        await self._ensure_topics()
 
         if self.calls:
             self.consumer_subgroup = [
@@ -428,7 +574,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
         async with anyio.create_task_group() as tg:
             for c in self.consumer_subgroup:
                 c.subscribe(
-                    topics=self.topics,
+                    topics=self.topic_names_for_subscribe,
                     listener=make_logging_listener(
                         consumer=c,
                         logger=self._outer_config.logger.logger.logger,
@@ -437,7 +583,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
                     ),
                 )
 
-                tg.start_soon(c.start)
+                _ = tg.start_soon(c.start)
 
         self._post_start()
 
@@ -449,12 +595,13 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
         if self.consumer_subgroup:
             async with anyio.create_task_group() as tg:
                 for consumer in self.consumer_subgroup:
-                    tg.start_soon(consumer.stop)
+                    _ = tg.start_soon(consumer.stop)
 
             self.consumer_subgroup = []
 
         await super().stop()
 
+    @override
     async def get_msg(self, consumer: "AIOKafkaConsumer") -> "KafkaRawMessage":
         assert consumer, "You should setup subscriber at first."
         message = await consumer.getone()

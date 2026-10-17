@@ -14,9 +14,11 @@ from .config import MQTTPublisherSpecificationConfig
 class MQTTPublisherSpecification(
     PublisherSpecification[MQTTBrokerConfig, MQTTPublisherSpecificationConfig],
 ):
+    __slots__ = ()
+
     @property
     def topic(self) -> str:
-        return f"{self._outer_config.prefix}{self.config.topic}"
+        return self.config.address.add_prefix(self._outer_config.prefix).template
 
     @property
     def name(self) -> str:
@@ -30,6 +32,7 @@ class MQTTPublisherSpecification(
 
         return {
             self.name: PublisherSpec(
+                address=self.topic,
                 description=self.config.description_,
                 operation=Operation(
                     message=Message(

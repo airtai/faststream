@@ -29,6 +29,8 @@ class KeyValueWatchSubscriber(
     TasksMixin,
     LogicSubscriber["KeyValue.Entry"],
 ):
+    __slots__ = ()
+
     subscription: Optional["UnsubscribeAdapter[KeyValue.KeyWatcher]"]
     _fetch_sub: UnsubscribeAdapter["KeyValue.KeyWatcher"] | None
 
@@ -65,7 +67,7 @@ class KeyValueWatchSubscriber(
 
             fetch_sub = self._fetch_sub = UnsubscribeAdapter["KeyValue.KeyWatcher"](
                 await bucket.watch(
-                    keys=self.clear_subject,
+                    keys=self.subject.broker_address,
                     headers_only=self.kv_watch.headers_only,
                     include_history=self.kv_watch.include_history,
                     ignore_deletes=self.kv_watch.ignore_deletes,
@@ -83,7 +85,7 @@ class KeyValueWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
         async_parser, async_decoder = self._get_parser_and_decoder()
 
         return cast(
@@ -97,7 +99,7 @@ class KeyValueWatchSubscriber(
         )
 
     @override
-    async def __aiter__(self) -> AsyncIterator["NatsKvMessage"]:  # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["NatsKvMessage"]:
         assert not self.calls, (
             "You can't use iterator if subscriber has registered handlers."
         )
@@ -110,7 +112,7 @@ class KeyValueWatchSubscriber(
 
             fetch_sub = self._fetch_sub = UnsubscribeAdapter["KeyValue.KeyWatcher"](
                 await bucket.watch(
-                    keys=self.clear_subject,
+                    keys=self.subject.broker_address,
                     headers_only=self.kv_watch.headers_only,
                     include_history=self.kv_watch.include_history,
                     ignore_deletes=self.kv_watch.ignore_deletes,
@@ -123,7 +125,7 @@ class KeyValueWatchSubscriber(
         timeout = 5
         sleep_interval = timeout / 10
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
         async_parser, async_decoder = self._get_parser_and_decoder()
 
         while True:
@@ -161,7 +163,7 @@ class KeyValueWatchSubscriber(
 
         self.subscription = UnsubscribeAdapter["KeyValue.KeyWatcher"](
             await bucket.watch(
-                keys=self.clear_subject,
+                keys=self.subject.broker_address,
                 headers_only=self.kv_watch.headers_only,
                 include_history=self.kv_watch.include_history,
                 ignore_deletes=self.kv_watch.ignore_deletes,
@@ -186,6 +188,7 @@ class KeyValueWatchSubscriber(
                 if message:
                     await self.consume(message)
 
+    @override
     def _make_response_publisher(
         self,
         message: "StreamMessage[KeyValue.Entry]",
@@ -208,6 +211,6 @@ class KeyValueWatchSubscriber(
         """
         return self.build_log_context(
             message=message,
-            subject=self.subject,
+            subject=self.subject.template,
             stream=self.kv_watch.name,
         )

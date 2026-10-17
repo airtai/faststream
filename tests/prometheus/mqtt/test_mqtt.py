@@ -1,3 +1,4 @@
+from asyncio import Event
 from typing import Any
 
 import pytest
@@ -7,7 +8,7 @@ from faststream.mqtt import MQTTBroker
 from faststream.mqtt.prometheus.middleware import MQTTPrometheusMiddleware
 from tests.brokers.mqtt.test_consume import TestConsume as ConsumeCase
 from tests.brokers.mqtt.test_publish import TestPublish as PublishCase
-from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
+from tests.prometheus.basic import LocalRPCPrometheusTestcase
 
 from .basic import MQTTPrometheusSettings
 
@@ -16,15 +17,14 @@ from .basic import MQTTPrometheusSettings
 @pytest.mark.mqtt()
 class TestPrometheus(
     MQTTPrometheusSettings,
-    LocalPrometheusTestcase,
     LocalRPCPrometheusTestcase,
 ):
-    async def test_rpc_request(self, queue: str) -> None:
+    async def test_rpc_request(self, queue: str, event: Event) -> None:
         if self.version == "3.1.1":
             pytest.skip(
                 "request/reply not supported in MQTT 3.1.1 without explicit reply_to",
             )
-        await super().test_rpc_request(queue)
+        await super().test_rpc_request(queue, event)
 
 
 @pytest.mark.connected()

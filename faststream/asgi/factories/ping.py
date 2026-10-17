@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 def make_ping_asgi(
-    broker: "BrokerUsecase[Any, Any]",
+    broker: "BrokerUsecase[Any, Any, Any]",
     /,
     timeout: float | None = None,
     include_in_schema: bool = True,
@@ -29,7 +29,7 @@ def make_ping_asgi(
         tags=tags,
         unique_id=unique_id,
     )
-    async def ping(scope: Scope) -> AsgiResponse:
+    async def ping(scope: Scope) -> AsgiResponse:  # noqa: ARG001
         if await broker.ping(timeout):
             return healthy_response
         return unhealthy_response

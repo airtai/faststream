@@ -1,19 +1,21 @@
 import logging
 from abc import abstractmethod
-from collections.abc import AsyncIterator, Callable, Sequence
-from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator, Callable, Sequence
+from contextlib import AbstractAsyncContextManager, asynccontextmanager, nullcontext
 from typing import TYPE_CHECKING, Any, Optional, TypeVar
 
-from typing_extensions import ParamSpec
+from typing_extensions import ParamSpec, Self, deprecated
 
 from faststream._internal.di import FastDependsConfig
 from faststream._internal.logger import logger
 from faststream._internal.utils import apply_types
-from faststream._internal.utils.functions import fake_context, to_async
+from faststream._internal.utils.functions import to_async
 from faststream.exceptions import SetupError
 from faststream.specification import AsyncAPI
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from faststream._internal.basic_types import (
         AnyCallable,
         AsyncFunc,
@@ -26,13 +28,15 @@ if TYPE_CHECKING:
     from faststream.specification.base import SpecificationFactory
 
 
+catch_startup_validation_error: Callable[[], AbstractAsyncContextManager[Any, Any]]
+
 try:
     from pydantic import ValidationError as PValidation
 
     from faststream.exceptions import StartupValidationError
 
     @asynccontextmanager
-    async def catch_startup_validation_error() -> AsyncIterator[None]:
+    async def catch_startup_validation_error() -> AsyncGenerator[None, None]:
         try:
             yield
         except PValidation as e:
@@ -50,8 +54,8 @@ try:
                 invalid_fields=invalid_fields,
             ) from e
 
-except ImportError:
-    catch_startup_validation_error = fake_context
+except ImportError:  # pragma: no cover
+    catch_startup_validation_error = nullcontext
 
 
 P_HookParams = ParamSpec("P_HookParams")
@@ -59,15 +63,20 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 
 class StartAbleApplication:
+    __slots__ = (
+        "brokers",
+        "config",
+        "schema",
+    )
+
     def __init__(
         self,
-        broker: Optional["BrokerUsecase[Any, Any]"] = None,
-        /,
+        *brokers: "BrokerUsecase[Any, Any, Any]",
         specification: Optional["SpecificationFactory"] = None,
         config: Optional["FastDependsConfig"] = None,
     ) -> None:
         self._init_setupable_(
-            broker,
+            *brokers,
             config=config,
             specification=specification,
         )
@@ -78,19 +87,18 @@ class StartAbleApplication:
 
     def _init_setupable_(  # noqa: PLW3201
         self,
-        broker: Optional["BrokerUsecase[Any, Any]"] = None,
-        /,
+        *brokers: "BrokerUsecase[Any, Any, Any]",
         specification: Optional["SpecificationFactory"] = None,
         config: Optional["FastDependsConfig"] = None,
     ) -> None:
         self.config = config or FastDependsConfig()
         self.config.context.set_global("app", self)
-        self.brokers: list[BrokerUsecase[Any, Any]] = []
+        self.brokers: list[BrokerUsecase[Any, Any, Any]] = []
 
         self.schema: SpecificationFactory = specification or AsyncAPI()
 
-        if broker:
-            self._add_broker(broker)
+        for br in brokers:
+            self.add_broker(br)
 
     async def _start_broker(self) -> None:
         assert self.brokers, "You should setup a broker"
@@ -98,33 +106,39 @@ class StartAbleApplication:
             await b.start()
 
     @property
-    def broker(self) -> Optional["BrokerUsecase[Any, Any]"]:
+    def broker(self) -> Optional["BrokerUsecase[Any, Any, Any]"]:
         return self.brokers[0] if self.brokers else None
 
-    def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:
+    @deprecated(
+        "This method is deprecated and will be removed in 0.8.0 Use `add_broker` instead."
+    )
+    def set_broker(self, broker: "BrokerUsecase[Any, Any, Any]") -> None:
         """Set already existed App object broker.
 
         Useful then you create/init broker in `on_startup` hook.
         """
-        if self.brokers:
-            msg = f"`{self}` already has a broker. You can't use multiple brokers until 1.0.0 release."
-            raise SetupError(msg)
-        self._add_broker(broker)
+        self.add_broker(broker)
 
-    def _add_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:
+    def add_broker(self, broker: "BrokerUsecase[Any, Any, Any]") -> None:
         if broker in self.brokers:
             msg = f"Broker {broker} is already added"
             raise SetupError(msg)
+
         self.brokers.append(broker)
         self.schema.add_broker(broker)
         broker._update_fd_config(self.config)
 
 
 class Application(StartAbleApplication):
+    """Unslotted on purpose: an application object is the user's own.
+
+    One exists per process, so slots would save nothing, and user code and our own
+    CLI tests assign to it (`app.run` is patched in `tests/cli/test_logs.py`).
+    """
+
     def __init__(
         self,
-        broker: Optional["BrokerUsecase[Any, Any]"] = None,
-        /,
+        *brokers: "BrokerUsecase[Any, Any, Any]",
         config: Optional["FastDependsConfig"] = None,
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
@@ -136,7 +150,7 @@ class Application(StartAbleApplication):
     ) -> None:
         self.logger = logger
 
-        super().__init__(broker, config=config, specification=specification)
+        super().__init__(*brokers, config=config, specification=specification)
 
         self._on_startup_calling: list[AsyncFunc] = [
             apply_types(
@@ -179,7 +193,19 @@ class Application(StartAbleApplication):
                 context__=self.context,
             )
         else:
-            self.lifespan_context = fake_context
+            self.lifespan_context = lambda *_, **__: nullcontext()
+
+    async def __aenter__(self) -> Self:
+        await self.start()
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_val: BaseException | None = None,
+        exc_tb: Optional["TracebackType"] = None,
+    ) -> None:
+        await self.stop()
 
     @abstractmethod
     def exit(self) -> None:
@@ -218,7 +244,7 @@ class Application(StartAbleApplication):
     async def _start_hooks_context(
         self,
         **run_extra_options: "SettingField",
-    ) -> AsyncIterator[None]:
+    ) -> AsyncGenerator[None, None]:
         async with catch_startup_validation_error():
             for func in self._on_startup_calling:
                 await func(**run_extra_options)
@@ -232,7 +258,7 @@ class Application(StartAbleApplication):
     async def _startup_logging(
         self,
         log_level: int = logging.INFO,
-    ) -> AsyncIterator[None]:
+    ) -> AsyncGenerator[None, None]:
         """Separated startup logging."""
         self._log(
             log_level,
@@ -262,7 +288,7 @@ class Application(StartAbleApplication):
                 await broker.stop()
 
     @asynccontextmanager
-    async def _shutdown_hooks_context(self) -> AsyncIterator[None]:
+    async def _shutdown_hooks_context(self) -> AsyncGenerator[None, None]:
         for func in self._on_shutdown_calling:
             await func()
 
@@ -275,7 +301,7 @@ class Application(StartAbleApplication):
     async def _shutdown_logging(
         self,
         log_level: int = logging.INFO,
-    ) -> AsyncIterator[None]:
+    ) -> AsyncGenerator[None, None]:
         """Separated startup logging."""
         self._log(log_level, "FastStream app shutting down...")
 

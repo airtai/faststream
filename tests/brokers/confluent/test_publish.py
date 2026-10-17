@@ -18,12 +18,12 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
     async def test_publish_batch(self, queue: str) -> None:
         pub_broker = self.get_broker()
 
-        msgs_queue = asyncio.Queue(maxsize=2)
+        msgs_queue: asyncio.Queue[Any] = asyncio.Queue(maxsize=2)
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any) -> None:
             await msgs_queue.put(msg)
 
         async with self.patch_broker(pub_broker) as br:
@@ -45,12 +45,12 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
     async def test_batch_publisher_manual(self, queue: str) -> None:
         pub_broker = self.get_broker()
 
-        msgs_queue = asyncio.Queue(maxsize=2)
+        msgs_queue: asyncio.Queue[Any] = asyncio.Queue(maxsize=2)
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any) -> None:
             await msgs_queue.put(msg)
 
         publisher = pub_broker.publisher(queue, batch=True)
@@ -74,19 +74,19 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
     async def test_batch_publisher_decorator(self, queue: str) -> None:
         pub_broker = self.get_broker()
 
-        msgs_queue = asyncio.Queue(maxsize=2)
+        msgs_queue: asyncio.Queue[Any] = asyncio.Queue(maxsize=2)
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any) -> None:
             await msgs_queue.put(msg)
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @pub_broker.publisher(queue, batch=True)
-        @pub_broker.subscriber(*args2, **kwargs2)
-        async def pub(m):
+        @pub_broker.subscriber(*args2, **kwargs2)  # type: ignore[untyped-decorator]
+        async def pub(m: Any) -> Any:
             return 1, "hi"
 
         async with self.patch_broker(pub_broker) as br:
@@ -106,25 +106,21 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
 
     @pytest.mark.asyncio()
     async def test_response(
-        self,
-        queue: str,
-        mock: MagicMock,
+        self, queue: str, mock: MagicMock, event: asyncio.Event
     ) -> None:
-        event = asyncio.Event()
-
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
         @pub_broker.publisher(topic=queue + "1")
-        async def handle():
+        async def handle() -> Any:
             return KafkaResponse(1)
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
-        @pub_broker.subscriber(*args2, **kwargs2)
-        async def handle_next(msg=Context("message")) -> None:
+        @pub_broker.subscriber(*args2, **kwargs2)  # type: ignore[untyped-decorator]
+        async def handle_next(msg: Any = Context("message")) -> None:
             mock(body=msg.body)
             event.set()
 
@@ -150,8 +146,8 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg: Any, raw_msg=Context("message")) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any, raw_msg: Any = Context("message")) -> None:
             await messages_queue.put((msg, raw_msg.raw_message.key()))
 
         publisher = pub_broker.publisher(queue, batch=True)
@@ -184,8 +180,8 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg: Any, raw_msg=Context("message")) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any, raw_msg: Any = Context("message")) -> None:
             await messages_queue.put((msg, raw_msg.raw_message.key()))
 
         publisher = pub_broker.publisher(queue, batch=True, key=b"default_key")
@@ -221,8 +217,8 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg: Any, raw_msg=Context("message")) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any, raw_msg: Any = Context("message")) -> None:
             await messages_queue.put((msg, raw_msg.raw_message.key()))
 
         publisher = pub_broker.publisher(queue, batch=True)
@@ -231,9 +227,9 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
             await br.start()
 
             await publisher.publish(
-                KafkaPublishMessage("message1", key=b"key1"),
-                KafkaPublishMessage("message2", key=b"key2"),
-                "message3",
+                "message1",
+                KafkaPublishMessage("message2", key=b"key1"),
+                KafkaPublishMessage("message3", key=b"key2"),
             )
 
             received = []
@@ -245,9 +241,9 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
 
         received_set = set(received)
         expected_set = {
-            ("message1", b"key1"),
-            ("message2", b"key2"),
-            ("message3", None),
+            ("message1", None),
+            ("message2", b"key1"),
+            ("message3", b"key2"),
         }
         assert received_set == expected_set, (
             f"Expected {expected_set}, got {received_set}"
@@ -266,8 +262,8 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg: Any, raw_msg=Context("message")) -> None:
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any, raw_msg: Any = Context("message")) -> None:
             await messages_queue.put((msg, raw_msg.raw_message.key()))
 
         publisher = pub_broker.publisher(queue, batch=True, key=b"default_key")
@@ -293,6 +289,70 @@ class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
             ("message1", b"explicit_key"),
             ("message2", b"default_key"),
             ("message3", b"another_key"),
+        }
+        assert received_set == expected_set, (
+            f"Expected {expected_set}, got {received_set}"
+        )
+
+        assert messages_queue.empty()
+
+    @pytest.mark.asyncio()
+    async def test_publish_none_sends_a_real_tombstone(self, queue: str) -> None:
+        pub_broker = self.get_broker(apply_types=True)
+
+        values: asyncio.Queue[bytes | None] = asyncio.Queue()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any = Context("message")) -> None:
+            await values.put(msg.raw_message.value())
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+            await br.publish(None, queue, key=b"tombstone-key")
+            value = await asyncio.wait_for(values.get(), timeout=self.timeout)
+
+        assert value is None
+
+    @pytest.mark.asyncio()
+    async def test_batch_publisher_with_kafka_response_without_keys(
+        self, queue: str
+    ) -> None:
+        """Test using KafkaResponse to set different keys for each message."""
+        pub_broker = self.get_broker(apply_types=True)
+
+        messages_queue: asyncio.Queue[tuple[Any, bytes | None]] = asyncio.Queue()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)  # type: ignore[untyped-decorator]
+        async def handler(msg: Any, raw_msg: Any = Context("message")) -> None:
+            await messages_queue.put((msg, raw_msg.raw_message.key()))
+
+        publisher = pub_broker.publisher(queue, batch=True)
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+
+            await publisher.publish(
+                "message1",
+                "message2",
+                "message3",
+            )
+
+            received = []
+            for _ in range(3):
+                msg, key = await asyncio.wait_for(
+                    messages_queue.get(), timeout=self.timeout
+                )
+                received.append((msg, key))
+
+        received_set = set(received)
+        expected_set = {
+            ("message1", None),
+            ("message2", None),
+            ("message3", None),
         }
         assert received_set == expected_set, (
             f"Expected {expected_set}, got {received_set}"

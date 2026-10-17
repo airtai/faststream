@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from fast_depends.library.serializer import SerializerProto
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.parser import CodecProto
 
 
 class FastStreamMessageVersion(int, enum.Enum):
@@ -20,10 +21,12 @@ class FastStreamMessageVersion(int, enum.Enum):
 class BinaryMessageFormatV1(MessageFormat):
     """Message format to encode into binary and parse it."""
 
+    __slots__ = ()
+
     IDENTITY_HEADER = b"\x89BIN\x0d\x0a\x1a\x0a"  # to avoid confusion with other formats
 
     @classmethod
-    def encode(
+    async def encode(
         cls,
         *,
         message: Union[Sequence["SendableMessage"], "SendableMessage"],
@@ -31,13 +34,15 @@ class BinaryMessageFormatV1(MessageFormat):
         headers: dict[str, Any] | None,
         correlation_id: str,
         serializer: Optional["SerializerProto"] = None,
+        codec: Optional["CodecProto"] = None,
     ) -> bytes:
-        msg = cls.build(
+        msg = await cls.build(
             message=message,
             reply_to=reply_to,
             headers=headers,
             correlation_id=correlation_id,
             serializer=serializer,
+            codec=codec,
         )
         headers_writer = BinaryWriter()
         for key, value in msg.headers.items():
@@ -103,6 +108,8 @@ class BinaryMessageFormatV1(MessageFormat):
 
 
 class BinaryWriter:
+    __slots__ = ("data",)
+
     def __init__(self) -> None:
         self.data = bytearray()
 
@@ -130,6 +137,11 @@ class BinaryWriter:
 
 
 class BinaryReader:
+    __slots__ = (
+        "data",
+        "offset",
+    )
+
     def __init__(self, data: bytes) -> None:
         self.data = data
         self.offset = 0

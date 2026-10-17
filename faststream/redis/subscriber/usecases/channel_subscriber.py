@@ -34,6 +34,8 @@ Offset: TypeAlias = bytes
 
 
 class ChannelSubscriber(LogicSubscriber):
+    __slots__ = ()
+
     def __init__(
         self,
         config: "RedisSubscriberConfig",
@@ -103,7 +105,7 @@ class ChannelSubscriber(LogicSubscriber):
             while (raw_message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
         async_parser, async_decoder = self._get_parser_and_decoder()
 
         msg: RedisChannelMessage | None = await process_msg(  # type: ignore[assignment]
@@ -117,7 +119,7 @@ class ChannelSubscriber(LogicSubscriber):
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator["RedisChannelMessage"]:  # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["RedisChannelMessage"]:
         assert self.subscription, "You should start subscriber at first."
         assert not self.calls, (
             "You can't use iterator if subscriber has registered handlers."
@@ -128,7 +130,7 @@ class ChannelSubscriber(LogicSubscriber):
 
         raw_message: PubSubMessage | None = None
 
-        context = self._outer_config.fd_config.context
+        context = self._outer_config.context
         async_parser, async_decoder = self._get_parser_and_decoder()
 
         while True:
@@ -176,6 +178,8 @@ class ChannelConcurrentSubscriber(
     ConcurrentMixin["BrokerStreamMessage[Any]"],
     ChannelSubscriber,
 ):
+    __slots__ = ()
+
     async def start(self) -> None:
         await super().start()
         self.start_consume_task()

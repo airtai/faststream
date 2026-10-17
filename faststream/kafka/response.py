@@ -1,18 +1,23 @@
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Union
 
 from typing_extensions import override
 
+from faststream._internal.kafka import (
+    extract_per_message_keys_and_bodies,
+    key_for_index,
+    realign_keys,
+)
 from faststream.response.publish_type import PublishType
 from faststream.response.response import (
     BatchPublishCommand,
     PublishCommand,
     Response,
-    extract_per_message_keys_and_bodies,
-    key_for_index,
 )
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
+    from faststream.kafka.types import KafkaSendableMessage
 
 
 class KafkaResponse(Response):
@@ -65,15 +70,15 @@ class KafkaResponse(Response):
 class KafkaPublishCommand(BatchPublishCommand):
     def __init__(
         self,
-        message: "SendableMessage",
+        message: "KafkaSendableMessage",
         /,
-        *messages: "SendableMessage",
+        *messages: "KafkaSendableMessage",
         topic: str,
         _publish_type: PublishType,
         key: bytes | Any | None = None,
         partition: int | None = None,
         timestamp_ms: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         correlation_id: str | None = None,
         reply_to: str = "",
         no_confirm: bool = False,
@@ -85,7 +90,7 @@ class KafkaPublishCommand(BatchPublishCommand):
             destination=topic,
             reply_to=reply_to,
             correlation_id=correlation_id,
-            headers=headers,
+            headers=dict(headers) if headers is not None else None,
             _publish_type=_publish_type,
         )
 
@@ -129,8 +134,8 @@ class KafkaPublishCommand(BatchPublishCommand):
     def key_for(self, index: int) -> Any | None:
         return key_for_index(self._per_message_keys, self.key, index)
 
-    def headers_to_publish(self) -> dict[str, str]:
-        headers = {}
+    def headers_to_publish(self) -> dict[str, str | bytes | None]:
+        headers: dict[str, str | bytes | None] = {}
 
         if self.correlation_id:
             headers["correlation_id"] = self.correlation_id
@@ -139,6 +144,26 @@ class KafkaPublishCommand(BatchPublishCommand):
             headers["reply_to"] = self.reply_to
 
         return headers | self.headers
+
+    @BatchPublishCommand.batch_bodies.setter  # type: ignore[attr-defined, untyped-decorator]
+    def batch_bodies(self, value: Sequence["Any"]) -> None:
+        if len(value) == 0:
+            self.body = None
+            self.extra_bodies = ()
+        else:
+            self._align_keys(value)
+            self.body = value[0]
+            self.extra_bodies = tuple(value[1:])
+
+    def _align_keys(self, value: Sequence["Any"]) -> None:
+        """Align the per-message keys with the batch_bodies."""
+        if not hasattr(self, "_per_message_keys"):
+            return
+        if len(self._per_message_keys) == 0:
+            return
+        self._per_message_keys = realign_keys(
+            self._per_message_keys, self.batch_bodies, value
+        )
 
 
 # Semantic alias for publish operations

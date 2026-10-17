@@ -3,6 +3,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
+    Literal,
     Optional,
     Union,
     cast,
@@ -24,8 +25,11 @@ from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo
 from faststream._internal.fastapi.router import StreamRouter
+from faststream._internal.types import IdGenerator
+from faststream.message import gen_cor_id
 from faststream.middlewares import AckPolicy
 from faststream.redis.broker.broker import RedisBroker as RB
+from faststream.redis.broker.sentinel_broker import RedisSentinelBroker as RSB
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
@@ -96,6 +100,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         encoder_class: type["Encoder"] = Encoder,
         # broker base args
         graceful_timeout: float | None = 15.0,
+        id_generator: IdGenerator = gen_cor_id,
         decoder: Optional["CustomCallable"] = None,
         parser: Optional["CustomCallable"] = None,
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
@@ -134,6 +139,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         generate_unique_id_function: Callable[["APIRoute"], str] = Default(
             generate_unique_id
         ),
+        **connection_kwargs: Any,
     ) -> None:
         """Initialize the RedisRouter object.
 
@@ -178,6 +184,9 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 _ ...
             graceful_timeout:
                 Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.
+            id_generator:
+                Factory used to generate `correlation_id` when a publish/request call doesn't set one explicitly.
+                Defaults to `gen_cor_id` (uuid4-based).
             decoder:
                 Custom decoder object.
             parser:
@@ -314,6 +323,8 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs about how to Generate Clients](https://fastapi.tiangolo.com/advanced/generate-clients/#custom-generate-unique-id-function).
+            connection_kwargs:
+                Extra connection arguments forwarded to the underlying broker.
 
         """
         super().__init__(
@@ -335,6 +346,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             connection_class=connection_class,
             encoder_class=encoder_class,
             graceful_timeout=graceful_timeout,
+            id_generator=id_generator,
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
@@ -372,12 +384,13 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             include_in_schema=include_in_schema,
             lifespan=lifespan,
             generate_unique_id_function=generate_unique_id_function,
+            **connection_kwargs,
         )
 
     @overload  # type: ignore[override]
     def subscriber(
         self,
-        channel: str | PubSub = ...,
+        channel: str | PubSub,
         *,
         list: None = None,
         stream: None = None,
@@ -405,7 +418,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
     @overload
     def subscriber(
         self,
-        channel: str | PubSub = ...,
+        channel: str | PubSub,
         *,
         list: None = None,
         stream: None = None,
@@ -427,7 +440,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         response_model_exclude_unset: bool = False,
         response_model_exclude_defaults: bool = False,
         response_model_exclude_none: bool = False,
-        max_workers: int = ...,
+        max_workers: int,
     ) -> "ChannelConcurrentSubscriber": ...
 
     @overload
@@ -435,7 +448,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         self,
         channel: None = None,
         *,
-        list: str = ...,
+        list: str | ListSub[Literal[False]],
         stream: None = None,
         # broker arguments
         dependencies: Iterable["params.Depends"] = (),
@@ -463,7 +476,35 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         self,
         channel: None = None,
         *,
-        list: str | ListSub = ...,
+        list: ListSub[Literal[True]],
+        stream: None = None,
+        # broker arguments
+        dependencies: Iterable["params.Depends"] = (),
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        ack_policy: AckPolicy = EMPTY,
+        no_reply: bool = False,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+        # FastAPI args
+        response_model: Any = Default(None),
+        response_model_include: Optional["IncEx"] = None,
+        response_model_exclude: Optional["IncEx"] = None,
+        response_model_by_alias: bool = True,
+        response_model_exclude_unset: bool = False,
+        response_model_exclude_defaults: bool = False,
+        response_model_exclude_none: bool = False,
+        max_workers: None = None,
+    ) -> "ListBatchSubscriber": ...
+
+    @overload
+    def subscriber(
+        self,
+        channel: None = None,
+        *,
+        list: str | ListSub,
         stream: None = None,
         # broker arguments
         dependencies: Iterable["params.Depends"] = (),
@@ -491,7 +532,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         self,
         channel: None = None,
         *,
-        list: str | ListSub = ...,
+        list: str | ListSub,
         stream: None = None,
         # broker arguments
         dependencies: Iterable["params.Depends"] = (),
@@ -511,7 +552,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         response_model_exclude_unset: bool = False,
         response_model_exclude_defaults: bool = False,
         response_model_exclude_none: bool = False,
-        max_workers: int = ...,
+        max_workers: int,
     ) -> "ListConcurrentSubscriber": ...
 
     @overload
@@ -520,7 +561,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         channel: None = None,
         *,
         list: None = None,
-        stream: str = ...,
+        stream: str | StreamSub[Literal[False]],
         # broker arguments
         dependencies: Iterable["params.Depends"] = (),
         parser: Optional["CustomCallable"] = None,
@@ -548,7 +589,35 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         channel: None = None,
         *,
         list: None = None,
-        stream: str | StreamSub = ...,
+        stream: StreamSub[Literal[True]],
+        # broker arguments
+        dependencies: Iterable["params.Depends"] = (),
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        ack_policy: AckPolicy = EMPTY,
+        no_reply: bool = False,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+        # FastAPI args
+        response_model: Any = Default(None),
+        response_model_include: Optional["IncEx"] = None,
+        response_model_exclude: Optional["IncEx"] = None,
+        response_model_by_alias: bool = True,
+        response_model_exclude_unset: bool = False,
+        response_model_exclude_defaults: bool = False,
+        response_model_exclude_none: bool = False,
+        max_workers: None = None,
+    ) -> "StreamBatchSubscriber": ...
+
+    @overload
+    def subscriber(
+        self,
+        channel: None = None,
+        *,
+        list: None = None,
+        stream: str | StreamSub,
         # broker arguments
         dependencies: Iterable["params.Depends"] = (),
         parser: Optional["CustomCallable"] = None,
@@ -576,7 +645,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         channel: None = None,
         *,
         list: None = None,
-        stream: str | StreamSub = ...,
+        stream: str | StreamSub,
         # broker arguments
         dependencies: Iterable["params.Depends"] = (),
         parser: Optional["CustomCallable"] = None,
@@ -595,7 +664,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         response_model_exclude_unset: bool = False,
         response_model_exclude_defaults: bool = False,
         response_model_exclude_none: bool = False,
-        max_workers: int = ...,
+        max_workers: int,
     ) -> "StreamConcurrentSubscriber": ...
 
     @override
@@ -651,12 +720,13 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             ),
         )
 
-    @overload
+    @overload  # type: ignore[override]
     def publisher(
         self,
         channel: None = None,
+        *,
         list: None = None,
-        stream: str | StreamSub = ...,
+        stream: str | StreamSub,
         headers: dict[str, Any] | None = None,
         reply_to: str = "",
         # AsyncAPI information
@@ -670,7 +740,8 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
     def publisher(
         self,
         channel: None = None,
-        list: str = ...,
+        *,
+        list: str | ListSub[Literal[False]],
         stream: None = None,
         headers: dict[str, Any] | None = None,
         reply_to: str = "",
@@ -685,7 +756,24 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
     def publisher(
         self,
         channel: None = None,
-        list: str | ListSub = ...,
+        *,
+        list: ListSub[Literal[True]],
+        stream: None = None,
+        headers: dict[str, Any] | None = None,
+        reply_to: str = "",
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
+        include_in_schema: bool = True,
+    ) -> "ListBatchPublisher": ...
+
+    @overload
+    def publisher(
+        self,
+        channel: None = None,
+        *,
+        list: str | ListSub,
         stream: None = None,
         headers: dict[str, Any] | None = None,
         reply_to: str = "",
@@ -699,7 +787,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
     @overload
     def publisher(
         self,
-        channel: str | PubSub = ...,
+        channel: str | PubSub,
         list: None = None,
         stream: None = None,
         headers: dict[str, Any] | None = None,
@@ -736,4 +824,33 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             description=description,
             schema=schema,
             include_in_schema=include_in_schema,
+        )
+
+
+class RedisSentinelRouter(RedisRouter):
+    """A Redis Sentinel router (high-availability with master failover).
+
+    Behaves like :class:`RedisRouter` but builds a :class:`RedisSentinelBroker`,
+    discovering the master through the ``sentinels`` nodes. All other arguments
+    are forwarded to the underlying broker unchanged.
+    """
+
+    broker_class = RSB  # type: ignore[assignment]
+    broker: RSB
+
+    def __init__(
+        self,
+        url: str = "redis://localhost:6379",
+        *,
+        sentinels: Sequence[tuple[str, int]],
+        sentinel_master_name: str | None = None,
+        sentinel_kwargs: Mapping[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
+            url,
+            sentinels=sentinels,
+            sentinel_master_name=sentinel_master_name,
+            sentinel_kwargs=sentinel_kwargs,
+            **kwargs,
         )

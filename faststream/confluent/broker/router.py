@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Callable, Iterable, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from faststream._internal.broker.router import (
@@ -17,11 +17,12 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
-    from faststream.confluent.schemas import TopicPartition
+    from faststream.confluent.schemas import Topic, TopicPartition
 
 
 class KafkaPublisher(ArgsContainer):
@@ -32,11 +33,11 @@ class KafkaPublisher(ArgsContainer):
 
     def __init__(
         self,
-        topic: str,
+        topic: Union[str, "Topic"],
         *,
         key: bytes | str | None = None,
         partition: int | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str | bytes | None] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI args
@@ -44,6 +45,8 @@ class KafkaPublisher(ArgsContainer):
         description: str | None = None,
         schema: Any | None = None,
         include_in_schema: bool = True,
+        persistent: bool = True,
+        autoflush: bool = False,
     ) -> None:
         """Initialize KafkaPublisher.
 
@@ -68,6 +71,8 @@ class KafkaPublisher(ArgsContainer):
             schema: AsyncAPI publishing message type.
                 Should be any python-native object annotation or `pydantic.BaseModel`.
             include_in_schema: Whetever to include operation in AsyncAPI schema or not.
+            persistent: Whether to make the publisher persistent or not.
+            autoflush: Whether to flush the producer or not on every publish call.
         """
         super().__init__(
             topic=topic,
@@ -81,17 +86,19 @@ class KafkaPublisher(ArgsContainer):
             description=description,
             schema=schema,
             include_in_schema=include_in_schema,
+            persistent=persistent,
+            autoflush=autoflush,
         )
 
 
 class KafkaRoute(SubscriberRoute):
-    """Class to store delaied KafkaBroker subscriber registration."""
+    """Class to store delayed KafkaBroker subscriber registration."""
 
     def __init__(
         self,
         call: Callable[..., "SendableMessage"]
         | Callable[..., Awaitable["SendableMessage"]],
-        *topics: str,
+        *topics: Union[str, "Topic"],
         publishers: Iterable[KafkaPublisher] = (),
         partitions: Sequence["TopicPartition"] = (),
         polling_interval: float = 0.1,
@@ -119,7 +126,7 @@ class KafkaRoute(SubscriberRoute):
         batch: bool = False,
         max_records: int | None = None,
         # broker args
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         ack_policy: AckPolicy = EMPTY,
@@ -129,12 +136,15 @@ class KafkaRoute(SubscriberRoute):
         description: str | None = None,
         include_in_schema: bool = True,
         max_workers: int | None = None,
+        persistent: bool = True,
+        codec: Optional["CodecProto"] = None,
     ) -> None:
         """Initialize KafkaRoute.
 
         Args:
             call: Message handler function.
-            *topics: Kafka topics to consume messages from.
+            *topics: Kafka topics to consume messages from. Pass a `Topic` object
+                instead of a plain name to configure how the topic is created.
             publishers: Kafka publishers to broadcast the handler result.
             partitions: Sequence of topic partitions.
             polling_interval: Polling interval in seconds.
@@ -256,6 +266,8 @@ class KafkaRoute(SubscriberRoute):
                 Uses decorated docstring as default.
             include_in_schema: Whetever to include operation in AsyncAPI schema or not.
             max_workers: Number of workers to process messages concurrently.
+            persistent: Whether to make the subscriber persistent or not.
+            codec: Custom codec object.
         """
         super().__init__(
             call,
@@ -293,6 +305,8 @@ class KafkaRoute(SubscriberRoute):
             description=description,
             include_in_schema=include_in_schema,
             ack_policy=ack_policy,
+            persistent=persistent,
+            codec=codec,
         )
 
 
@@ -302,7 +316,8 @@ class KafkaRouter(
         Union[
             "Message",
             tuple["Message", ...],
-        ]
+        ],
+        KafkaBrokerConfig,
     ],
 ):
     """Includable to KafkaBroker router."""
@@ -312,7 +327,7 @@ class KafkaRouter(
         prefix: str = "",
         handlers: Iterable[KafkaRoute] = (),
         *,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         routers: Iterable[KafkaRegistrator] = (),
         parser: Optional["CustomCallable"] = None,

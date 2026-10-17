@@ -1,3 +1,6 @@
+import asyncio
+from unittest.mock import MagicMock
+
 import pytest
 
 from tests.brokers.base.publish import BrokerPublishTestcase
@@ -11,12 +14,21 @@ _SKIP_V311 = "not supported in MQTT 3.1.1"
 @pytest.mark.mqtt()
 @pytest.mark.asyncio()
 class TestPublish(MQTTTestcaseConfig, BrokerPublishTestcase):
-    async def test_response(self, queue, mock):
+    async def test_response(
+        self, queue: str, mock: MagicMock, event: asyncio.Event
+    ) -> None:
         if self.version == "3.1.1":
             pytest.skip(_SKIP_V311)
-        await super().test_response(queue, mock)
+        await super().test_response(queue, mock, event)
 
-    async def test_reply_to(self, queue, mock):
+    async def test_reply_to(
+        self, queue: str, mock: MagicMock, event: asyncio.Event
+    ) -> None:
         if self.version == "3.1.1":
             pytest.skip(_SKIP_V311)
-        await super().test_reply_to(queue, mock)
+        await super().test_reply_to(queue, mock, event)
+
+    async def test_custom_id_generator(self, queue: str, mock: MagicMock) -> None:
+        if self.version == "3.1.1":
+            pytest.skip(_SKIP_V311)
+        await super().test_custom_id_generator(queue, mock)

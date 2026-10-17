@@ -1,23 +1,25 @@
 import logging
-from collections.abc import Iterable, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    Literal,
     Optional,
 )
+from urllib.parse import urlsplit
 
 import zmqtt
 from fast_depends import Provider, dependency_provider
-from typing_extensions import override
+from typing_extensions import assert_never, override
 
 from faststream._internal.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.context.repository import ContextRepo
 from faststream._internal.di import FastDependsConfig
+from faststream._internal.types import IdGenerator
 from faststream.message import gen_cor_id
 from faststream.middlewares import AckPolicy
 from faststream.mqtt.broker.config import MQTTBrokerConfig
+from faststream.mqtt.parser import MQTTVersion
 from faststream.mqtt.publisher.producer import (
     ZmqttBaseProducer,
     ZmqttProducerV5,
@@ -26,6 +28,7 @@ from faststream.mqtt.publisher.producer import (
 from faststream.mqtt.response import MQTTPublishCommand
 from faststream.mqtt.security import parse_security
 from faststream.mqtt.subscriber.usecase import MQTTBaseSubscriber
+from faststream.mqtt.utils import build_mqtt_url, parse_mqtt_url
 from faststream.response.publish_type import PublishType
 from faststream.specification.schema import BrokerSpec
 
@@ -39,6 +42,7 @@ if TYPE_CHECKING:
     from fast_depends.library.serializer import SerializerProto
 
     from faststream._internal.basic_types import LoggerProto, SendableMessage
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.mqtt.message import MQTTMessage
     from faststream.security import BaseSecurity
@@ -47,30 +51,45 @@ if TYPE_CHECKING:
 
 class MQTTBroker(
     MQTTRegistrator,
-    BrokerUsecase[zmqtt.Message, zmqtt.MQTTClient],
+    BrokerUsecase[zmqtt.Message, zmqtt.MQTTClient, MQTTBrokerConfig],
 ):
     """MQTT broker for FastStream using the zmqtt client library."""
 
     def __init__(
         self,
-        host: str = "localhost:1883",
+        url: str = "mqtt://localhost:1883",
         port: int = EMPTY,
         *,
+        host: str = EMPTY,
         client_id: str = "",
         keepalive: int = 60,
         clean_session: bool = True,
-        version: Literal["3.1.1", "5.0"] = "5.0",
+        will: zmqtt.Will | None = None,
+        version: MQTTVersion = "5.0",
         reconnect: zmqtt.ReconnectConfig | None = None,
+        on_connection_recovery_failed: Callable[[], Awaitable[None]] | None = None,
+        mqtt_connect_timeout: float = 30.0,
         session_expiry_interval: int = 0,
+        receive_maximum: int | None = None,
+        maximum_packet_size: int | None = None,
+        user_properties: Sequence[tuple[str, str]] = (),
+        request_response_information: bool | None = None,
+        request_problem_information: bool | None = None,
+        session_replay_buffer_size: int = 1000,
+        session_replay_timeout: float = 30.0,
+        stripped_prefixes: tuple[str, ...] | None = None,
         graceful_timeout: float | None = 15.0,
         decoder: Optional["CustomCallable"] = None,
         parser: Optional["CustomCallable"] = None,
-        dependencies: Iterable["Dependant"] = (),
+        codec: Optional["CodecProto"] = None,
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         routers: Iterable[MQTTRegistrator] = (),
         ack_policy: AckPolicy = EMPTY,
+        id_generator: IdGenerator = gen_cor_id,
         # AsyncAPI args
         specification_url: str | None = None,
+        protocol: str | None = None,
         protocol_version: str | None = None,
         description: str | None = None,
         tags: Iterable["Tag | TagDict"] = (),
@@ -84,33 +103,81 @@ class MQTTBroker(
         provider: Optional["Provider"] = None,
         context: Optional["ContextRepo"] = None,
     ) -> None:
+        url_options = parse_mqtt_url(url)
         secure_kwargs = parse_security(security)
 
-        producer: ZmqttBaseProducer
-        if version == "5.0":
-            producer = ZmqttProducerV5(parser=parser, decoder=decoder)
-        else:
-            producer = ZmqttProducerV311(parser=parser, decoder=decoder)
+        connection_host = url_options.host
+        connection_port = url_options.port
 
-        if ":" in host:
-            host, p = host.split(":", 2)
+        if host is not EMPTY:
+            host_options = parse_mqtt_url(host)
+            connection_host = host_options.host
+            if port is EMPTY and host_options.port_provided:
+                connection_port = host_options.port
+
+        if port is not EMPTY:
+            connection_port = port
+
+        security_tls = secure_kwargs.pop("tls", None)
+        connection_tls = security_tls or url_options.tls
+        username = secure_kwargs.pop("username", url_options.username)
+        password = secure_kwargs.pop("password", url_options.password)
+
+        connection_kwargs = {
+            "host": connection_host,
+            "port": connection_port,
+            "username": username,
+            "password": password,
+            "tls": connection_tls,
+            "will": will,
+            "receive_maximum": receive_maximum,
+            "maximum_packet_size": maximum_packet_size,
+            "user_properties": user_properties,
+            "request_response_information": request_response_information,
+            "request_problem_information": request_problem_information,
+        }
+        if stripped_prefixes is not None:
+            connection_kwargs["stripped_prefixes"] = stripped_prefixes
+
+        producer: ZmqttBaseProducer
+        if version == "3.1.1":
+            producer = ZmqttProducerV311(
+                parser=parser, decoder=decoder, id_generator=id_generator
+            )
+        elif version == "5.0":
+            producer = ZmqttProducerV5(
+                parser=parser, decoder=decoder, id_generator=id_generator
+            )
         else:
-            p = "1883"
-        if port is EMPTY:
-            port = int(p)
+            assert_never(version)
+
+        connection_url = build_mqtt_url(
+            host=connection_host,
+            port=connection_port,
+            tls=bool(connection_tls),
+        )
 
         if specification_url is None:
-            specification_url = f"mqtt://{host}:{port}"
+            specification_url = connection_url
+
+        specification_protocol = (
+            urlsplit(specification_url).scheme
+            if "://" in specification_url
+            else connection_url.split(":", 1)[0]
+        )
 
         super().__init__(
-            host=host,
-            port=port,
             client_id=client_id,
             keepalive=keepalive,
             clean_session=clean_session,
             version=version,
             reconnect=reconnect,
+            on_connection_recovery_failed=on_connection_recovery_failed,
+            mqtt_connect_timeout=mqtt_connect_timeout,
             session_expiry_interval=session_expiry_interval,
+            session_replay_buffer_size=session_replay_buffer_size,
+            session_replay_timeout=session_replay_timeout,
+            **connection_kwargs,
             **secure_kwargs,
             # broker config
             routers=routers,
@@ -120,6 +187,7 @@ class MQTTBroker(
                 broker_middlewares=middlewares,
                 broker_parser=parser,
                 broker_decoder=decoder,
+                broker_codec=codec,
                 logger=make_mqtt_logger_state(
                     logger=logger,
                     log_level=log_level,
@@ -133,6 +201,7 @@ class MQTTBroker(
                 broker_dependencies=dependencies,
                 graceful_timeout=graceful_timeout,
                 ack_policy=ack_policy,
+                id_generator=id_generator,
                 extra_context={
                     "broker": self,
                 },
@@ -140,12 +209,20 @@ class MQTTBroker(
             specification=BrokerSpec(
                 description=description,
                 url=[specification_url],
-                protocol="mqtt",
+                protocol=protocol or specification_protocol,
                 protocol_version=protocol_version or version,
                 tags=tags,
                 security=security,
             ),
         )
+
+    @property
+    def connection_info(self) -> zmqtt.ConnectionInfo:
+        """Current handshake snapshot; raises MQTTDisconnectedError when disconnected."""
+        if self._connection is None:
+            msg = "No active connection information"
+            raise zmqtt.MQTTDisconnectedError(msg)
+        return self._connection.connection_info
 
     @override
     async def _connect(self) -> zmqtt.MQTTClient:
@@ -216,7 +293,7 @@ class MQTTBroker(
             qos=qos,
             retain=retain,
             headers=headers,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             reply_to=reply_to,
             _publish_type=PublishType.PUBLISH,
         )
@@ -238,7 +315,7 @@ class MQTTBroker(
         cmd = MQTTPublishCommand(
             message,
             topic=topic,
-            correlation_id=correlation_id or gen_cor_id(),
+            correlation_id=correlation_id or self.config.id_generator(),
             headers=headers,
             qos=qos,
             reply_to=reply_to,

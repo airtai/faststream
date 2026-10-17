@@ -1,7 +1,7 @@
-from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Any, Optional, cast
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 
-from typing_extensions import override
+from typing_extensions import overload, override
 from zmqtt import QoS
 
 from faststream._internal.broker.registrator import Registrator
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     import zmqtt  # noqa: F401
     from fast_depends.dependencies import Dependant
 
+    from faststream._internal.parser import CodecProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -29,8 +30,8 @@ if TYPE_CHECKING:
 class MQTTRegistrator(Registrator["zmqtt.Message", MQTTBrokerConfig]):
     """Includable to MQTTBroker router."""
 
-    @override
-    def subscriber(  # type: ignore[override]
+    @overload  # type: ignore[override]
+    def subscriber(
         self,
         topic: str,
         *,
@@ -39,9 +40,54 @@ class MQTTRegistrator(Registrator["zmqtt.Message", MQTTBrokerConfig]):
         # broker arguments
         ack_policy: AckPolicy = EMPTY,
         no_reply: bool = False,
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
+        max_workers: Literal[1] = 1,
+        persistent: bool = True,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+    ) -> "MQTTDefaultSubscriber": ...
+
+    @overload
+    def subscriber(
+        self,
+        topic: str,
+        *,
+        qos: QoS = QoS.AT_MOST_ONCE,
+        shared: str | None = None,
+        # broker arguments
+        ack_policy: AckPolicy = EMPTY,
+        no_reply: bool = False,
+        dependencies: Sequence["Dependant"] = (),
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
+        max_workers: int = ...,
+        persistent: bool = True,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+    ) -> "MQTTConcurrentSubscriber": ...
+
+    @override
+    def subscriber(
+        self,
+        topic: str,
+        *,
+        qos: QoS = QoS.AT_MOST_ONCE,
+        shared: str | None = None,
+        # broker arguments
+        ack_policy: AckPolicy = EMPTY,
+        no_reply: bool = False,
+        dependencies: Sequence["Dependant"] = (),
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
+        codec: Optional["CodecProto"] = None,
         max_workers: int = 1,
         persistent: bool = True,
         # AsyncAPI information
@@ -62,6 +108,7 @@ class MQTTRegistrator(Registrator["zmqtt.Message", MQTTBrokerConfig]):
             dependencies: Dependencies list to apply to the subscriber.
             parser: Custom parser to map raw messages to FastStream ones.
             decoder: Function to decode FastStream message bytes to Python objects.
+            codec: Custom codec object.
             max_workers: Number of workers to process messages concurrently.
             persistent: Whether to retain the subscriber across broker restarts.
             title: AsyncAPI subscriber object title.
@@ -86,6 +133,7 @@ class MQTTRegistrator(Registrator["zmqtt.Message", MQTTBrokerConfig]):
         return subscriber.add_call(
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
+            codec_=codec,
             dependencies_=dependencies,
         )
 
@@ -137,7 +185,7 @@ class MQTTRegistrator(Registrator["zmqtt.Message", MQTTBrokerConfig]):
         router: "MQTTRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
-        dependencies: Iterable["Dependant"] = (),
+        dependencies: Sequence["Dependant"] = (),
         middlewares: Sequence["BrokerMiddleware[Any, Any]"] = (),
         include_in_schema: bool | None = None,
     ) -> None:
