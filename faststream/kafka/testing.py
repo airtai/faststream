@@ -10,6 +10,7 @@ from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream._internal.endpoint.utils import ParserComposition
+from faststream._internal.kafka import encode_headers
 from faststream._internal.parser import BatchCodecProto, DefaultCodec
 from faststream._internal.testing.broker import (
     EnterType,
@@ -22,7 +23,7 @@ from faststream.kafka import TopicPartition
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
-from faststream.kafka.publisher.producer import AioKafkaFastProducer, _encode_headers
+from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.publisher.usecase import BatchPublisher
 from faststream.kafka.subscriber.usecase import BatchSubscriber
 from faststream.message import gen_cor_id
@@ -347,7 +348,7 @@ async def build_message(
         serialized_value_size=0 if msg is None else len(msg),
         checksum=0 if msg is None else sum(msg),
         offset=0,
-        headers=_encode_headers(headers),
+        headers=encode_headers(headers),
         timestamp_type=1,
         timestamp=timestamp_ms or int(datetime.now(timezone.utc).timestamp() * 1000),
     )
@@ -382,7 +383,7 @@ def _build_record(
         serialized_value_size=len(body),
         checksum=sum(body),
         offset=0,
-        headers=_encode_headers(h),
+        headers=encode_headers(h),
         timestamp_type=1,
         timestamp=timestamp_ms or int(datetime.now(timezone.utc).timestamp() * 1000),
     )

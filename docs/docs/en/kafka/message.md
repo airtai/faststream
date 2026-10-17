@@ -64,7 +64,7 @@ contains bytes for headers published as strings.
 The existing `message.headers` remains a decoded string view: invalid UTF-8 bytes
 are replaced with `�`, and null values are omitted. Empty bytes become an empty
 string. `raw_headers` retains invalid bytes, empty bytes, and null values without
-loss. Both dictionaries keep the last value when a header name occurs more than
+loss. `raw_headers` keeps the last value when a header name occurs more than
 once; use the native message's header sequence if you need duplicate entries.
 
 For a batch, `raw_headers` contains the first message's headers and

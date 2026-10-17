@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import override
 
 from faststream._internal.endpoint.utils import ParserComposition
+from faststream._internal.kafka import encode_headers
 from faststream._internal.parser import BatchCodecProto, DefaultCodec
 from faststream._internal.producer import ProducerProto
 from faststream.exceptions import FeatureNotSupportedException
@@ -140,7 +140,7 @@ class AioKafkaFastProducerImpl(AioKafkaFastProducer):
             key=cmd.key,
             partition=cmd.partition,
             timestamp_ms=cmd.timestamp_ms,
-            headers=_encode_headers(headers_to_send),
+            headers=encode_headers(headers_to_send),
         )
 
         if not cmd.no_confirm:
@@ -180,7 +180,7 @@ class AioKafkaFastProducerImpl(AioKafkaFastProducer):
                 key=cmd.key_for(message_position),
                 value=message,
                 timestamp=cmd.timestamp_ms,
-                headers=_encode_headers(final_headers),
+                headers=encode_headers(final_headers),
             )
             if metadata is None:
                 raise BatchBufferOverflowException(message_position=message_position)
@@ -193,15 +193,6 @@ class AioKafkaFastProducerImpl(AioKafkaFastProducer):
         if not cmd.no_confirm:
             return await send_future
         return send_future
-
-
-def _encode_headers(
-    headers: Mapping[str, str | bytes | None],
-) -> list[tuple[str, bytes | None]]:
-    return [
-        (name, value.encode() if isinstance(value, str) else value)
-        for name, value in headers.items()
-    ]
 
 
 class FakeAioKafkaFastProducer(AioKafkaFastProducer):

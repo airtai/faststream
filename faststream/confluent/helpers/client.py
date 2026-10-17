@@ -143,9 +143,9 @@ class AsyncConfluentProducer:
             if isinstance(kwargs["key"], (bytes, type(None)))
             else kwargs["key"].encode()
         )
-        produce_headers: (
-            dict[str, str | bytes | None] | list[tuple[str, str | bytes | None]] | None
-        ) = cast("Any", kwargs["headers"]) if kwargs.get("headers") is not None else None
+        produce_headers = (
+            list(kwargs["headers"]) if kwargs["headers"] is not None else None
+        )
         produce_kwargs: dict[str, Any] = {
             "value": produce_value,
             "key": produce_key,

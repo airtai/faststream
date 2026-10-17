@@ -9,6 +9,7 @@ from confluent_kafka import KafkaError, Message
 from typing_extensions import override
 
 from faststream._internal.endpoint.utils import ParserComposition
+from faststream._internal.kafka import encode_headers
 from faststream._internal.parser import BatchCodecProto, DefaultCodec
 from faststream._internal.testing.broker import (
     EnterType,
@@ -18,10 +19,7 @@ from faststream._internal.testing.broker import (
 from faststream._internal.types import IdGenerator
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.parser import AsyncConfluentParser
-from faststream.confluent.publisher.producer import (
-    AsyncConfluentFastProducer,
-    _encode_headers,
-)
+from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.publisher.usecase import BatchPublisher
 from faststream.confluent.schemas import TopicPartition
 from faststream.confluent.subscriber.usecase import BatchSubscriber
@@ -389,7 +387,7 @@ async def build_message(
         raw_msg=msg,
         topic=topic,
         key=k,
-        headers=_encode_headers(headers),
+        headers=encode_headers(headers),
         offset=0,
         partition=partition or 0,
         timestamp_type=1,
@@ -420,7 +418,7 @@ def _build_mock_message(
         raw_msg=body,
         topic=topic,
         key=k,
-        headers=_encode_headers(h),
+        headers=encode_headers(h),
         offset=0,
         partition=partition or 0,
         timestamp_type=1,
