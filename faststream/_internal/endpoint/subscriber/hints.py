@@ -68,6 +68,9 @@ def _find_mapped(hint: Any, annotations: UnderlyingDriverAnnotations) -> Any:
                 return mapped
         return None
 
+    if origin is not None and origin in annotations:
+        return origin
+
     try:
         return hint if hint in annotations else None
     except TypeError:
@@ -93,7 +96,7 @@ def _format_hint(
             f"\n    from {annotation.module} import {annotation.name}\n"
         )
 
-    return f"{message}Use the context annotation FastStream provides for it instead."
+    return f"{message}Use the corresponding context annotation instead: `{annotation}`"
 
 
 def _describe(hint: Any) -> str:

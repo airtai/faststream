@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, Generic, TypeVar
 
 import pytest
 
@@ -13,6 +13,9 @@ if TYPE_CHECKING:
     from logging import Logger
 
 
+_T = TypeVar("_T")
+
+
 class _CustomDriver:
     pass
 
@@ -21,7 +24,12 @@ class _RouterDriver:
     pass
 
 
+class _CustomGenericDriver(Generic[_T]):
+    pass
+
+
 _CustomAnnotation = Annotated[_CustomDriver, Context("custom")]
+_CustomGenericAnnotation = Annotated[_CustomGenericDriver[_T], Context("custom")]
 
 
 class DriverAnnotationTestcase(BaseTestcaseConfig[Any]):
@@ -205,7 +213,29 @@ class DriverAnnotationTestcase(BaseTestcaseConfig[Any]):
         assert str(excinfo.value) == (
             f"`thing` is annotated with `{__name__}._CustomDriver`,"
             " which FastStream cannot inject.\n"
-            "Use the context annotation FastStream provides for it instead."
+            f"Use the corresponding context annotation instead: `{_CustomAnnotation}`"
+        )
+
+    @pytest.mark.asyncio()
+    async def test_bare_custom_generic_row_suggests_no_import(self, queue: str) -> None:
+        broker = self.get_broker(
+            apply_types=True,
+            underlying_driver_annotations={_CustomGenericDriver: _CustomGenericAnnotation},
+        )
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler(thing: _CustomGenericDriver[Any]) -> None: ...
+
+        with pytest.raises(SetupError) as excinfo:
+            async with self.patch_broker(broker):
+                pass
+
+        assert str(excinfo.value) == (
+            f"`thing` is annotated with `{__name__}._CustomGenericDriver`,"
+            " which FastStream cannot inject.\n"
+            f"Use the corresponding context annotation instead: `{_CustomGenericAnnotation}`"
         )
 
     @pytest.mark.asyncio()
