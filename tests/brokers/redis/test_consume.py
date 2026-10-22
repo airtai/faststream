@@ -2,6 +2,7 @@ import asyncio
 from typing import Any
 from unittest.mock import ANY, AsyncMock, MagicMock, call, patch
 
+import anyio
 import pytest
 from dirty_equals import IsPartialDict
 from pydantic import BaseModel
@@ -979,6 +980,30 @@ class TestConsumeStream(RedisTestcaseConfig):
             mock(await subscriber.get_one(timeout=1e-24))
             mock.assert_called_once_with(None)
 
+    @pytest.mark.parametrize("no_ack", (False, True))
+    async def test_get_one_respects_no_ack(
+        self,
+        queue: str,
+        no_ack: bool,
+    ) -> None:
+        broker = self.get_broker()
+        sub = broker.subscriber(
+            stream=StreamSub(queue, group=queue, consumer="reader", no_ack=no_ack),
+        )
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish("hello", stream=queue)
+
+            message = await sub.get_one(timeout=3)
+
+            assert message is not None
+            assert await message.decode() == "hello"
+
+            client = await br.connect()
+            pending = await client.xpending(queue, queue)  # type: ignore[no-untyped-call]
+            assert pending["pending"] == (0 if no_ack else 1)
+
     @pytest.mark.flaky(reruns=3, reruns_delay=1)
     async def test_concurrent_consume_stream(
         self,
@@ -1053,6 +1078,30 @@ class TestConsumeStream(RedisTestcaseConfig):
 
             calls = [call(msg) for msg in expected_messages]
             mock.assert_has_calls(calls=calls)
+
+    @pytest.mark.parametrize("no_ack", (False, True))
+    async def test_iterator_respects_no_ack(
+        self,
+        queue: str,
+        no_ack: bool,
+    ) -> None:
+        broker = self.get_broker()
+        sub = broker.subscriber(
+            stream=StreamSub(queue, group=queue, consumer="reader", no_ack=no_ack),
+        )
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish("hello", stream=queue)
+
+            with anyio.fail_after(3):
+                message = await anext(aiter(sub))
+
+            assert await message.decode() == "hello"
+
+            client = await br.connect()
+            pending = await client.xpending(queue, queue)  # type: ignore[no-untyped-call]
+            assert pending["pending"] == (0 if no_ack else 1)
 
     async def test_get_one_group_cursor_advances(
         self,
