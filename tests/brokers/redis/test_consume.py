@@ -2,6 +2,7 @@ import asyncio
 from typing import Any
 from unittest.mock import ANY, AsyncMock, MagicMock, call, patch
 
+import anyio
 import pytest
 from dirty_equals import IsPartialDict
 from pydantic import BaseModel
@@ -373,6 +374,28 @@ class TestConsumeList(RedisTestcaseConfig):
             mock(await subscriber.get_one(timeout=1e-24))
             mock.assert_called_once_with(None)
 
+    async def test_get_one_preserves_empty_message(
+        self,
+        queue: str,
+    ) -> None:
+        broker = self.get_broker()
+        subscriber = broker.subscriber(list=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            client = await br.connect()
+            await client.rpush(queue, b"", b"payload")
+
+            received: list[bytes] = []
+            for _ in range(2):
+                message = await subscriber.get_one(timeout=1)
+                assert message is not None
+                received.append(message.body)
+
+            assert received == [b"", b"payload"]
+            assert await client.llen(queue) == 0
+
     async def test_concurrent_consume_list(
         self,
         queue: str,
@@ -436,6 +459,29 @@ class TestConsumeList(RedisTestcaseConfig):
                 index_message += 1
                 if index_message >= len(expected_messages):
                     break
+
+    async def test_iterator_preserves_empty_message(
+        self,
+        queue: str,
+    ) -> None:
+        broker = self.get_broker()
+        subscriber = broker.subscriber(list=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            client = await br.connect()
+            await client.rpush(queue, b"", b"payload")
+
+            received: list[bytes] = []
+            with anyio.fail_after(3):
+                async for message in subscriber:
+                    received.append(message.body)
+                    if len(received) == 2:
+                        break
+
+            assert received == [b"", b"payload"]
+            assert await client.llen(queue) == 0
 
 
 @pytest.mark.connected()
