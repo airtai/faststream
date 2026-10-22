@@ -220,7 +220,9 @@ class DriverAnnotationTestcase(BaseTestcaseConfig[Any]):
     async def test_bare_custom_generic_row_suggests_no_import(self, queue: str) -> None:
         broker = self.get_broker(
             apply_types=True,
-            underlying_driver_annotations={_CustomGenericDriver: _CustomGenericAnnotation},
+            underlying_driver_annotations={
+                _CustomGenericDriver: _CustomGenericAnnotation
+            },
         )
 
         args, kwargs = self.get_subscriber_params(queue)
