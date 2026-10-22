@@ -71,15 +71,24 @@ class KafkaMessage(
     async def nack(self) -> None:
         """Reject the Kafka message."""
         if self.is_manual and not self.committed:
-            raw_message: Message = (
-                self.raw_message[0]
+            raw_messages: tuple[Message, ...] = (
+                self.raw_message
                 if isinstance(self.raw_message, tuple)
-                else self.raw_message
+                else (self.raw_message,)
             )
-            topic = raw_message.topic()
-            partition = raw_message.partition()
-            offset = raw_message.offset()
-            if topic is not None and partition is not None and offset is not None:
+            # A batch can span partitions: rewind each one to the first offset
+            # the batch holds there, or the others' offsets get committed later.
+            first_offsets: dict[tuple[str, int], int] = {}
+            for raw_message in raw_messages:
+                topic = raw_message.topic()
+                partition = raw_message.partition()
+                offset = raw_message.offset()
+                if topic is None or partition is None or offset is None:
+                    continue
+                first = first_offsets.get((topic, partition))
+                if first is None or offset < first:
+                    first_offsets[topic, partition] = offset
+            for (topic, partition), offset in first_offsets.items():
                 await self.consumer.seek(
                     topic=topic,
                     partition=partition,

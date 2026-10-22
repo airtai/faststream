@@ -77,17 +77,25 @@ class KafkaAckableMessage(KafkaMessage):
 
     async def nack(self) -> None:
         if not self.committed:
-            raw_message = (
-                self.raw_message[0]
+            raw_messages = (
+                self.raw_message
                 if isinstance(self.raw_message, tuple)
-                else self.raw_message
+                else (self.raw_message,)
             )
-            topic_partition = AIOKafkaTopicPartition(
-                raw_message.topic,
-                raw_message.partition,
-            )
-            self.consumer.seek(
-                partition=topic_partition,
-                offset=raw_message.offset,
-            )
+            # A batch can span partitions: rewind each one to the first offset
+            # the batch holds there, or the others' offsets get committed later.
+            first_offsets: dict[AIOKafkaTopicPartition, int] = {}
+            for raw_message in raw_messages:
+                topic_partition = AIOKafkaTopicPartition(
+                    raw_message.topic,
+                    raw_message.partition,
+                )
+                offset = first_offsets.get(topic_partition)
+                if offset is None or raw_message.offset < offset:
+                    first_offsets[topic_partition] = raw_message.offset
+            for topic_partition, offset in first_offsets.items():
+                self.consumer.seek(
+                    partition=topic_partition,
+                    offset=offset,
+                )
         await super().nack()
