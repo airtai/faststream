@@ -244,4 +244,5 @@ NON_CONNECTION_PARAMS = frozenset({
     "serializer",
     "provider",
     "context",
+    "underlying_driver_annotations",
 })
