@@ -1,9 +1,10 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.13'",
-    "python_full_version < '3.13'",
+    "python_full_version >= '3.11' and python_full_version < '3.13'",
+    "python_full_version < '3.11'",
 ]
 
 [[package]]
@@ -846,7 +847,7 @@ redis = [
 dev = [
     { name = "actionlint-py" },
     { name = "bandit" },
-    { name = "cairosvg" },
+    { name = "cairosvg", marker = "python_full_version >= '3.11'" },
     { name = "codespell" },
     { name = "covdefaults" },
     { name = "detect-secrets" },
@@ -855,27 +856,28 @@ dev = [
     { name = "fastapi" },
     { name = "faststream", extra = ["cli", "confluent", "kafka", "mqtt", "nats", "otel", "prometheus", "rabbit", "redis"] },
     { name = "freezegun" },
-    { name = "griffe" },
+    { name = "griffe", marker = "python_full_version >= '3.11'" },
     { name = "httpx" },
     { name = "import-linter" },
-    { name = "mdx-include" },
-    { name = "mike" },
-    { name = "mkdocs-git-revision-date-localized-plugin" },
-    { name = "mkdocs-glightbox" },
-    { name = "mkdocs-literate-nav" },
-    { name = "mkdocs-macros-plugin" },
-    { name = "mkdocs-material" },
-    { name = "mkdocs-minify-plugin" },
-    { name = "mkdocstrings", extra = ["python"] },
+    { name = "mdx-include", marker = "python_full_version >= '3.11'" },
+    { name = "mike", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-git-revision-date-localized-plugin", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-glightbox", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-literate-nav", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-macros-plugin", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-material", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-minify-plugin", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocstrings", extra = ["python"], marker = "python_full_version >= '3.11'" },
     { name = "msgspec" },
     { name = "mypy" },
     { name = "nkeys" },
     { name = "opentelemetry-sdk" },
-    { name = "pillow" },
+    { name = "pillow", marker = "python_full_version >= '3.11'" },
     { name = "pre-commit" },
     { name = "prometheus-client" },
     { name = "psutil" },
     { name = "pydantic-settings" },
+    { name = "pymdown-extensions", marker = "python_full_version >= '3.11'" },
     { name = "pyrefly" },
     { name = "pyright" },
     { name = "pytest" },
@@ -903,19 +905,20 @@ dev = [
     { name = "zizmor" },
 ]
 docs = [
-    { name = "cairosvg" },
-    { name = "griffe" },
-    { name = "httpx" },
-    { name = "mdx-include" },
-    { name = "mike" },
-    { name = "mkdocs-git-revision-date-localized-plugin" },
-    { name = "mkdocs-glightbox" },
-    { name = "mkdocs-literate-nav" },
-    { name = "mkdocs-macros-plugin" },
-    { name = "mkdocs-material" },
-    { name = "mkdocs-minify-plugin" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "pillow" },
+    { name = "cairosvg", marker = "python_full_version >= '3.11'" },
+    { name = "griffe", marker = "python_full_version >= '3.11'" },
+    { name = "httpx", marker = "python_full_version >= '3.11'" },
+    { name = "mdx-include", marker = "python_full_version >= '3.11'" },
+    { name = "mike", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-git-revision-date-localized-plugin", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-glightbox", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-literate-nav", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-macros-plugin", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-material", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocs-minify-plugin", marker = "python_full_version >= '3.11'" },
+    { name = "mkdocstrings", extra = ["python"], marker = "python_full_version >= '3.11'" },
+    { name = "pillow", marker = "python_full_version >= '3.11'" },
+    { name = "pymdown-extensions", marker = "python_full_version >= '3.11'" },
 ]
 lint = [
     { name = "actionlint-py" },
@@ -1001,7 +1004,7 @@ provides-extras = ["rabbit", "kafka", "confluent", "nats", "redis", "mqtt", "cli
 dev = [
     { name = "actionlint-py", specifier = "==1.7.12.24" },
     { name = "bandit", specifier = "==1.9.3" },
-    { name = "cairosvg" },
+    { name = "cairosvg", marker = "python_full_version >= '3.11'" },
     { name = "codespell", specifier = "==2.4.1" },
     { name = "covdefaults", specifier = ">=2.3.0" },
     { name = "detect-secrets", specifier = "==1.5.0" },
@@ -1010,27 +1013,29 @@ dev = [
     { name = "fastapi", specifier = "==0.140.0" },
     { name = "faststream", extras = ["rabbit", "kafka", "confluent", "nats", "redis", "mqtt", "otel", "cli", "prometheus"] },
     { name = "freezegun", specifier = ">=1.5.5" },
-    { name = "griffe", specifier = "==1.15.0" },
+    { name = "griffe", marker = "python_full_version >= '3.11'", specifier = "==1.15.0" },
     { name = "httpx", specifier = "==0.28.1" },
+    { name = "httpx", marker = "python_full_version >= '3.11'", specifier = "==0.28.1" },
     { name = "import-linter", specifier = "==2.15" },
-    { name = "mdx-include", specifier = "==1.4.2" },
-    { name = "mike", specifier = "==2.1.3" },
-    { name = "mkdocs-git-revision-date-localized-plugin", specifier = "==1.5.1" },
-    { name = "mkdocs-glightbox", specifier = "==0.5.2" },
-    { name = "mkdocs-literate-nav", specifier = "==0.6.2" },
-    { name = "mkdocs-macros-plugin", specifier = "==1.5.0" },
-    { name = "mkdocs-material", specifier = "==9.7.7" },
-    { name = "mkdocs-minify-plugin", specifier = "==0.8.0" },
-    { name = "mkdocstrings", extras = ["python"], specifier = "==1.0.2" },
+    { name = "mdx-include", marker = "python_full_version >= '3.11'", specifier = "==1.4.2" },
+    { name = "mike", marker = "python_full_version >= '3.11'", specifier = "==2.1.3" },
+    { name = "mkdocs-git-revision-date-localized-plugin", marker = "python_full_version >= '3.11'", specifier = "==1.5.1" },
+    { name = "mkdocs-glightbox", marker = "python_full_version >= '3.11'", specifier = "==0.5.2" },
+    { name = "mkdocs-literate-nav", marker = "python_full_version >= '3.11'", specifier = "==0.6.2" },
+    { name = "mkdocs-macros-plugin", marker = "python_full_version >= '3.11'", specifier = "==1.5.0" },
+    { name = "mkdocs-material", marker = "python_full_version >= '3.11'", specifier = "==9.7.7" },
+    { name = "mkdocs-minify-plugin", marker = "python_full_version >= '3.11'", specifier = "==0.8.0" },
+    { name = "mkdocstrings", extras = ["python"], marker = "python_full_version >= '3.11'", specifier = "==1.0.8" },
     { name = "msgspec" },
     { name = "mypy", specifier = "==1.19.1" },
     { name = "nkeys" },
     { name = "opentelemetry-sdk", specifier = ">=1.24.0,<2.0.0" },
-    { name = "pillow" },
+    { name = "pillow", marker = "python_full_version >= '3.11'" },
     { name = "pre-commit", specifier = "==4.5.1" },
     { name = "prometheus-client", specifier = ">=0.20.0,<0.30.0" },
     { name = "psutil", specifier = "==7.2.2" },
     { name = "pydantic-settings", specifier = ">=2.0.0,<3.0.0" },
+    { name = "pymdown-extensions", marker = "python_full_version >= '3.11'", specifier = "==12.3" },
     { name = "pyrefly", specifier = "==1.3.1" },
     { name = "pyright", specifier = "==1.1.407" },
     { name = "pytest", specifier = "==9.0.3" },
@@ -1058,19 +1063,20 @@ dev = [
     { name = "zizmor", specifier = "==1.22.0" },
 ]
 docs = [
-    { name = "cairosvg" },
-    { name = "griffe", specifier = "==1.15.0" },
-    { name = "httpx", specifier = "==0.28.1" },
-    { name = "mdx-include", specifier = "==1.4.2" },
-    { name = "mike", specifier = "==2.1.3" },
-    { name = "mkdocs-git-revision-date-localized-plugin", specifier = "==1.5.1" },
-    { name = "mkdocs-glightbox", specifier = "==0.5.2" },
-    { name = "mkdocs-literate-nav", specifier = "==0.6.2" },
-    { name = "mkdocs-macros-plugin", specifier = "==1.5.0" },
-    { name = "mkdocs-material", specifier = "==9.7.7" },
-    { name = "mkdocs-minify-plugin", specifier = "==0.8.0" },
-    { name = "mkdocstrings", extras = ["python"], specifier = "==1.0.2" },
-    { name = "pillow" },
+    { name = "cairosvg", marker = "python_full_version >= '3.11'" },
+    { name = "griffe", marker = "python_full_version >= '3.11'", specifier = "==1.15.0" },
+    { name = "httpx", marker = "python_full_version >= '3.11'", specifier = "==0.28.1" },
+    { name = "mdx-include", marker = "python_full_version >= '3.11'", specifier = "==1.4.2" },
+    { name = "mike", marker = "python_full_version >= '3.11'", specifier = "==2.1.3" },
+    { name = "mkdocs-git-revision-date-localized-plugin", marker = "python_full_version >= '3.11'", specifier = "==1.5.1" },
+    { name = "mkdocs-glightbox", marker = "python_full_version >= '3.11'", specifier = "==0.5.2" },
+    { name = "mkdocs-literate-nav", marker = "python_full_version >= '3.11'", specifier = "==0.6.2" },
+    { name = "mkdocs-macros-plugin", marker = "python_full_version >= '3.11'", specifier = "==1.5.0" },
+    { name = "mkdocs-material", marker = "python_full_version >= '3.11'", specifier = "==9.7.7" },
+    { name = "mkdocs-minify-plugin", marker = "python_full_version >= '3.11'", specifier = "==0.8.0" },
+    { name = "mkdocstrings", extras = ["python"], marker = "python_full_version >= '3.11'", specifier = "==1.0.8" },
+    { name = "pillow", marker = "python_full_version >= '3.11'" },
+    { name = "pymdown-extensions", marker = "python_full_version >= '3.11'", specifier = "==12.3" },
 ]
 lint = [
     { name = "actionlint-py", specifier = "==1.7.12.24" },
@@ -1867,7 +1873,7 @@ wheels = [
 
 [[package]]
 name = "mkdocstrings"
-version = "1.0.2"
+version = "1.0.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2" },
@@ -1877,9 +1883,9 @@ dependencies = [
     { name = "mkdocs-autorefs" },
     { name = "pymdown-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/63/4d/1ca8a9432579184599714aaeb36591414cc3d3bfd9d494f6db540c995ae4/mkdocstrings-1.0.2.tar.gz", hash = "sha256:48edd0ccbcb9e30a3121684e165261a9d6af4d63385fc4f39a54a49ac3b32ea8", size = 101048, upload-time = "2026-01-24T15:57:25.735Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/cc/e3ed8b16851f5d664dffcf8f55fc60d0d3f736a3edca21d1508105d1255a/mkdocstrings-1.0.8.tar.gz", hash = "sha256:b50fc326230906425c82ee9ec59b80e5db00892b2b593d4d0b841a0d4acf537b", size = 107444, upload-time = "2026-10-19T15:43:02.157Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/32/407a9a5fdd7d8ecb4af8d830b9bcdf47ea68f916869b3f44bac31f081250/mkdocstrings-1.0.2-py3-none-any.whl", hash = "sha256:41897815a8026c3634fe5d51472c3a569f92ded0ad8c7a640550873eea3b6817", size = 35443, upload-time = "2026-01-24T15:57:23.933Z" },
+    { url = "https://files.pythonhosted.org/packages/19/5e/4df7a2290e97c60a3ba410084966e5ab84aa89d15c8c98c195acbaefa8f4/mkdocstrings-1.0.8-py3-none-any.whl", hash = "sha256:4b03ed2b863009f1153f0d04aacb22a85b92afc28a0636d85717c92eecca638c", size = 42209, upload-time = "2026-10-19T15:43:00.65Z" },
 ]
 
 [package.optional-dependencies]
@@ -1895,7 +1901,6 @@ dependencies = [
     { name = "griffelib" },
     { name = "mkdocs-autorefs" },
     { name = "mkdocstrings" },
-    { name = "typing-extensions", version = "4.16.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/29/33/c225eaf898634bdda489a6766fc35d1683c640bffe0e0acd10646b13536d/mkdocstrings_python-2.0.3.tar.gz", hash = "sha256:c518632751cc869439b31c9d3177678ad2bfa5c21b79b863956ad68fc92c13b8", size = 199083, upload-time = "2026-02-20T10:38:36.368Z" }
 wheels = [
@@ -2748,15 +2753,15 @@ wheels = [
 
 [[package]]
 name = "pymdown-extensions"
-version = "11.0.1"
+version = "12.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markdown" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/21/a9/5f0c535ba3b08fe09270c16808e053a968868242ecbd5676d4e3a488bf28/pymdown_extensions-11.0.1.tar.gz", hash = "sha256:dd2905ae6fc5b75582fafb139a1266ffc754705efa902aa50067fa7ff4f94ec0", size = 857113, upload-time = "2026-07-02T17:59:22.955Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/fe/ac50ee24a80a1b344e643f6fb626063cc7041b978cd1dd9a7f9963ae1cd1/pymdown_extensions-12.3.tar.gz", hash = "sha256:a7f2a4e0bc60c6e6babfa7922cfb3b01cd640eb00fb208f3c582e12bae00ea67", size = 870532, upload-time = "2026-10-14T22:40:43.252Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/54/da572c98c0b77626a91b5d3b89f0231d8bff5125c225420908632f8b342d/pymdown_extensions-11.0.1-py3-none-any.whl", hash = "sha256:db3943a62bab7e03af1364f0c4083e64b91fb097675a4b6cceccfbe9a77e5eb2", size = 269455, upload-time = "2026-07-02T17:59:21.271Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/d0/758afe732c2da502c051b4d03ff88daa3c0fc1a1e671e6c5a6318177bab4/pymdown_extensions-12.3-py3-none-any.whl", hash = "sha256:345493a8e3497e24382902903a1c43a28e34a52f2b7571a1c9641429b820ca74", size = 277597, upload-time = "2026-10-14T22:40:41.543Z" },
 ]
 
 [[package]]
@@ -3455,7 +3460,8 @@ name = "typing-extensions"
 version = "4.16.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.13'",
+    "python_full_version >= '3.11' and python_full_version < '3.13'",
+    "python_full_version < '3.11'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f6/cc/6253133b5bb138fc3306cebfbda2c520f545d36b5be2c7255cc528bb45d6/typing_extensions-4.16.0.tar.gz", hash = "sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5", size = 113555, upload-time = "2026-07-02T08:40:05.92Z" }
 wheels = [
