@@ -94,7 +94,7 @@ optionals = ["faststream[rabbit,kafka,confluent,nats,redis,mqtt,otel,cli,prometh
 docs = [
     "mkdocs-material==9.7.7",
     "mdx-include==1.4.2",
-    "mkdocstrings[python]==1.0.2",
+    "mkdocstrings[python]==1.0.6",
     "griffe==1.15.0",
     "mkdocs-literate-nav==0.6.2",
     "mkdocs-git-revision-date-localized-plugin==1.5.1",
@@ -167,6 +167,7 @@ dev = [
     "detect-secrets==1.5.0",
     "pytest-codspeed>=4.3.0",
     "setuptools>=80.9.0",
+    "pymdown-extensions==10.20.0",
 ]
 
 [project.urls]
