@@ -6,11 +6,19 @@ from faststream.confluent.testing import MockConfluentMessage
 
 pytestmark = pytest.mark.confluent()
 
+EXPECTED_HEADERS = {
+    "utf8": "привет".encode(),
+    "binary": b"\xff\x00",
+    "null": None,
+    "empty": b"",
+    "duplicate": b"last",
+    "string": "строка".encode(),
+}
 
-@pytest.mark.parametrize("batch", (False, True))
-def test_raw_headers_preserve_wire_values(*, batch: bool) -> None:
-    """Fixes https://github.com/ag2ai/faststream/issues/2214."""
-    record = MockConfluentMessage(
+
+@pytest.fixture()
+def record() -> MockConfluentMessage:
+    return MockConfluentMessage(
         raw_msg=b"body",
         topic="test-topic",
         key=b"",
@@ -28,22 +36,32 @@ def test_raw_headers_preserve_wire_values(*, batch: bool) -> None:
         timestamp_type=1,
         timestamp_ms=0,
     )
+
+
+def test_raw_headers_preserve_wire_values(record: MockConfluentMessage) -> None:
+    """Fixes https://github.com/ag2ai/faststream/issues/2214."""
     message = KafkaMessage(
-        raw_message=(record, Message()) if batch else record,
+        raw_message=record,
         body=b"body",
         consumer=FAKE_CONSUMER,
     )
-    expected = {
-        "utf8": "привет".encode(),
-        "binary": b"\xff\x00",
-        "null": None,
-        "empty": b"",
-        "duplicate": b"last",
-        "string": "строка".encode(),
-    }
     assert (message.raw_headers, message.batch_raw_headers) == (
-        expected,
-        [expected, {}] if batch else [],
+        EXPECTED_HEADERS,
+        [],
+    )
+
+
+def test_batch_raw_headers_preserve_wire_values(record: MockConfluentMessage) -> None:
+    """Fixes https://github.com/ag2ai/faststream/issues/2214."""
+    message = KafkaMessage(
+        raw_message=(record, Message()),
+        body=b"body",
+        consumer=FAKE_CONSUMER,
+    )
+
+    assert (message.raw_headers, message.batch_raw_headers) == (
+        EXPECTED_HEADERS,
+        [EXPECTED_HEADERS, {}],
     )
 
 

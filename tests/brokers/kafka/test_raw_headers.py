@@ -8,10 +8,17 @@ from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
 
 pytestmark = pytest.mark.kafka()
 
+EXPECTED_HEADERS = {
+    "utf8": "привет".encode(),
+    "binary": b"\xff\x00",
+    "null": None,
+    "empty": b"",
+    "duplicate": b"last",
+}
 
-@pytest.mark.parametrize("batch", (False, True))
-def test_raw_headers_preserve_wire_values(*, batch: bool) -> None:
-    """Fixes https://github.com/ag2ai/faststream/issues/2214."""
+
+@pytest.fixture()
+def record() -> ConsumerRecord[bytes, bytes]:
     # aiokafka's annotations omit Kafka's nullable header values.
     headers: Any = [
         ("utf8", "привет".encode()),
@@ -21,7 +28,7 @@ def test_raw_headers_preserve_wire_values(*, batch: bool) -> None:
         ("duplicate", b"first"),
         ("duplicate", b"last"),
     ]
-    record: ConsumerRecord[bytes, bytes] = ConsumerRecord(
+    return ConsumerRecord(
         topic="test-topic",
         partition=0,
         offset=0,
@@ -34,22 +41,34 @@ def test_raw_headers_preserve_wire_values(*, batch: bool) -> None:
         serialized_value_size=4,
         headers=headers,
     )
-    second = replace(record, headers=[])
+
+
+def test_raw_headers_preserve_wire_values(record: ConsumerRecord[bytes, bytes]) -> None:
+    """Fixes https://github.com/ag2ai/faststream/issues/2214."""
     message = KafkaMessage(
-        raw_message=(record, second) if batch else record,
+        raw_message=record,
         body=b"body",
         consumer=FAKE_CONSUMER,
     )
-    expected = {
-        "utf8": "привет".encode(),
-        "binary": b"\xff\x00",
-        "null": None,
-        "empty": b"",
-        "duplicate": b"last",
-    }
     assert (message.raw_headers, message.batch_raw_headers) == (
-        expected,
-        [expected, {}] if batch else [],
+        EXPECTED_HEADERS,
+        [],
+    )
+
+
+def test_batch_raw_headers_preserve_wire_values(
+    record: ConsumerRecord[bytes, bytes],
+) -> None:
+    """Fixes https://github.com/ag2ai/faststream/issues/2214."""
+    message = KafkaMessage(
+        raw_message=(record, replace(record, headers=[])),
+        body=b"body",
+        consumer=FAKE_CONSUMER,
+    )
+
+    assert (message.raw_headers, message.batch_raw_headers) == (
+        EXPECTED_HEADERS,
+        [EXPECTED_HEADERS, {}],
     )
 
 

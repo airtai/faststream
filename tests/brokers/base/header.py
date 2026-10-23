@@ -1,5 +1,6 @@
 from itertools import starmap
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -41,30 +42,30 @@ def _snapshot(
 
 @pytest.mark.asyncio()
 class BinaryHeadersTestcase(BaseTestcaseConfig[Any]):
-    async def test_publish_binary_headers(self, queue: str) -> None:
+    async def test_publish_binary_headers(self, queue: str, mock: MagicMock) -> None:
         """Fixes https://github.com/ag2ai/faststream/issues/2214."""
         broker = self.get_broker(apply_types=True)
-        received: list[HeaderSnapshot] = []
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
         async def handle(message: Any = Context("message")) -> None:
-            received.append(_snapshot(message.headers, message.raw_headers))
+            mock(_snapshot(message.headers, message.raw_headers))
 
         async with self.patch_broker(broker) as br:
             await br.publish("body", queue, headers=INPUT_HEADERS)
 
-        assert received == [(DECODED_HEADERS, RAW_HEADERS)]
+        mock.assert_called_once_with((DECODED_HEADERS, RAW_HEADERS))
 
-    async def test_publish_batch_binary_headers(self, queue: str) -> None:
+    async def test_publish_batch_binary_headers(
+        self, queue: str, mock: MagicMock
+    ) -> None:
         """Fixes https://github.com/ag2ai/faststream/issues/2214."""
         broker = self.get_broker(apply_types=True)
-        received: list[tuple[HeaderSnapshot, list[HeaderSnapshot]]] = []
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 
         @broker.subscriber(*args, **kwargs)
         async def handle(message: Any = Context("message")) -> None:
-            received.append((
+            mock((
                 _snapshot(message.headers, message.raw_headers),
                 list(
                     starmap(
@@ -80,7 +81,7 @@ class BinaryHeadersTestcase(BaseTestcaseConfig[Any]):
             await br.publish_batch("one", "two", topic=queue, headers=INPUT_HEADERS)
 
         expected = (DECODED_HEADERS, RAW_HEADERS)
-        assert received == [(expected, [expected, expected])]
+        mock.assert_called_once_with((expected, [expected, expected]))
 
     async def test_request_forwards_binary_response_headers(self, queue: str) -> None:
         """Fixes https://github.com/ag2ai/faststream/issues/2214."""
