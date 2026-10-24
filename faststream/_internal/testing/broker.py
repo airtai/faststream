@@ -96,7 +96,7 @@ class TestBroker(Generic[Broker, EnterType]):
                 connect_only = False
 
         self.connect_only = connect_only
-        self._fake_subscribers: list[SubscriberUsecase[Any]] = []
+        self._fake_subscribers: list[SubscriberUsecase[Any, Any]] = []
 
     async def __aenter__(self) -> EnterType:
         self._ctx = self._create_ctx()
@@ -252,7 +252,7 @@ class TestBroker(Generic[Broker, EnterType]):
         self,
         broker: Broker,
         publisher: Any,
-    ) -> tuple["SubscriberUsecase[Any]", bool]:
+    ) -> tuple["SubscriberUsecase[Any, Any]", bool]:
         raise NotImplementedError
 
     @abstractmethod
