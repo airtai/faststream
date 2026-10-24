@@ -1,9 +1,9 @@
 import random
 import time
 
-import httpx
 import psutil
 import pytest
+from zapros import Client
 
 from tests.cli import interfaces
 from tests.marks import skip_windows
@@ -47,6 +47,7 @@ def test_run(
     extra_param = random.randrange(1, 100)
 
     with (
+        Client(base_url=f"http://127.0.0.1:{port}/") as client,
         generate_template(app_code) as app_path,
         faststream_cli(
             "faststream",
@@ -59,19 +60,19 @@ def test_run(
         ),
     ):
         # Test liveness
-        response = httpx.get(f"http://127.0.0.1:{port}/liveness")
+        response = client.get("liveness")
         assert response.text == "hello world"
-        assert response.status_code == 200
+        assert response.status == 200
 
         # Test documentation
-        response = httpx.get(f"http://127.0.0.1:{port}/docs")
+        response = client.get("docs")
         assert response.text.strip().startswith("<!DOCTYPE html>")
         assert len(response.text) > 1200
 
         # Test extra context
-        response = httpx.get(f"http://127.0.0.1:{port}/context")
-        assert response.json() == {"test": extra_param, "port": port}
-        assert response.status_code == 200
+        response = client.get("context")
+        assert response.json == {"test": extra_param, "port": port}
+        assert response.status == 200
 
 
 @pytest.mark.slow()
@@ -93,6 +94,7 @@ def test_single_worker(
     """
     with (
         generate_template(app_code) as app_path,
+        Client(base_url="http://127.0.0.1:8000/") as client,
         faststream_cli(
             "faststream",
             "run",
@@ -101,9 +103,9 @@ def test_single_worker(
             "1",
         ),
     ):
-        response = httpx.get("http://127.0.0.1:8000/liveness")
+        response = client.get("liveness")
         assert response.text == "hello world"
-        assert response.status_code == 200
+        assert response.status == 200
 
 
 @pytest.mark.slow()
@@ -165,6 +167,7 @@ def test_factory(
 
     with (
         generate_template(app_code) as app_path,
+        Client(base_url="http://127.0.0.1:8000/") as client,
         faststream_cli(
             "faststream",
             "run",
@@ -172,6 +175,6 @@ def test_factory(
             "--factory",
         ),
     ):
-        response = httpx.get("http://127.0.0.1:8000/liveness")
+        response = client.get("liveness")
         assert response.text == "hello world"
-        assert response.status_code == 200
+        assert response.status == 200

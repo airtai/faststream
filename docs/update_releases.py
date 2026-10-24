@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from typing import List, Sequence, Tuple
 
-import httpx
+from zapros import Client
 
 
 def find_metablock(lines: List[str]) -> Tuple[List[str], List[str]]:
@@ -28,12 +28,12 @@ def find_header(lines: List[str]) -> Tuple[str, List[str]]:
 
 def get_github_releases() -> Sequence[Tuple[str, str]]:
     # Get the latest version from GitHub releases
-    response = httpx.get("https://api.github.com/repos/ag2ai/FastStream/releases")
-    row_data = response.json()
-    try:
-        return ((x["tag_name"], x["body"]) for x in reversed(row_data))
-    except Exception as e:
-        raise Exception(f"Error getting GitHub releases: {e}, {row_data}") from e
+    with Client(base_url="https://api.github.com/") as client:
+        response = client.get("repos/ag2ai/FastStream/releases")
+        try:
+            return ((x["tag_name"], x["body"]) for x in reversed(response.json))
+        except Exception as e:
+            raise Exception(f"Error getting GitHub releases: {e}, {response.json}") from e
 
 
 def normalize_img_tag(match: re.Match) -> str:

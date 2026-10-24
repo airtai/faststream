@@ -105,7 +105,7 @@ docs = [
     "mkdocs-glightbox==0.5.2",                          # img zoom
     "pillow",                                           # required for mkdocs-glightbox
     "cairosvg",                                         # required for mkdocs-glightbox
-    "httpx==0.28.1",                                    # using in CI
+    "zapros==0.23.0",                                   # using in CI
 ]
 
 lint = [
@@ -132,7 +132,6 @@ lint = [
 
 test-core = [
     "dirty-equals==0.11",
-    "httpx==0.28.1",
     "pytest==9.0.3",
     "pytest-asyncio==1.3.0",
     "pytest-rerunfailures>=15.1",
@@ -142,6 +141,7 @@ test-core = [
     "covdefaults>=2.3.0",
     "freezegun>=1.5.5",
     "syrupy==6.0.0",
+    "zapros==0.23.0",
 ]
 
 testing = [
