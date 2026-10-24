@@ -2,9 +2,9 @@ import json
 from collections.abc import Callable
 from typing import Any, TextIO
 
-import httpx
 import pytest
 import yaml
+from zapros import Client
 
 from tests.cli import interfaces
 from tests.marks import require_aiokafka, skip_macos, skip_windows
@@ -209,6 +209,7 @@ def test_serve_asyncapi_docs_from_app(
     faststream_cli: interfaces.FastStreamCLIFactory,
 ) -> None:
     with (
+        Client() as client,
         generate_template(app_code) as app_path,
         faststream_cli(
             "faststream", "docs", "serve", "--host", "0.0.0.0", f"{app_path.stem}:app"
@@ -217,12 +218,12 @@ def test_serve_asyncapi_docs_from_app(
         cli.wait_for_stderr("Please, do not use it in production.")
 
         try:
-            response = httpx.get("http://0.0.0.0:8000")
+            response = client.get("http://0.0.0.0:8000")
         except Exception as e:
             raise RuntimeError(cli.stderr) from e
 
         assert "<title>FastStream AsyncAPI</title>" in response.text
-        assert response.status_code == 200
+        assert response.status == 200
 
 
 @skip_windows
@@ -265,6 +266,7 @@ def test_serve_asyncapi_docs_from_file(
     faststream_cli: interfaces.FastStreamCLIFactory,
 ) -> None:
     with (
+        Client() as client,
         generate_template(doc, filename=doc_filename) as doc_path,
         faststream_cli(
             "faststream", "docs", "serve", "--host", "0.0.0.0", str(doc_path)
@@ -273,12 +275,12 @@ def test_serve_asyncapi_docs_from_file(
         cli.wait_for_stderr("Please, do not use it in production.")
 
         try:
-            response = httpx.get("http://0.0.0.0:8000")
+            response = client.get("http://0.0.0.0:8000")
         except Exception as e:
             raise RuntimeError(cli.stderr) from e
 
         assert "<title>FastStream AsyncAPI</title>" in response.text
-        assert response.status_code == 200
+        assert response.status == 200
 
 
 @skip_windows
