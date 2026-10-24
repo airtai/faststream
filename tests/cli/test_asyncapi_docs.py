@@ -9,7 +9,7 @@ from zapros import Client
 from tests.cli import interfaces
 from tests.marks import require_aiokafka, skip_macos, skip_windows
 
-json_asyncapi_doc = """# using in CI
+json_asyncapi_doc = """
 {
   "asyncapi": "2.6.0",
   "defaultContentType": "application/json",
