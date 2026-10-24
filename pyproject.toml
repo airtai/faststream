@@ -142,6 +142,7 @@ test-core = [
     "freezegun>=1.5.5",
     "syrupy==6.0.0",
     "zapros==0.23.0",
+    "httpx2==2.14.0",
 ]
 
 testing = [
